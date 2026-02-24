@@ -1,0 +1,418 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum MembershipRole {
+  student
+  teacher
+  volunteer
+}
+
+enum SessionType {
+  structured
+  drop_in
+}
+
+enum SessionStatus {
+  scheduled
+  active
+  ended
+  cancelled
+}
+
+enum SignoutType {
+  self
+  manual
+  auto
+  session_end
+}
+
+enum HelpUrgency {
+  blocked
+  question
+  check_work
+}
+
+enum HelpStatus {
+  pending
+  claimed
+  resolved
+  cancelled
+}
+
+// ============================================================================
+// CORE ENTITIES
+// ============================================================================
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  timezone  String   @default("America/Los_Angeles")
+  settings  Json?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  classrooms   Classroom[]
+  people       Person[]
+  domainEvents DomainEvent[]
+
+  @@map("schools")
+}
+
+model Classroom {
+  id          String   @id @default(cuid())
+  schoolId    String   @map("school_id")
+  name        String
+  slug        String
+  description String?
+  displayCode String   @unique @map("display_code") @db.VarChar(6)
+  settings    Json?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  school         School                @relation(fields: [schoolId], references: [id])
+  memberships    ClassroomMembership[]
+  classSessions  ClassSession[]
+  pinSessions    PinSession[]
+  ninjaDomains   NinjaDomain[]
+  helpCategories HelpCategory[]
+  helpRequests   HelpRequest[]
+  domainEvents   DomainEvent[]
+
+  @@unique([schoolId, slug])
+  @@map("classrooms")
+}
+
+model Person {
+  id          String    @id @default(cuid())
+  schoolId    String    @map("school_id")
+  email       String?   @unique
+  legalName   String    @map("legal_name")
+  displayName String    @map("display_name")
+  pronouns    String?
+  photoUrl    String?   @map("photo_url")
+  gradeLevel  String?   @map("grade_level")
+  pinHash     String?   @map("pin_hash") // bcrypt hash of PIN
+  googleId    String?   @unique @map("google_id")
+  askMeAbout  String[]  @map("ask_me_about")
+  isActive    Boolean   @default(true) @map("is_active")
+  lastLoginAt DateTime? @map("last_login_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  school              School                @relation(fields: [schoolId], references: [id])
+  memberships         ClassroomMembership[]
+  signIns             SignIn[]              @relation("PersonSignIns")
+  signedInBySignIns   SignIn[]              @relation("SignedInBy")
+  signedOutBySignIns  SignIn[]              @relation("SignedOutBy")
+  user                User?
+  pinSessions         PinSession[]
+  ninjaAssignments    NinjaAssignment[]     @relation("PersonNinjaAssignments")
+  assignedNinjaStatus NinjaAssignment[]     @relation("AssignedByNinja")
+  helpRequests        HelpRequest[]         @relation("HelpRequester")
+  claimedHelpRequests HelpRequest[]         @relation("HelpClaimer")
+  domainEvents        DomainEvent[]
+
+  @@map("people")
+}
+
+model ClassroomMembership {
+  id          String         @id @default(cuid())
+  classroomId String         @map("classroom_id")
+  personId    String         @map("person_id")
+  role        MembershipRole
+  isActive    Boolean        @default(true) @map("is_active")
+  joinedAt    DateTime       @default(now()) @map("joined_at")
+  leftAt      DateTime?      @map("left_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+  person    Person    @relation(fields: [personId], references: [id])
+
+  @@unique([classroomId, personId])
+  @@index([personId, isActive])
+  @@map("classroom_memberships")
+}
+
+// ============================================================================
+// PRESENCE & SESSIONS
+// ============================================================================
+
+model ClassSession {
+  id            String        @id @default(cuid())
+  classroomId   String        @map("classroom_id")
+  name          String?
+  sessionType   SessionType   @map("session_type")
+  scheduledDate DateTime      @map("scheduled_date") @db.Date
+  startTime     DateTime      @map("start_time") @db.Time
+  endTime       DateTime      @map("end_time") @db.Time
+  actualStartAt DateTime?     @map("actual_start_at")
+  actualEndAt   DateTime?     @map("actual_end_at")
+  status        SessionStatus @default(scheduled)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  classroom    Classroom     @relation(fields: [classroomId], references: [id])
+  signIns      SignIn[]
+  helpRequests HelpRequest[]
+  domainEvents DomainEvent[]
+
+  @@index([classroomId, status])
+  @@map("sessions")
+}
+
+model SignIn {
+  id            String       @id @default(cuid())
+  sessionId     String       @map("session_id")
+  personId      String       @map("person_id")
+  signedInAt    DateTime     @default(now()) @map("signed_in_at")
+  signedOutAt   DateTime?    @map("signed_out_at")
+  signedInById  String       @map("signed_in_by_id")
+  signedOutById String?      @map("signed_out_by_id")
+  signoutType   SignoutType? @map("signout_type")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  session     ClassSession @relation(fields: [sessionId], references: [id])
+  person      Person       @relation("PersonSignIns", fields: [personId], references: [id])
+  signedInBy  Person       @relation("SignedInBy", fields: [signedInById], references: [id])
+  signedOutBy Person?      @relation("SignedOutBy", fields: [signedOutById], references: [id])
+
+  @@unique([sessionId, personId])
+  @@index([sessionId, signedOutAt])
+  @@map("sign_ins")
+}
+
+// PIN-based authentication sessions (for shared tablets)
+model PinSession {
+  id             String   @id @default(cuid())
+  token          String   @unique // Session token stored in cookie
+  personId       String   @map("person_id")
+  classroomId    String   @map("classroom_id")
+  expiresAt      DateTime @map("expires_at")
+  lastActivityAt DateTime @default(now()) @map("last_activity_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  person    Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@map("pin_sessions")
+}
+
+// ============================================================================
+// NEXTAUTH.JS MODELS
+// ============================================================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  personId      String?   @unique @map("person_id")
+
+  accounts Account[]
+  sessions Session[]
+  person   Person?   @relation(fields: [personId], references: [id])
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// NINJA SYSTEM
+// ============================================================================
+
+model NinjaDomain {
+  id           String   @id @default(cuid())
+  classroomId  String   @map("classroom_id")
+  name         String
+  description  String?
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  classroom      Classroom         @relation(fields: [classroomId], references: [id])
+  assignments    NinjaAssignment[]
+  helpCategories HelpCategory[]
+
+  @@unique([classroomId, name])
+  @@map("ninja_domains")
+}
+
+model NinjaAssignment {
+  id            String    @id @default(cuid())
+  personId      String    @map("person_id")
+  ninjaDomainId String    @map("ninja_domain_id")
+  assignedById  String    @map("assigned_by_id")
+  isActive      Boolean   @default(true) @map("is_active")
+  assignedAt    DateTime  @default(now()) @map("assigned_at")
+  revokedAt     DateTime? @map("revoked_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  person      Person      @relation("PersonNinjaAssignments", fields: [personId], references: [id])
+  ninjaDomain NinjaDomain @relation(fields: [ninjaDomainId], references: [id])
+  assignedBy  Person      @relation("AssignedByNinja", fields: [assignedById], references: [id])
+
+  @@unique([personId, ninjaDomainId])
+  @@map("ninja_assignments")
+}
+
+// ============================================================================
+// HELP SYSTEM
+// ============================================================================
+
+model HelpCategory {
+  id            String   @id @default(cuid())
+  classroomId   String   @map("classroom_id")
+  name          String
+  description   String?
+  ninjaDomainId String?  @map("ninja_domain_id")
+  displayOrder  Int      @default(0) @map("display_order")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  classroom    Classroom     @relation(fields: [classroomId], references: [id])
+  ninjaDomain  NinjaDomain?  @relation(fields: [ninjaDomainId], references: [id])
+  helpRequests HelpRequest[]
+
+  @@unique([classroomId, name])
+  @@map("help_categories")
+}
+
+model HelpRequest {
+  id                 String      @id @default(cuid())
+  classroomId        String      @map("classroom_id")
+  sessionId          String      @map("session_id")
+  requesterId        String      @map("requester_id")
+  categoryId         String?     @map("category_id")
+  description        String
+  whatITried         String      @map("what_i_tried")
+  urgency            HelpUrgency
+  status             HelpStatus  @default(pending)
+  claimedById        String?     @map("claimed_by_id")
+  claimedAt          DateTime?   @map("claimed_at")
+  resolvedAt         DateTime?   @map("resolved_at")
+  cancelledAt        DateTime?   @map("cancelled_at")
+  resolutionNotes    String?     @map("resolution_notes")
+  cancellationReason String?     @map("cancellation_reason")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  classroom Classroom     @relation(fields: [classroomId], references: [id])
+  session   ClassSession  @relation(fields: [sessionId], references: [id])
+  requester Person        @relation("HelpRequester", fields: [requesterId], references: [id])
+  category  HelpCategory? @relation(fields: [categoryId], references: [id])
+  claimedBy Person?       @relation("HelpClaimer", fields: [claimedById], references: [id])
+
+  @@index([classroomId, status, createdAt])
+  @@map("help_requests")
+}
+
+// ============================================================================
+// REALTIME NOTIFICATIONS
+// ============================================================================
+
+/// Minimal realtime notification table for PII-safe broadcasts.
+/// Contains only IDs - no PII is transmitted over realtime channels.
+/// Clients subscribe to this table and then hydrate data from cache/API.
+model RealtimeNotification {
+  id         String   @id @default(cuid())
+  channel    String // Channel name (e.g., "presence:session:abc123")
+  eventType  String   @map("event_type") // INSERT, UPDATE, DELETE
+  entityType String   @map("entity_type") // session, sign_in, help_request
+  entityId   String   @map("entity_id") // Primary key of changed entity
+  scopeId    String   @map("scope_id") // Session or classroom ID for filtering
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Index for client subscriptions (filter by channel)
+  // Index for cleanup job (delete old notifications)
+  @@index([channel])
+  @@index([createdAt])
+  @@map("realtime_notifications")
+}
+
+// ============================================================================
+// EVENT SOURCING
+// ============================================================================
+
+model DomainEvent {
+  id          String   @id @default(cuid())
+  schoolId    String   @map("school_id")
+  classroomId String?  @map("classroom_id")
+  sessionId   String?  @map("session_id")
+  eventType   String   @map("event_type")
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id")
+  actorId     String?  @map("actor_id")
+  payload     Json
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations (non-enforced - events are append-only and may outlive related entities)
+  school    School        @relation(fields: [schoolId], references: [id])
+  classroom Classroom?    @relation(fields: [classroomId], references: [id])
+  session   ClassSession? @relation(fields: [sessionId], references: [id])
+  actor     Person?       @relation(fields: [actorId], references: [id])
+
+  @@index([schoolId, createdAt])
+  @@index([classroomId, createdAt])
+  @@index([entityType, entityId])
+  @@index([eventType])
+  @@map("domain_events")
+}

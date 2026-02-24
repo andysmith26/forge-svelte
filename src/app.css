@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Forge brand colors */
+  --color-forge-blue: #1e40af;
+  --color-forge-blue-dark: #1e3a8a;
+  --color-forge-blue-light: #dbeafe;
+
+  /* Status colors */
+  --color-status-active: #16a34a;
+  --color-status-active-light: #dcfce7;
+  --color-status-ended: #6b7280;
+  --color-status-ended-light: #f3f4f6;
+  --color-status-scheduled: #2563eb;
+  --color-status-scheduled-light: #dbeafe;
+
+  /* Help urgency colors */
+  --color-urgency-blocked: #dc2626;
+  --color-urgency-blocked-light: #fef2f2;
+  --color-urgency-question: #2563eb;
+  --color-urgency-question-light: #dbeafe;
+  --color-urgency-check: #16a34a;
+  --color-urgency-check-light: #dcfce7;
+}
