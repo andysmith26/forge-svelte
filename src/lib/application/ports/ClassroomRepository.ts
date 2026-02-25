@@ -1,16 +1,6 @@
-/**
- * Stub — will be fully defined when porting the application layer (Phase 3).
- */
-export interface ClassroomRepository {
-  getById(id: string): Promise<ClassroomRecord | null>;
-  getByDisplayCode(displayCode: string): Promise<ClassroomRecord | null>;
-  listMembershipsForPerson(personId: string): Promise<ClassroomMembershipWithClassroom[]>;
-  listMembers(classroomId: string): Promise<MemberWithPerson[]>;
-  getMembership(classroomId: string, personId: string): Promise<MembershipRecord | null>;
-  updateSettings(classroomId: string, settings: unknown): Promise<void>;
-}
+import type { Role } from '$lib/domain/types/roles';
 
-export interface ClassroomRecord {
+export type ClassroomRecord = {
   id: string;
   schoolId: string;
   name: string;
@@ -19,28 +9,35 @@ export interface ClassroomRecord {
   displayCode: string;
   settings: unknown;
   isActive: boolean;
-}
+};
 
-export interface MembershipRecord {
+export type ClassroomMembership = {
   id: string;
   classroomId: string;
   personId: string;
-  role: 'student' | 'teacher' | 'volunteer';
+  role: Role;
   isActive: boolean;
   joinedAt: Date;
   leftAt: Date | null;
-}
+};
 
-export interface ClassroomMembershipWithClassroom extends MembershipRecord {
+export type ClassroomMembershipWithClassroom = ClassroomMembership & {
   classroom: ClassroomRecord;
-}
+};
 
-export interface MemberWithPerson extends MembershipRecord {
-  person: {
-    id: string;
-    legalName: string;
-    displayName: string;
-    email: string | null;
-    gradeLevel: string | null;
-  };
+export type ClassroomMemberProfile = {
+  id: string;
+  displayName: string;
+  pronouns: string | null;
+  gradeLevel: string | null;
+  role: Role;
+};
+
+export interface ClassroomRepository {
+  getById(id: string): Promise<ClassroomRecord | null>;
+  getByDisplayCode(code: string): Promise<ClassroomRecord | null>;
+  listMembershipsForPerson(personId: string): Promise<ClassroomMembershipWithClassroom[]>;
+  listMembers(classroomId: string): Promise<ClassroomMemberProfile[]>;
+  getMembership(personId: string, classroomId: string): Promise<ClassroomMembership | null>;
+  updateSettings(classroomId: string, settings: unknown): Promise<void>;
 }

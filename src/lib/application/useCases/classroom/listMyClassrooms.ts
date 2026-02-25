@@ -1,4 +1,7 @@
-import type { ClassroomRepository, ClassroomMembershipWithClassroom } from '$lib/application/ports/ClassroomRepository';
+import type {
+  ClassroomRepository,
+  ClassroomMembershipWithClassroom
+} from '$lib/application/ports/ClassroomRepository';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 

@@ -12,6 +12,18 @@ import type {
   IdGenerator
 } from '$lib/application/ports';
 import { SystemClock, UuidIdGenerator } from '$lib/infrastructure/services';
+import {
+  PrismaClassroomRepository,
+  PrismaSessionRepository,
+  PrismaPresenceRepository,
+  PrismaHelpRepository,
+  PrismaNinjaRepository,
+  PrismaPersonRepository,
+  PrismaPinRepository,
+  PrismaRealtimeNotificationRepository
+} from '$lib/infrastructure/repositories';
+import { PrismaEventStore, createProjectorRegistry } from '$lib/infrastructure/events';
+import { prisma } from './prisma';
 
 export interface AppEnvironment {
   classroomRepo: ClassroomRepository;
@@ -33,33 +45,18 @@ let _env: AppEnvironment | null = null;
 export function getEnvironment(): AppEnvironment {
   if (_env) return _env;
 
-  // TODO: Replace stubs with Prisma implementations in Phase 4
-  const notImplemented = (name: string) =>
-    new Proxy(
-      {},
-      {
-        get(_, prop) {
-          if (typeof prop === 'string') {
-            return () => {
-              throw new Error(`${name}.${prop}() not implemented yet`);
-            };
-          }
-        }
-      }
-    );
+  const projectorRegistry = createProjectorRegistry();
 
   _env = {
-    classroomRepo: notImplemented('classroomRepo') as unknown as ClassroomRepository,
-    sessionRepo: notImplemented('sessionRepo') as unknown as SessionRepository,
-    presenceRepo: notImplemented('presenceRepo') as unknown as PresenceRepository,
-    helpRepo: notImplemented('helpRepo') as unknown as HelpRepository,
-    ninjaRepo: notImplemented('ninjaRepo') as unknown as NinjaRepository,
-    personRepo: notImplemented('personRepo') as unknown as PersonRepository,
-    pinRepo: notImplemented('pinRepo') as unknown as PinRepository,
-    realtimeNotificationRepo: notImplemented(
-      'realtimeNotificationRepo'
-    ) as unknown as RealtimeNotificationRepository,
-    eventStore: notImplemented('eventStore') as unknown as EventStore,
+    classroomRepo: new PrismaClassroomRepository(prisma),
+    sessionRepo: new PrismaSessionRepository(prisma),
+    presenceRepo: new PrismaPresenceRepository(prisma),
+    helpRepo: new PrismaHelpRepository(prisma),
+    ninjaRepo: new PrismaNinjaRepository(prisma),
+    personRepo: new PrismaPersonRepository(prisma),
+    pinRepo: new PrismaPinRepository(prisma),
+    realtimeNotificationRepo: new PrismaRealtimeNotificationRepository(prisma),
+    eventStore: new PrismaEventStore(prisma, projectorRegistry),
     clock: new SystemClock(),
     idGenerator: new UuidIdGenerator()
   };

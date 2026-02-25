@@ -100,6 +100,9 @@ export class HelpRequestEntity {
     if (!whatITried || whatITried.trim().length === 0) {
       throw new ValidationError('What I tried is required');
     }
+    if (whatITried.trim().length < 20) {
+      throw new ValidationError('What I tried must be at least 20 characters');
+    }
     if (whatITried.length > 1000) {
       throw new ValidationError('What I tried must be 1000 characters or less');
     }
@@ -168,10 +171,7 @@ export class HelpRequestEntity {
     });
   }
 
-  resolve(
-    resolutionNotes: string | null = null,
-    resolvedAt: Date = new Date()
-  ): HelpRequestEntity {
+  resolve(resolutionNotes: string | null = null, resolvedAt: Date = new Date()): HelpRequestEntity {
     if (!this.canResolve()) {
       throw new ConflictError(`Cannot resolve request in '${this.status}' status`);
     }
