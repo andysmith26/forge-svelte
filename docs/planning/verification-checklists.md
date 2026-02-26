@@ -5,13 +5,13 @@
 >
 > **Demo classroom code:** `DEMO01`
 >
-> | Demo Student | PIN  |
-> |---|---|
-> | Alex Chen | 1234 |
+> | Demo Student  | PIN  |
+> | ------------- | ---- |
+> | Alex Chen     | 1234 |
 > | Jordan Rivera | 5678 |
-> | Sam Patel | 9012 |
-> | Maya Johnson | 3456 |
-> | Kai Williams | 7890 |
+> | Sam Patel     | 9012 |
+> | Maya Johnson  | 3456 |
+> | Kai Williams  | 7890 |
 
 ---
 

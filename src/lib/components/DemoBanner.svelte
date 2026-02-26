@@ -29,10 +29,7 @@
   <span class="font-medium">Demo Mode</span>
   <div class="flex items-center gap-2">
     {#if isStudent}
-      <button
-        onclick={switchToTeacher}
-        class="rounded px-2 py-1 text-xs hover:bg-amber-200"
-      >
+      <button onclick={switchToTeacher} class="rounded px-2 py-1 text-xs hover:bg-amber-200">
         Switch to Teacher
       </button>
     {:else}

@@ -22,7 +22,7 @@ The smartboard display currently shows presence and help queue — operational d
 
 ---
 
-## 3. Redesign the Help Request Flow to Require More Student Thinking (Principle 2, 7) — *Logistics → construction*
+## 3. Redesign the Help Request Flow to Require More Student Thinking (Principle 2, 7) — _Logistics → construction_
 
 > "Debugging is the pedagogy... Design for productive failure, not failure prevention."
 
@@ -33,7 +33,7 @@ The current help form asks for "what I tried" (min 20 chars), which is good. But
 
 ---
 
-## 4. Remove or Rethink the Ninja System's Gamification Elements (Principle 12) — *Meta-learning*
+## 4. Remove or Rethink the Ninja System's Gamification Elements (Principle 12) — _Meta-learning_
 
 > "Never gamify the learning itself. Points, badges, streaks, and leaderboards redirect motivation from the intrinsic satisfaction of building something that works."
 
@@ -46,7 +46,7 @@ When students declare their own expertise and make themselves available as resou
 
 ---
 
-## 5. Let Students Choose Their Own Help Categories / Topics (Principle 13) — *Logistics → construction*
+## 5. Let Students Choose Their Own Help Categories / Topics (Principle 13) — _Logistics → construction_
 
 > "Sequence is the learner's job, not the tool's... The best learning happens when children follow their own questions."
 
@@ -54,7 +54,7 @@ Help categories are currently created and managed entirely by teachers. Students
 
 ---
 
-## 6. Replace the Teacher Dashboard Metrics with "What They Made / What They Struggled With" (Principle 9) — *Logistics → construction*
+## 6. Replace the Teacher Dashboard Metrics with "What They Made / What They Struggled With" (Principle 9) — _Logistics → construction_
 
 > "Never provide a dashboard that reduces a child to a number... Show teachers what kids made and what they struggled with instead."
 
@@ -65,7 +65,7 @@ The event log currently captures help request durations, wait times, and resolut
 
 ---
 
-## 7. Design for Multi-Session Projects, Not Single-Session Tasks (Principle 11) — *Logistics → construction*
+## 7. Design for Multi-Session Projects, Not Single-Session Tasks (Principle 11) — _Logistics → construction_
 
 > "Deep learning requires extended, uninterrupted engagement... Design for projects that unfold over days or weeks."
 
@@ -77,7 +77,7 @@ The entire app is structured around discrete **sessions** — start session, sig
 
 ---
 
-## 8. Give Students Control Over Their Profile and Self-Presentation (Principle 2) — *Meta-learning*
+## 8. Give Students Control Over Their Profile and Self-Presentation (Principle 2) — _Meta-learning_
 
 > "The child is the agent, never the tool. The locus of control must stay with the learner."
 
@@ -105,7 +105,7 @@ This is uniquely enabled by the computer (aggregation, real-time updates to a sh
 
 ---
 
-## 10. Remove Enforced Urgency Levels from Help Requests (Principle 2, 13) — *Logistics → construction*
+## 10. Remove Enforced Urgency Levels from Help Requests (Principle 2, 13) — _Logistics → construction_
 
 > "The moment your software is making the interesting decisions — choosing what to do next, evaluating quality, determining sequence — you've stolen the cognitive work."
 
@@ -127,7 +127,7 @@ This is **not** an assessment tool for teachers — it's a construction tool for
 
 ---
 
-## 12. Ensure the "Chores" Module Doesn't Become Compliance Tracking (Principles 8, 9, 15) — *Meta-learning*
+## 12. Ensure the "Chores" Module Doesn't Become Compliance Tracking (Principles 8, 9, 15) — _Meta-learning_
 
 > "Teacher-facing features should help adults observe, curate challenges, and ask good questions — not monitor compliance or pace delivery."
 

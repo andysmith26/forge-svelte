@@ -28,6 +28,7 @@ pnpm add -D @types/bcryptjs
 ```
 
 **Files to create:**
+
 - `package.json` — pnpm, scripts: dev, build, check, lint, test
 - `svelte.config.js` — `adapter-node` (not adapter-auto; Forge needs Node for bcrypt + Prisma), `vitePreprocess()`
 - `vite.config.ts` — `tailwindcss()` + `sveltekit()` plugins; Vitest with two projects: `client` (`.svelte.test.ts`, browser/Playwright) and `server` (`.test.ts`, node) — matching Groupwheel pattern
@@ -49,6 +50,7 @@ pnpm add -D @types/bcryptjs
 ### Step 1.4 — App type declarations
 
 Create `src/app.d.ts` declaring:
+
 - `App.Locals.session` — Auth.js session (Google OAuth)
 - `App.Locals.pinSession` — custom PIN session `{ personId, classroomId, displayName }`
 - `App.Locals.actor` — unified actor `{ personId, authType: 'google'|'pin', pinClassroomId: string|null }`
@@ -56,17 +58,21 @@ Create `src/app.d.ts` declaring:
 ### Step 1.5 — Auth setup
 
 **Auth.js for SvelteKit (Google OAuth):**
+
 - `src/lib/server/auth.ts` — SvelteKitAuth with Google provider + PrismaAdapter. Callbacks mirror existing Forge: only allow sign-in if matching Person exists, link googleId, inject personId into session.
 
 **PIN auth (custom):**
+
 - `src/lib/server/pinAuth.ts` — `resolvePinSession(event)`: reads `forge_pin` cookie, queries PinSession table, checks expiry, touches lastActivityAt
 
 **Server hooks:**
+
 - `src/hooks.server.ts` — `sequence(authHandle, pinHandle)`: Auth.js handle first, then custom handle that resolves PIN session and sets unified `event.locals.actor`
 
 ### Step 1.6 — ESLint boundary rules
 
 Adapt Groupwheel's eslint.config.js with no-restricted-imports:
+
 - `src/lib/domain/**` — no application, infrastructure, svelte, or prisma imports
 - `src/lib/application/**` — no infrastructure, svelte, or prisma imports
 - `src/routes/**` + `src/lib/components/**` — no direct repository or prisma imports
@@ -79,6 +85,7 @@ Adapt Groupwheel's eslint.config.js with no-restricted-imports:
 ### Step 1.8 — Composition root (server-side)
 
 `src/lib/server/environment.ts`:
+
 ```typescript
 export interface AppEnvironment {
   classroomRepo: ClassroomRepository;
@@ -115,6 +122,7 @@ This validates the full stack: auth → environment → use case → Result → 
 **Mostly copy with import path changes** (`@/` → `$lib/`).
 
 ### Copy verbatim:
+
 - **8 entity files** from `forge/src/domain/entities/` → `src/lib/domain/entities/`
   - ClassroomEntity, SessionEntity, SignInEntity, HelpRequestEntity, PersonEntity, MembershipEntity, NinjaDomainEntity, NinjaAssignmentEntity
 - **Domain types** from `forge/src/domain/types/` → `src/lib/domain/types/`
@@ -125,11 +133,13 @@ This validates the full stack: auth → environment → use case → Result → 
   - Event type definitions, EventMetadata, ForgeEvent union
 
 ### Do NOT copy:
+
 - `event-bus.ts` — not needed in SvelteKit request/response model
 - `handlers/` — realtime handled differently (see Phase 4)
 - `projectors/` — these are infrastructure (depend on Prisma), moved to Phase 4
 
 ### Barrel exports:
+
 - `src/lib/domain/entities/index.ts`
 - `src/lib/domain/types/index.ts`
 - `src/lib/domain/errors/index.ts`
@@ -165,6 +175,7 @@ src/lib/application/ports/
 Convert each service method to a standalone function following Groupwheel pattern: `(deps: {...}, input: Input) => Promise<Result<T, E>>`.
 
 **Pattern:**
+
 ```typescript
 export type StartSessionError =
   | { type: 'SESSION_NOT_FOUND'; sessionId: string }
@@ -181,15 +192,15 @@ export async function startSession(
 
 **Complete use case inventory organized by feature:**
 
-| Directory | Use Cases | Source Service |
-|---|---|---|
-| `useCases/classroom/` | listMyClassrooms, getClassroom, getClassroomSettings, updateModules | ClassroomSettingsService |
-| `useCases/session/` | getPublicCurrentSession, getSession, listSessions, createSession, startSession, endSession, cancelSession | SessionService |
-| `useCases/presence/` | signIn, signOut, getSignInStatus, listPresent, listPresentPublic, listSignInsForSession | PresenceService |
-| `useCases/help/` | listCategories, createCategory, updateCategory, archiveCategory, requestHelp, cancelHelpRequest, claimHelpRequest, unclaimHelpRequest, resolveHelpRequest, getHelpQueue, getHelpQueuePublic, getMyOpenRequests | HelpService |
-| `useCases/ninja/` | listDomains, createDomain, updateDomain, archiveDomain, assignNinja, revokeNinja, getNinjaPresence, getDomainsWithNinjas | NinjaService |
-| `useCases/person/` | getProfile, updateProfile, addStudent, bulkImportStudents, updateStudent, removeStudent, listStudents | PersonService |
-| `useCases/pin/` | loginWithPin, logoutPin, generatePin, generateAllPins, setPin, removePin, listStudentsWithPins | PinService |
+| Directory             | Use Cases                                                                                                                                                                                                      | Source Service           |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `useCases/classroom/` | listMyClassrooms, getClassroom, getClassroomSettings, updateModules                                                                                                                                            | ClassroomSettingsService |
+| `useCases/session/`   | getPublicCurrentSession, getSession, listSessions, createSession, startSession, endSession, cancelSession                                                                                                      | SessionService           |
+| `useCases/presence/`  | signIn, signOut, getSignInStatus, listPresent, listPresentPublic, listSignInsForSession                                                                                                                        | PresenceService          |
+| `useCases/help/`      | listCategories, createCategory, updateCategory, archiveCategory, requestHelp, cancelHelpRequest, claimHelpRequest, unclaimHelpRequest, resolveHelpRequest, getHelpQueue, getHelpQueuePublic, getMyOpenRequests | HelpService              |
+| `useCases/ninja/`     | listDomains, createDomain, updateDomain, archiveDomain, assignNinja, revokeNinja, getNinjaPresence, getDomainsWithNinjas                                                                                       | NinjaService             |
+| `useCases/person/`    | getProfile, updateProfile, addStudent, bulkImportStudents, updateStudent, removeStudent, listStudents                                                                                                          | PersonService            |
+| `useCases/pin/`       | loginWithPin, logoutPin, generatePin, generateAllPins, setPin, removePin, listStudentsWithPins                                                                                                                 | PinService               |
 
 ### Step 3.3 — Authorization helpers
 
@@ -202,6 +213,7 @@ export async function startSession(
 ### Step 4.1 — Prisma repository adapters
 
 Copy from `forge/src/data/repositories/` → `src/lib/infrastructure/repositories/` with changes:
+
 - Import ports from `$lib/application/ports/`
 - Inject PrismaClient via constructor (not global import)
 - Remove request-context caching (SvelteKit handles per-request isolation)
@@ -215,6 +227,7 @@ No EventBus. `PrismaEventStore.appendAndEmit()` writes both DomainEvent and Real
 ### Step 4.3 — Projectors
 
 Move from `forge/src/domain/events/projectors/` to `src/lib/infrastructure/events/projectors/` (correct layer — they depend on Prisma):
+
 - SessionProjector, SignInProjector, HelpRequestProjector, ProjectorRegistry
 
 ### Step 4.4 — Infrastructure services
@@ -227,6 +240,7 @@ Move from `forge/src/domain/events/projectors/` to `src/lib/infrastructure/event
 ## Phase 5: Feature Routes & UI (incremental)
 
 Each feature follows the same SvelteKit pattern:
+
 1. `+layout.server.ts` or `+page.server.ts` — load() for reads, actions for mutations
 2. `+page.svelte` — Svelte 5 component with `$props()`, submits via `<form method="POST">`
 3. Components in `src/lib/components/{feature}/`
@@ -275,6 +289,7 @@ src/routes/
 ```
 
 ### Build order (by feature, each end-to-end):
+
 1. **Home + classroom list** (validates full stack)
 2. **Classroom layout + dashboard** (session control)
 3. **Presence** (sign-in/out, presence board)
@@ -307,12 +322,14 @@ src/lib/components/
 Keep Supabase Realtime via `realtime_notifications` table (PII-safe).
 
 ### Client-side pattern:
+
 - `src/lib/realtime/` — Svelte 5 reactive wrappers using `$effect()` for subscription lifecycle
 - Subscribe to Supabase postgres_changes on `realtime_notifications` table
 - On notification: call `invalidateAll()` to re-run SvelteKit load functions
 - Three channel types: `presence:session:{id}`, `session:classroom:{id}`, `help:session:{id}`
 
 ### Connection resilience:
+
 - Track connection state with `$state()`
 - Exponential backoff reconnect (port from existing `use-connection-state.ts`)
 - Full refetch on reconnect
@@ -324,6 +341,7 @@ Keep Supabase Realtime via `realtime_notifications` table (PII-safe).
 Execute these sequentially, verifying each before moving to the next.
 
 ### Session 1: Project scaffold (Step 1.1 + 1.7)
+
 - Initialize SvelteKit project, install deps, configure vite/ts/prettier/vitest
 - Match Groupwheel configs at `/Users/andy/projects/groupwheel/`
 - Use adapter-node
@@ -331,12 +349,14 @@ Execute these sequentially, verifying each before moving to the next.
 - **Verify:** `pnpm dev` starts, `pnpm check` passes
 
 ### Session 2: Prisma + Result type + app.d.ts (Steps 1.2, 1.3, 1.4)
+
 - Copy Prisma schema from Forge, create server prisma singleton
 - Copy Result type from Groupwheel
 - Create app.d.ts with Locals types (session, pinSession, actor)
 - **Verify:** `pnpm prisma generate` succeeds, `pnpm check` passes
 
 ### Session 3: Auth setup (Step 1.5)
+
 - @auth/sveltekit with Google OAuth + PrismaAdapter
 - Port callback logic from `/Users/andy/projects/forge/src/lib/auth.ts`
 - Custom PIN auth hook
@@ -344,12 +364,14 @@ Execute these sequentially, verifying each before moving to the next.
 - **Verify:** `pnpm check` passes, `pnpm build` succeeds
 
 ### Session 4: Composition root + ESLint (Steps 1.6, 1.8)
+
 - Stub port interfaces in src/lib/application/ports/
 - AppEnvironment interface + getEnvironment() factory
 - ESLint boundary rules
 - **Verify:** `pnpm lint` passes, `pnpm check` passes
 
 ### Session 5: First route (Step 1.9)
+
 - Root layout + auth guard
 - listMyClassrooms use case + stub PrismaClassroomRepository
 - Home page rendering classroom list
@@ -367,6 +389,7 @@ Execute these sequentially, verifying each before moving to the next.
 6. **Phase 6**: Realtime subscriptions update UI on external DB changes
 
 ### Key test commands:
+
 ```
 pnpm check              # TypeScript compilation
 pnpm lint               # ESLint boundary rules
@@ -379,19 +402,19 @@ pnpm build              # Full production build
 
 ## Files from existing codebase to reference
 
-| What | Source Path |
-|---|---|
-| Prisma schema | `/Users/andy/projects/forge/prisma/schema.prisma` |
-| Domain entities | `/Users/andy/projects/forge/src/domain/entities/` |
-| Domain types | `/Users/andy/projects/forge/src/domain/types/` |
-| Domain errors | `/Users/andy/projects/forge/src/domain/errors/` |
-| Domain events | `/Users/andy/projects/forge/src/domain/events/events.ts` |
-| Repository interfaces | `/Users/andy/projects/forge/src/domain/repositories/` |
-| Prisma repo adapters | `/Users/andy/projects/forge/src/data/repositories/` |
-| Services (→ use cases) | `/Users/andy/projects/forge/src/services/` |
-| Projectors | `/Users/andy/projects/forge/src/domain/events/projectors/` |
-| Auth config | `/Users/andy/projects/forge/src/lib/auth.ts` |
-| Result type | `/Users/andy/projects/groupwheel/src/lib/types/result.ts` |
-| Vitest config | `/Users/andy/projects/groupwheel/vite.config.ts` |
-| Prettier config | `/Users/andy/projects/groupwheel/.prettierrc` |
-| ESLint boundaries | `/Users/andy/projects/groupwheel/eslint.config.js` |
+| What                   | Source Path                                                |
+| ---------------------- | ---------------------------------------------------------- |
+| Prisma schema          | `/Users/andy/projects/forge/prisma/schema.prisma`          |
+| Domain entities        | `/Users/andy/projects/forge/src/domain/entities/`          |
+| Domain types           | `/Users/andy/projects/forge/src/domain/types/`             |
+| Domain errors          | `/Users/andy/projects/forge/src/domain/errors/`            |
+| Domain events          | `/Users/andy/projects/forge/src/domain/events/events.ts`   |
+| Repository interfaces  | `/Users/andy/projects/forge/src/domain/repositories/`      |
+| Prisma repo adapters   | `/Users/andy/projects/forge/src/data/repositories/`        |
+| Services (→ use cases) | `/Users/andy/projects/forge/src/services/`                 |
+| Projectors             | `/Users/andy/projects/forge/src/domain/events/projectors/` |
+| Auth config            | `/Users/andy/projects/forge/src/lib/auth.ts`               |
+| Result type            | `/Users/andy/projects/groupwheel/src/lib/types/result.ts`  |
+| Vitest config          | `/Users/andy/projects/groupwheel/vite.config.ts`           |
+| Prettier config        | `/Users/andy/projects/groupwheel/.prettierrc`              |
+| ESLint boundaries      | `/Users/andy/projects/groupwheel/eslint.config.js`         |
