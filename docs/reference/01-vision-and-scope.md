@@ -124,6 +124,15 @@ Design for trust and transparency. Address misuse as a cultural issue first, not
 
 When teachers correct or override student actions, those interventions are recorded as distinct, labeled events. Teacher corrections supplement the record; they do not overwrite or erase student events.
 
+### 9. Constructionist Learning Alignment
+
+Forge aligns with the learning constraints in `PRINCIPLES_LEARNING.md`:
+
+- Learning happens through making and sharing artifacts, not content delivery.
+- The student remains the primary agent; Forge supports choices without prescribing sequence.
+- Debugging and productive struggle are learning events; the system should surface context, not auto-resolve thinking work.
+- Operational visibility supports teacher judgment without reducing students to scores or compliance metrics.
+
 ---
 
 ## System Architecture: Event-Sourced with Projections
