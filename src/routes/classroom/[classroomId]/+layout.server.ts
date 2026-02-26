@@ -8,7 +8,7 @@ import { requireMember } from '$lib/application/useCases/checkAuthorization';
 
 export const load: LayoutServerLoad = async ({ locals, params }) => {
   if (!locals.actor) {
-    redirect(302, '/auth/signin');
+    redirect(302, '/login');
   }
 
   const env = getEnvironment();
@@ -24,7 +24,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     if (membershipResult.error.type === 'NOT_MEMBER') {
       error(403, { message: 'You are not a member of this classroom' });
     }
-    redirect(302, '/auth/signin');
+    redirect(302, '/login');
   }
 
   const classroomResult = await getClassroom({ classroomRepo: env.classroomRepo }, { classroomId });

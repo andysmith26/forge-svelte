@@ -1,9 +1,13 @@
 <script lang="ts">
   import type { LayoutData } from './$types';
+  import { createClassroomSubscription } from '$lib/realtime';
+  import { ConnectionStatus } from '$lib/components/ui';
 
   const { data, children }: { data: LayoutData; children: import('svelte').Snippet } = $props();
 
   const isTeacher = $derived(data.membership.role === 'teacher');
+
+  const realtime = createClassroomSubscription(data.classroom.id, data.currentSession?.id ?? null);
 
   const navItems = $derived(
     [
@@ -28,6 +32,7 @@
       <p class="text-sm text-gray-500">Code: {data.classroom.displayCode}</p>
     </div>
     <div class="flex items-center gap-3">
+      <ConnectionStatus state={realtime.connectionState} />
       {#if isTeacher}
         <a
           href="/display/{data.classroom.displayCode}"

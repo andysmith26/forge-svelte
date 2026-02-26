@@ -2,8 +2,14 @@
   import type { PageData } from './$types';
   import { Badge } from '$lib/components/ui';
   import { onMount, onDestroy } from 'svelte';
+  import { createClassroomSubscription } from '$lib/realtime';
 
   const { data }: { data: PageData } = $props();
+
+  const realtime = createClassroomSubscription(
+    data.classroom.displayCode,
+    data.session?.id ?? null
+  );
 
   let now = $state(new Date());
   let intervalId: ReturnType<typeof setInterval>;
@@ -84,6 +90,9 @@
         </div>
       {/if}
       <span class="font-mono text-xl">{timeString}</span>
+      {#if !realtime.isConnected}
+        <span class="h-2 w-2 rounded-full bg-yellow-400" title="Reconnecting..."></span>
+      {/if}
     </div>
   </header>
 

@@ -13,5 +13,5 @@ export const POST: RequestHandler = async ({ cookies }) => {
 
   cookies.delete('forge_pin_session', { path: '/' });
 
-  redirect(302, '/auth/signin');
+  redirect(302, '/login');
 };

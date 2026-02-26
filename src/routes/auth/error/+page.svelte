@@ -8,7 +8,7 @@
   <div class="w-full max-w-sm rounded-lg border border-red-200 bg-red-50 p-8">
     <h1 class="mb-2 text-xl font-bold text-red-800">Authentication Error</h1>
     <p class="text-red-600">{errorMessage}</p>
-    <a href="/auth/signin" class="mt-4 inline-block text-sm font-medium text-forge-blue underline">
+    <a href="/login" class="mt-4 inline-block text-sm font-medium text-forge-blue underline">
       Try again
     </a>
   </div>

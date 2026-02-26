@@ -81,7 +81,7 @@ export const {
     }
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/login',
     error: '/auth/error'
   }
 });

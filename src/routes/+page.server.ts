@@ -5,7 +5,7 @@ import { listMyClassrooms } from '$lib/application/useCases/classroom/listMyClas
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.actor) {
-    redirect(302, '/auth/signin');
+    redirect(302, '/login');
   }
 
   const env = getEnvironment();

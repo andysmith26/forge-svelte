@@ -9,7 +9,7 @@ import { getClassroom } from '$lib/application/useCases/classroom/getClassroom';
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.actor || locals.actor.authType !== 'pin') {
-    redirect(302, '/auth/signin');
+    redirect(302, '/login');
   }
 
   const env = getEnvironment();
