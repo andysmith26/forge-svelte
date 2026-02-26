@@ -25,10 +25,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
       { sessionId: session.id, personId: actor.personId }
     ),
     parentData.membership.role === 'teacher'
-      ? listSignInsForSession(
-          { presenceRepo: env.presenceRepo },
-          { sessionId: session.id }
-        )
+      ? listSignInsForSession({ presenceRepo: env.presenceRepo }, { sessionId: session.id })
       : Promise.resolve({ status: 'ok' as const, value: [] })
   ]);
 
@@ -62,25 +59,20 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
   };
 };
 
-async function getActiveSessionId(classroomId: string) {
-  const env = getEnvironment();
-  const result = await getCurrentSession(
-    { sessionRepo: env.sessionRepo },
-    { classroomId }
-  );
-  if (result.status !== 'ok' || !result.value) return null;
-  return result.value.id;
-}
-
 export const actions: Actions = {
   signIn: async ({ locals, params }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
-    const sessionId = await getActiveSessionId(params.classroomId);
-    if (!sessionId) return fail(400, { error: 'No active session' });
-
     const env = getEnvironment();
+    const sessionResult = await getCurrentSession(
+      { sessionRepo: env.sessionRepo },
+      { classroomId: params.classroomId }
+    );
+    if (sessionResult.status !== 'ok' || !sessionResult.value) {
+      return fail(400, { error: 'No active session' });
+    }
+
     const result = await signIn(
       {
         sessionRepo: env.sessionRepo,
@@ -90,7 +82,7 @@ export const actions: Actions = {
         idGenerator: env.idGenerator
       },
       {
-        sessionId,
+        sessionId: sessionResult.value.id,
         personId: actor.personId,
         actorId: actor.personId,
         pinClassroomId: actor.pinClassroomId
@@ -108,10 +100,15 @@ export const actions: Actions = {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
-    const sessionId = await getActiveSessionId(params.classroomId);
-    if (!sessionId) return fail(400, { error: 'No active session' });
-
     const env = getEnvironment();
+    const sessionResult = await getCurrentSession(
+      { sessionRepo: env.sessionRepo },
+      { classroomId: params.classroomId }
+    );
+    if (sessionResult.status !== 'ok' || !sessionResult.value) {
+      return fail(400, { error: 'No active session' });
+    }
+
     const result = await signOut(
       {
         sessionRepo: env.sessionRepo,
@@ -120,7 +117,7 @@ export const actions: Actions = {
         eventStore: env.eventStore
       },
       {
-        sessionId,
+        sessionId: sessionResult.value.id,
         personId: actor.personId,
         actorId: actor.personId,
         pinClassroomId: actor.pinClassroomId
@@ -138,14 +135,19 @@ export const actions: Actions = {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
-    const sessionId = await getActiveSessionId(params.classroomId);
-    if (!sessionId) return fail(400, { error: 'No active session' });
+    const env = getEnvironment();
+    const sessionResult = await getCurrentSession(
+      { sessionRepo: env.sessionRepo },
+      { classroomId: params.classroomId }
+    );
+    if (sessionResult.status !== 'ok' || !sessionResult.value) {
+      return fail(400, { error: 'No active session' });
+    }
 
     const formData = await request.formData();
     const personId = formData.get('personId') as string;
     if (!personId) return fail(400, { error: 'Missing personId' });
 
-    const env = getEnvironment();
     const result = await signIn(
       {
         sessionRepo: env.sessionRepo,
@@ -155,7 +157,7 @@ export const actions: Actions = {
         idGenerator: env.idGenerator
       },
       {
-        sessionId,
+        sessionId: sessionResult.value.id,
         personId,
         actorId: actor.personId,
         pinClassroomId: null
@@ -173,14 +175,19 @@ export const actions: Actions = {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
-    const sessionId = await getActiveSessionId(params.classroomId);
-    if (!sessionId) return fail(400, { error: 'No active session' });
+    const env = getEnvironment();
+    const sessionResult = await getCurrentSession(
+      { sessionRepo: env.sessionRepo },
+      { classroomId: params.classroomId }
+    );
+    if (sessionResult.status !== 'ok' || !sessionResult.value) {
+      return fail(400, { error: 'No active session' });
+    }
 
     const formData = await request.formData();
     const personId = formData.get('personId') as string;
     if (!personId) return fail(400, { error: 'Missing personId' });
 
-    const env = getEnvironment();
     const result = await signOut(
       {
         sessionRepo: env.sessionRepo,
@@ -189,7 +196,7 @@ export const actions: Actions = {
         eventStore: env.eventStore
       },
       {
-        sessionId,
+        sessionId: sessionResult.value.id,
         personId,
         actorId: actor.personId,
         pinClassroomId: null

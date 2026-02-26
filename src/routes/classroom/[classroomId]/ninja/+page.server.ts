@@ -23,12 +23,14 @@ export const load: PageServerLoad = async ({ parent }) => {
   return {
     domains:
       domainsResult.status === 'ok'
-        ? domainsResult.value.filter((d) => d.isActive).map((d) => ({
-            id: d.id,
-            name: d.name,
-            description: d.description,
-            displayOrder: d.displayOrder
-          }))
+        ? domainsResult.value
+            .filter((d) => d.isActive)
+            .map((d) => ({
+              id: d.id,
+              name: d.name,
+              description: d.description,
+              displayOrder: d.displayOrder
+            }))
         : [],
     domainsWithNinjas:
       domainsWithNinjasResult.status === 'ok'
@@ -112,10 +114,7 @@ export const actions: Actions = {
     if (!domainId) return fail(400, { error: 'Missing domainId' });
 
     const env = getEnvironment();
-    const result = await archiveDomain(
-      { ninjaRepo: env.ninjaRepo, clock: env.clock },
-      { domainId }
-    );
+    const result = await archiveDomain({ ninjaRepo: env.ninjaRepo }, { domainId });
 
     if (result.status === 'err') {
       return fail(400, { error: result.error.type });
@@ -135,7 +134,7 @@ export const actions: Actions = {
 
     const env = getEnvironment();
     const result = await assignNinja(
-      { ninjaRepo: env.ninjaRepo, classroomRepo: env.classroomRepo, clock: env.clock },
+      { ninjaRepo: env.ninjaRepo, classroomRepo: env.classroomRepo },
       { personId, domainId, actorId: actor.personId }
     );
 
@@ -156,10 +155,7 @@ export const actions: Actions = {
     if (!personId || !domainId) return fail(400, { error: 'Missing personId or domainId' });
 
     const env = getEnvironment();
-    const result = await revokeNinja(
-      { ninjaRepo: env.ninjaRepo, clock: env.clock },
-      { personId, domainId }
-    );
+    const result = await revokeNinja({ ninjaRepo: env.ninjaRepo }, { personId, domainId });
 
     if (result.status === 'err') {
       return fail(400, { error: result.error.type });

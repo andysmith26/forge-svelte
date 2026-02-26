@@ -39,7 +39,12 @@ export const load: PageServerLoad = async ({ params }) => {
   const presenceEnabled = settings?.modules.presence.enabled ?? false;
   const helpEnabled = settings?.modules.help.enabled ?? false;
 
-  let present: { id: string; displayName: string; pronouns: string | null; askMeAbout: string[] }[] = [];
+  let present: {
+    id: string;
+    displayName: string;
+    pronouns: string | null;
+    askMeAbout: string[];
+  }[] = [];
   let queue: {
     id: string;
     description: string;

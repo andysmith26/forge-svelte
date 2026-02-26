@@ -4,7 +4,6 @@ import type { SessionRepository } from '$lib/application/ports/SessionRepository
 import type { HelpRepository } from '$lib/application/ports/HelpRepository';
 import type { PresenceRepository } from '$lib/application/ports/PresenceRepository';
 import type { EventStore, StoredEvent } from '$lib/application/ports/EventStore';
-import type { Clock } from '$lib/application/ports/Clock';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
 
 type MockOf<T> = {
@@ -120,12 +119,6 @@ export function createMockEventStore(
     countEvents: vi.fn().mockResolvedValue(0),
     deleteOlderThan: vi.fn().mockResolvedValue(0),
     ...overrides
-  };
-}
-
-export function createMockClock(now: Date = new Date('2025-01-15T10:00:00Z')): MockOf<Clock> {
-  return {
-    now: vi.fn().mockReturnValue(now)
   };
 }
 

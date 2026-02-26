@@ -13,7 +13,9 @@
 
 {#if !hasSession}
   <div class="rounded-lg border border-gray-200 bg-white p-8 text-center">
-    <p class="text-gray-500">No active session. The help queue is only available during active sessions.</p>
+    <p class="text-gray-500">
+      No active session. The help queue is only available during active sessions.
+    </p>
   </div>
 {:else}
   <div class="grid gap-6 lg:grid-cols-3">

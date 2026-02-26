@@ -13,11 +13,8 @@ export type { HelpRequestProps, HelpStatus } from './help-request.entity';
 export { ClassroomEntity } from './classroom.entity';
 export type { ClassroomProps } from './classroom.entity';
 
-export { NinjaDomainEntity } from './ninja-domain.entity';
-export type { NinjaDomainProps } from './ninja-domain.entity';
+export type { NinjaDomain } from './ninja-domain.entity';
 
-export { NinjaAssignmentEntity } from './ninja-assignment.entity';
-export type { NinjaAssignmentProps } from './ninja-assignment.entity';
+export type { NinjaAssignment } from './ninja-assignment.entity';
 
-export { MembershipEntity } from './membership.entity';
-export type { MembershipProps } from './membership.entity';
+export type { Membership } from './membership.entity';

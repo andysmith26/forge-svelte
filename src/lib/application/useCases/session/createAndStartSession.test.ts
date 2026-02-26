@@ -3,8 +3,7 @@ import { createAndStartSession } from './createAndStartSession';
 import {
   createMockSessionRepo,
   createMockClassroomRepo,
-  createMockEventStore,
-  createMockClock
+  createMockEventStore
 } from '../../../../test-utils/mocks';
 import type { SessionRecord } from '$lib/application/ports/SessionRepository';
 
@@ -56,11 +55,11 @@ describe('createAndStartSession', () => {
       getById: vi.fn().mockResolvedValue(classroom)
     });
     const eventStore = createMockEventStore();
-    const clock = createMockClock(fixedNow);
 
     const result = await createAndStartSession(
-      { sessionRepo, classroomRepo, eventStore, clock },
-      { classroomId: 'cls-1', actorId: 'teacher-1' }
+      { sessionRepo, classroomRepo, eventStore },
+      { classroomId: 'cls-1', actorId: 'teacher-1' },
+      fixedNow
     );
 
     expect(result.status).toBe('ok');
@@ -86,11 +85,11 @@ describe('createAndStartSession', () => {
     });
     const classroomRepo = createMockClassroomRepo();
     const eventStore = createMockEventStore();
-    const clock = createMockClock(fixedNow);
 
     const result = await createAndStartSession(
-      { sessionRepo, classroomRepo, eventStore, clock },
-      { classroomId: 'cls-1', actorId: 'teacher-1' }
+      { sessionRepo, classroomRepo, eventStore },
+      { classroomId: 'cls-1', actorId: 'teacher-1' },
+      fixedNow
     );
 
     expect(result.status).toBe('err');

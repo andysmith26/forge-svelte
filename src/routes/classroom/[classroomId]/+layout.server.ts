@@ -27,10 +27,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     redirect(302, '/auth/signin');
   }
 
-  const classroomResult = await getClassroom(
-    { classroomRepo: env.classroomRepo },
-    { classroomId }
-  );
+  const classroomResult = await getClassroom({ classroomRepo: env.classroomRepo }, { classroomId });
 
   if (classroomResult.status === 'err') {
     error(404, { message: 'Classroom not found' });
@@ -41,10 +38,7 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     { classroomId }
   );
 
-  const sessionResult = await getCurrentSession(
-    { sessionRepo: env.sessionRepo },
-    { classroomId }
-  );
+  const sessionResult = await getCurrentSession({ sessionRepo: env.sessionRepo }, { classroomId });
 
   return {
     classroom: {

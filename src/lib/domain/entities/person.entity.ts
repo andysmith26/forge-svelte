@@ -110,8 +110,7 @@ export class PersonEntity {
       ...this.props,
       displayName: updates.displayName ?? this.props.displayName,
       pronouns: updates.pronouns !== undefined ? updates.pronouns : this.props.pronouns,
-      askMeAbout:
-        updates.askMeAbout !== undefined ? [...updates.askMeAbout] : this.props.askMeAbout
+      askMeAbout: updates.askMeAbout !== undefined ? [...updates.askMeAbout] : this.props.askMeAbout
     });
   }
 

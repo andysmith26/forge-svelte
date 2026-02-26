@@ -166,10 +166,7 @@ export class PrismaPinRepository implements PinRepository {
     return memberships.map((m) => m.person.id);
   }
 
-  async getMembership(
-    personId: string,
-    classroomId: string
-  ): Promise<{ id: string } | null> {
+  async getMembership(personId: string, classroomId: string): Promise<{ id: string } | null> {
     return this.db.classroomMembership.findFirst({
       where: { personId, classroomId, isActive: true },
       select: { id: true }

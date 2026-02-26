@@ -3,7 +3,6 @@ import type {
   NinjaAssignmentWithRelations
 } from '$lib/application/ports/NinjaRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
-import type { Clock } from '$lib/application/ports/Clock';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -17,13 +16,13 @@ export async function assignNinja(
   deps: {
     ninjaRepo: NinjaRepository;
     classroomRepo: ClassroomRepository;
-    clock: Clock;
   },
   input: {
     personId: string;
     domainId: string;
     actorId: string;
-  }
+  },
+  now: Date = new Date()
 ): Promise<Result<NinjaAssignmentWithRelations, AssignNinjaError>> {
   try {
     const domain = await deps.ninjaRepo.getDomainById(input.domainId);
@@ -48,7 +47,7 @@ export async function assignNinja(
       const reactivated = await deps.ninjaRepo.updateAssignment(existing.id, {
         isActive: true,
         assignedById: input.actorId,
-        assignedAt: deps.clock.now(),
+        assignedAt: now,
         revokedAt: null
       });
 

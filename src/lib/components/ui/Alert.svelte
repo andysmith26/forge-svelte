@@ -40,7 +40,7 @@
     {#if dismissible}
       <button
         type="button"
-        class="ml-3 -mr-1 -mt-1 rounded p-1 opacity-70 hover:opacity-100"
+        class="-mt-1 -mr-1 ml-3 rounded p-1 opacity-70 hover:opacity-100"
         onclick={ondismiss}
         aria-label="Dismiss"
       >

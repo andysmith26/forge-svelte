@@ -3,7 +3,11 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import Google from '@auth/sveltekit/providers/google';
 import { prisma } from './prisma';
 
-export const { handle: authHandle, signIn, signOut } = SvelteKitAuth({
+export const {
+  handle: authHandle,
+  signIn,
+  signOut
+} = SvelteKitAuth({
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt'
@@ -55,8 +59,7 @@ export const { handle: authHandle, signIn, signOut } = SvelteKitAuth({
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id: string }).id = token.sub ?? '';
-        (session.user as { personId?: string }).personId =
-          (token.personId as string) ?? undefined;
+        (session.user as { personId?: string }).personId = (token.personId as string) ?? undefined;
       }
       return session;
     }

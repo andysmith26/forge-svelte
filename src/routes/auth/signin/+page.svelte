@@ -46,7 +46,9 @@
       <button
         type="button"
         class="flex-1 border-b-2 py-2 text-center text-sm font-medium transition-colors
-          {activeTab === 'pin' ? 'border-forge-blue text-forge-blue' : 'border-transparent text-gray-500 hover:text-gray-700'}"
+          {activeTab === 'pin'
+          ? 'border-forge-blue text-forge-blue'
+          : 'border-transparent text-gray-500 hover:text-gray-700'}"
         onclick={() => (activeTab = 'pin')}
       >
         PIN Login
@@ -54,7 +56,9 @@
       <button
         type="button"
         class="flex-1 border-b-2 py-2 text-center text-sm font-medium transition-colors
-          {activeTab === 'google' ? 'border-forge-blue text-forge-blue' : 'border-transparent text-gray-500 hover:text-gray-700'}"
+          {activeTab === 'google'
+          ? 'border-forge-blue text-forge-blue'
+          : 'border-transparent text-gray-500 hover:text-gray-700'}"
         onclick={() => (activeTab = 'google')}
       >
         Google Account
@@ -70,15 +74,21 @@
     {#if activeTab === 'pin'}
       <form onsubmit={handlePinLogin} class="space-y-4">
         <div>
-          <label for="classroomCode" class="block text-sm font-medium text-gray-700">Classroom Code</label>
+          <label for="classroomCode" class="block text-sm font-medium text-gray-700"
+            >Classroom Code</label
+          >
           <input
             id="classroomCode"
             type="text"
             bind:value={classroomCode}
             maxlength={6}
             placeholder="e.g., DEMO01"
-            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg uppercase tracking-widest focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
-            oninput={(e) => { classroomCode = (e.target as HTMLInputElement).value.replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }}
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-widest uppercase focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
+            oninput={(e) => {
+              classroomCode = (e.target as HTMLInputElement).value
+                .replace(/[^A-Za-z0-9]/g, '')
+                .toUpperCase();
+            }}
           />
           <p class="mt-1 text-xs text-gray-500">Ask your teacher for the classroom code</p>
         </div>
@@ -93,22 +103,21 @@
             bind:value={pin}
             maxlength={6}
             placeholder="Enter your PIN"
-            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-widest focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
-            oninput={(e) => { pin = (e.target as HTMLInputElement).value.replace(/\D/g, ''); }}
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-widest focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
+            oninput={(e) => {
+              pin = (e.target as HTMLInputElement).value.replace(/\D/g, '');
+            }}
           />
           <p class="mt-1 text-xs text-gray-500">4-6 digit PIN assigned by your teacher</p>
         </div>
 
-        <Button
-          type="submit"
-          class="w-full"
-          {loading}
-          disabled={!classroomCode || !pin}
-        >
+        <Button type="submit" class="w-full" {loading} disabled={!classroomCode || !pin}>
           {loading ? 'Signing in...' : 'Sign in with PIN'}
         </Button>
       </form>
-      <p class="mt-4 text-center text-xs text-gray-400">For shared tablets. Ask your teacher for your PIN.</p>
+      <p class="mt-4 text-center text-xs text-gray-400">
+        For shared tablets. Ask your teacher for your PIN.
+      </p>
     {:else}
       <button
         onclick={() => signIn('google')}
@@ -116,7 +125,9 @@
       >
         Sign in with Google
       </button>
-      <p class="mt-4 text-center text-xs text-gray-400">For your personal device. Uses your Google account.</p>
+      <p class="mt-4 text-center text-xs text-gray-400">
+        For your personal device. Uses your Google account.
+      </p>
     {/if}
   </div>
 </div>

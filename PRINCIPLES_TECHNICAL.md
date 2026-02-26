@@ -94,21 +94,18 @@ interface Student {
 
 // Factory function validates and normalizes
 function createStudent(input: CreateStudentInput): Student {
-  if (!input.firstName?.trim())
-    throw new Error('firstName is required');
+  if (!input.firstName?.trim()) throw new Error('firstName is required');
   return {
     id: input.id,
     firstName: input.firstName.trim(),
     lastName: input.lastName?.trim(),
-    gradeLevel: input.gradeLevel?.trim(),
+    gradeLevel: input.gradeLevel?.trim()
   };
 }
 
 // Domain logic as pure functions
 function getStudentDisplayName(student: Student): string {
-  return [student.firstName, student.lastName]
-    .filter(Boolean)
-    .join(' ');
+  return [student.firstName, student.lastName].filter(Boolean).join(' ');
 }
 ```
 
@@ -218,7 +215,7 @@ export async function submitOrder(
     eventPublisher: EventPublisher;
     clock: Clock;
   },
-  input: SubmitOrderInput,
+  input: SubmitOrderInput
 ): Promise<Result<Order, SubmitOrderError>> {
   // 1. Validate input
   if (!input.items.length) {
@@ -226,9 +223,7 @@ export async function submitOrder(
   }
 
   // 2. Check business rules
-  const available = await deps.inventoryService.checkAvailability(
-    input.items,
-  );
+  const available = await deps.inventoryService.checkAvailability(input.items);
   if (!available) {
     return err({ type: 'insufficient_inventory' });
   }
@@ -237,16 +232,14 @@ export async function submitOrder(
   const order = OrderEntity.create({
     id: deps.idGenerator.generate(),
     items: input.items,
-    createdAt: deps.clock.now(),
+    createdAt: deps.clock.now()
   });
 
   // 4. Persist
   await deps.orderRepo.save(order);
 
   // 5. Publish events
-  await deps.eventPublisher.publish(
-    OrderSubmitted.create({ orderId: order.id }),
-  );
+  await deps.eventPublisher.publish(OrderSubmitted.create({ orderId: order.id }));
 
   return ok(order);
 }
@@ -297,7 +290,7 @@ class PrismaOrderRepository implements OrderRepository {
 
   async findById(id: string): Promise<OrderEntity | null> {
     const record = await this.prisma.order.findUnique({
-      where: { id },
+      where: { id }
     });
     return record ? OrderEntity.fromRecord(record) : null;
   }
@@ -306,7 +299,7 @@ class PrismaOrderRepository implements OrderRepository {
     await this.prisma.order.upsert({
       where: { id: order.id },
       create: this.toRecord(order),
-      update: this.toRecord(order),
+      update: this.toRecord(order)
     });
   }
 }
@@ -332,7 +325,7 @@ function createEnvironment(): AppEnvironment {
     inventoryService: new ApiInventoryService(),
     eventPublisher: new SupabaseEventPublisher(),
     idGenerator: new UuidIdGenerator(),
-    clock: new SystemClock(),
+    clock: new SystemClock()
   };
 }
 ```
@@ -402,15 +395,11 @@ function err<E>(error: E): Result<never, E> {
   return { ok: false, error };
 }
 
-function isOk<T, E>(
-  result: Result<T, E>,
-): result is { ok: true; value: T } {
+function isOk<T, E>(result: Result<T, E>): result is { ok: true; value: T } {
   return result.ok;
 }
 
-function isErr<T, E>(
-  result: Result<T, E>,
-): result is { ok: false; error: E } {
+function isErr<T, E>(result: Result<T, E>): result is { ok: false; error: E } {
   return !result.ok;
 }
 ```

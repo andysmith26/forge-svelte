@@ -28,7 +28,8 @@
 
   const variantClasses: Record<ButtonVariant, string> = {
     primary: 'bg-forge-blue text-white hover:bg-forge-blue-dark focus:ring-forge-blue',
-    secondary: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-forge-blue',
+    secondary:
+      'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-forge-blue',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
     ghost: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-500'
   };
@@ -47,14 +48,16 @@
 {#if href && !disabled}
   <a {href} class={computedClass}>
     {#if loading}
-      <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+      <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+      ></span>
     {/if}
     {@render children()}
   </a>
 {:else}
   <button {type} class={computedClass} disabled={disabled || loading} {onclick}>
     {#if loading}
-      <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+      <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+      ></span>
     {/if}
     {@render children()}
   </button>

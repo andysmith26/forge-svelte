@@ -10,10 +10,7 @@
 </script>
 
 <div class="space-y-6">
-  <PresenceStatus
-    isSignedIn={data.signInStatus?.isSignedIn ?? false}
-    {hasSession}
-  />
+  <PresenceStatus isSignedIn={data.signInStatus?.isSignedIn ?? false} {hasSession} />
 
   {#if hasSession}
     <div>
@@ -30,7 +27,7 @@
         <h2 class="mb-4 text-lg font-semibold text-gray-900">Sign-In Log</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
-            <thead class="border-b border-gray-200 text-xs uppercase text-gray-500">
+            <thead class="border-b border-gray-200 text-xs text-gray-500 uppercase">
               <tr>
                 <th class="py-2 pr-4">Name</th>
                 <th class="py-2 pr-4">Signed In</th>
@@ -46,9 +43,7 @@
                     {new Date(signIn.signedInAt).toLocaleTimeString()}
                   </td>
                   <td class="py-2 pr-4 text-gray-500">
-                    {signIn.signedOutAt
-                      ? new Date(signIn.signedOutAt).toLocaleTimeString()
-                      : '—'}
+                    {signIn.signedOutAt ? new Date(signIn.signedOutAt).toLocaleTimeString() : '—'}
                   </td>
                   <td class="py-2">
                     {#if !signIn.signedOutAt}

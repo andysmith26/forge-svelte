@@ -29,7 +29,11 @@
       <h2 class="text-lg font-semibold text-gray-900">
         Ninja Domains ({data.domains.length})
       </h2>
-      <Button size="sm" class="bg-purple-600 hover:bg-purple-700 focus:ring-purple-500" onclick={() => (showAddDomain = !showAddDomain)}>
+      <Button
+        size="sm"
+        class="bg-purple-600 hover:bg-purple-700 focus:ring-purple-500"
+        onclick={() => (showAddDomain = !showAddDomain)}
+      >
         {showAddDomain ? 'Cancel' : 'Add Domain'}
       </Button>
     </div>
@@ -38,27 +42,35 @@
       <form method="POST" action="?/createDomain" class="mb-4 rounded-lg bg-purple-50 p-4">
         <div class="space-y-3">
           <div>
-            <label for="newDomainName" class="block text-sm font-medium text-gray-700">Domain Name</label>
+            <label for="newDomainName" class="block text-sm font-medium text-gray-700"
+              >Domain Name</label
+            >
             <input
               id="newDomainName"
               name="name"
               type="text"
               required
               placeholder="e.g., Electronics, 3D Printing, Coding"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
             />
           </div>
           <div>
-            <label for="newDomainDesc" class="block text-sm font-medium text-gray-700">Description</label>
+            <label for="newDomainDesc" class="block text-sm font-medium text-gray-700"
+              >Description</label
+            >
             <input
               id="newDomainDesc"
               name="description"
               type="text"
               placeholder="Brief description of what this domain covers"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
             />
           </div>
-          <Button type="submit" size="sm" class="bg-purple-600 hover:bg-purple-700 focus:ring-purple-500">
+          <Button
+            type="submit"
+            size="sm"
+            class="bg-purple-600 hover:bg-purple-700 focus:ring-purple-500"
+          >
             Create Domain
           </Button>
         </div>
@@ -68,14 +80,20 @@
     {#if data.domains.length === 0}
       <div class="rounded-lg border border-gray-200 bg-white p-8 text-center">
         <p class="text-gray-500">No ninja domains yet.</p>
-        <p class="mt-1 text-sm text-gray-400">Create domains like 'Electronics', '3D Printing', or 'Coding' to organize your ninjas.</p>
+        <p class="mt-1 text-sm text-gray-400">
+          Create domains like 'Electronics', '3D Printing', or 'Coding' to organize your ninjas.
+        </p>
       </div>
     {:else}
       <div class="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
         {#each data.domains as domain (domain.id)}
           <div class="p-4">
             {#if editingDomainId === domain.id}
-              <form method="POST" action="?/updateDomain" class="space-y-3 rounded bg-yellow-50 p-3">
+              <form
+                method="POST"
+                action="?/updateDomain"
+                class="space-y-3 rounded bg-yellow-50 p-3"
+              >
                 <input type="hidden" name="domainId" value={domain.id} />
                 <input
                   name="name"
@@ -92,7 +110,9 @@
                 />
                 <div class="flex gap-2">
                   <Button type="submit" size="sm">Save</Button>
-                  <Button type="button" variant="secondary" size="sm" onclick={cancelEdit}>Cancel</Button>
+                  <Button type="button" variant="secondary" size="sm" onclick={cancelEdit}
+                    >Cancel</Button
+                  >
                 </div>
               </form>
             {:else}
@@ -104,10 +124,16 @@
                   {/if}
                 </div>
                 <div class="flex gap-2">
-                  <button type="button" class="text-sm text-purple-600 hover:underline" onclick={() => startEdit(domain)}>Edit</button>
+                  <button
+                    type="button"
+                    class="text-sm text-purple-600 hover:underline"
+                    onclick={() => startEdit(domain)}>Edit</button
+                  >
                   <form method="POST" action="?/archiveDomain" class="inline">
                     <input type="hidden" name="domainId" value={domain.id} />
-                    <button type="submit" class="text-sm text-red-600 hover:underline">Archive</button>
+                    <button type="submit" class="text-sm text-red-600 hover:underline"
+                      >Archive</button
+                    >
                   </form>
                 </div>
               </div>
@@ -142,7 +168,9 @@
             </select>
           </div>
           <div class="flex-1">
-            <label for="studentSelect" class="block text-sm font-medium text-gray-700">Student</label>
+            <label for="studentSelect" class="block text-sm font-medium text-gray-700"
+              >Student</label
+            >
             <select
               id="studentSelect"
               name="personId"
@@ -172,7 +200,9 @@
     {#if data.domainsWithNinjas.length === 0 || data.domainsWithNinjas.every((d) => d.assignments.length === 0)}
       <div class="rounded-lg border border-gray-200 bg-white p-8 text-center">
         <p class="text-gray-500">No ninja assignments yet.</p>
-        <p class="mt-1 text-sm text-gray-400">Select a domain and student above to assign ninja status.</p>
+        <p class="mt-1 text-sm text-gray-400">
+          Select a domain and student above to assign ninja status.
+        </p>
       </div>
     {:else}
       <div class="space-y-4">
@@ -182,12 +212,18 @@
               <h3 class="mb-2 font-medium text-gray-900">{domain.name}</h3>
               <div class="flex flex-wrap gap-2">
                 {#each domain.assignments as assignment (assignment.id)}
-                  <div class="flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800">
+                  <div
+                    class="flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800"
+                  >
                     <span>{assignment.person.displayName}</span>
                     <form method="POST" action="?/revokeNinja" class="inline">
                       <input type="hidden" name="personId" value={assignment.personId} />
                       <input type="hidden" name="domainId" value={domain.id} />
-                      <button type="submit" class="ml-1 text-purple-600 hover:text-purple-900" aria-label="Remove">
+                      <button
+                        type="submit"
+                        class="ml-1 text-purple-600 hover:text-purple-900"
+                        aria-label="Remove"
+                      >
                         &times;
                       </button>
                     </form>

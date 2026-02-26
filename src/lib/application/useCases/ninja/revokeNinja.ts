@@ -1,5 +1,4 @@
 import type { NinjaRepository } from '$lib/application/ports/NinjaRepository';
-import type { Clock } from '$lib/application/ports/Clock';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -9,11 +8,12 @@ export type RevokeNinjaError =
   | { type: 'INTERNAL_ERROR'; message: string };
 
 export async function revokeNinja(
-  deps: { ninjaRepo: NinjaRepository; clock: Clock },
+  deps: { ninjaRepo: NinjaRepository },
   input: {
     personId: string;
     domainId: string;
-  }
+  },
+  now: Date = new Date()
 ): Promise<Result<void, RevokeNinjaError>> {
   try {
     const domain = await deps.ninjaRepo.getDomainById(input.domainId);
@@ -30,7 +30,7 @@ export async function revokeNinja(
 
     await deps.ninjaRepo.updateAssignment(existing.id, {
       isActive: false,
-      revokedAt: deps.clock.now()
+      revokedAt: now
     });
 
     return ok(undefined);

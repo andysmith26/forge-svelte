@@ -14,15 +14,9 @@
       data.settings?.modules.help.enabled
         ? { label: 'Help', href: `/classroom/${data.classroom.id}/help` }
         : null,
-      isTeacher
-        ? { label: 'Ninja', href: `/classroom/${data.classroom.id}/ninja` }
-        : null,
-      isTeacher
-        ? { label: 'Roster', href: `/classroom/${data.classroom.id}/roster` }
-        : null,
-      isTeacher
-        ? { label: 'Settings', href: `/classroom/${data.classroom.id}/settings` }
-        : null
+      isTeacher ? { label: 'Ninja', href: `/classroom/${data.classroom.id}/ninja` } : null,
+      isTeacher ? { label: 'Roster', href: `/classroom/${data.classroom.id}/roster` } : null,
+      isTeacher ? { label: 'Settings', href: `/classroom/${data.classroom.id}/settings` } : null
     ].filter(Boolean) as { label: string; href: string }[]
   );
 </script>
@@ -51,8 +45,10 @@
     {#each navItems as item (item.href)}
       <a
         href={item.href}
-        class="border-b-2 px-4 py-2 text-sm font-medium transition-colors -mb-px
-          {false ? 'border-forge-blue text-forge-blue' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
+        class="-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors
+          {false
+          ? 'border-forge-blue text-forge-blue'
+          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
       >
         {item.label}
       </a>

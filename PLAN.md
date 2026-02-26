@@ -3,6 +3,7 @@
 ## Research Findings
 
 ### Current Forge (Next.js)
+
 - **179 TypeScript files** across 4 layers: Domain → Services → tRPC/Data → React
 - **Domain layer** (`src/domain/`): 9 entity classes (class-based, immutable, state machines), 5 error types, event bus + event store, repository port interfaces, domain events with projectors
 - **Application layer** (`src/services/`): 9 service classes with constructor DI, authorization, classroom settings
@@ -13,6 +14,7 @@
 - **Database**: PostgreSQL (Supabase) with Prisma ORM, event sourcing pattern
 
 ### Groupwheel Reference (SvelteKit 2 + Svelte 5)
+
 - Follows PRINCIPLES.md hexagonal architecture faithfully
 - **Domain**: Plain interfaces + factory functions (not classes) for entities
 - **Application**: Use cases as standalone functions with `deps` parameter, Result types (`ok`/`err`)
@@ -24,15 +26,15 @@
 
 ### Key Differences Between Current Forge and PRINCIPLES.md Target
 
-| Aspect | Current Forge | PRINCIPLES.md Target |
-|---|---|---|
-| Entities | Class-based with private constructor | Either classes or plain interfaces + factories |
-| Services | Class-based services (application layer) | Use case functions with `deps` object |
-| Error handling | Thrown exceptions (domain errors) | Result types for business errors |
-| Composition | Singleton on process (Next.js workaround) | Environment object via Svelte context |
-| API layer | tRPC routers + React Query | SvelteKit server routes/actions OR tRPC |
-| UI framework | React + hooks | Svelte 5 + runes |
-| State | React Query + optimistic hooks | Svelte runes ($state, $derived) + invalidation |
+| Aspect         | Current Forge                             | PRINCIPLES.md Target                           |
+| -------------- | ----------------------------------------- | ---------------------------------------------- |
+| Entities       | Class-based with private constructor      | Either classes or plain interfaces + factories |
+| Services       | Class-based services (application layer)  | Use case functions with `deps` object          |
+| Error handling | Thrown exceptions (domain errors)         | Result types for business errors               |
+| Composition    | Singleton on process (Next.js workaround) | Environment object via Svelte context          |
+| API layer      | tRPC routers + React Query                | SvelteKit server routes/actions OR tRPC        |
+| UI framework   | React + hooks                             | Svelte 5 + runes                               |
+| State          | React Query + optimistic hooks            | Svelte runes ($state, $derived) + invalidation |
 
 ---
 
@@ -41,6 +43,7 @@
 **Layers touched**: ALL — this is a complete rewrite.
 
 **PRINCIPLES.md alignment requirements**:
+
 1. Domain layer must be pure TypeScript (no framework imports) ✓ already true
 2. Use cases as functions with `deps` injection (not class methods)
 3. Result types for business errors (not thrown exceptions)
@@ -49,6 +52,7 @@
 6. Environment/composition root assembles all dependencies
 
 **Anti-patterns to avoid**:
+
 - Business logic in Svelte components
 - Direct Prisma calls from routes
 - Framework code in domain layer
@@ -72,6 +76,7 @@ Start a fresh SvelteKit 2 project alongside the existing code. Port each layer b
 
 **Files created/modified**: ~150+ new files in SvelteKit structure
 **Trade-offs**:
+
 - Implementation effort: **Significant** (full rewrite)
 - Best-practice alignment: **Canonical** (follows both PRINCIPLES.md and SvelteKit idioms from the start)
 - Maintenance burden: **Simple** (clean architecture, no legacy compromises)
@@ -86,6 +91,7 @@ Keep tRPC as the API layer (it has a SvelteKit adapter) and the existing service
 
 **Files created/modified**: ~80 new Svelte files, tRPC adapter config
 **Trade-offs**:
+
 - Implementation effort: **Moderate** (reuse existing backend)
 - Best-practice alignment: **Acceptable** (services stay as classes, not aligned with PRINCIPLES.md use-case function pattern)
 - Maintenance burden: **Manageable** (but carries forward architectural debt — services as classes, thrown exceptions for errors)
@@ -95,6 +101,7 @@ Keep tRPC as the API layer (it has a SvelteKit adapter) and the existing service
 Start with Approach A's structure but implement in phases:
 
 **Phase 1 — Scaffold + Domain** (get the project running):
+
 - New SvelteKit 2 project with Svelte 5, Tailwind v4, Vitest
 - Copy domain entities, convert to Result types
 - Create port interfaces, composition root
@@ -102,11 +109,13 @@ Start with Approach A's structure but implement in phases:
 - Implement ONE feature end-to-end (e.g., presence) to validate the architecture
 
 **Phase 2 — Core Features**:
+
 - Port remaining use cases (session, help, ninja, roster, PIN)
 - Build SvelteKit server routes and load functions
 - Implement Svelte 5 components for each feature
 
 **Phase 3 — Polish**:
+
 - Realtime subscriptions
 - Optimistic updates
 - Smartboard display
@@ -114,6 +123,7 @@ Start with Approach A's structure but implement in phases:
 
 **Files created/modified**: Same as Approach A (~150+), but delivered incrementally
 **Trade-offs**:
+
 - Implementation effort: **Significant** (same total work as A, but paced)
 - Best-practice alignment: **Canonical** (full PRINCIPLES.md alignment)
 - Maintenance burden: **Simple** (clean from the start)
@@ -135,12 +145,14 @@ Start with Approach A's structure but implement in phases:
 ## Phase 1 Detailed Plan
 
 ### Step 1: Project scaffold
+
 - Initialize SvelteKit 2 project with Svelte 5, TypeScript
 - Configure: Tailwind v4 (`@tailwindcss/vite`), Vitest (client + server), Prettier, ESLint
 - Set up Prisma with existing schema (copy `prisma/schema.prisma`)
 - Configure `$lib` aliases matching Groupwheel structure
 
 ### Step 2: Foundation layers
+
 - `src/lib/types/result.ts` — Result type (copy from Groupwheel)
 - `src/lib/domain/` — Port existing entities (keep class-based pattern since it's already working and PRINCIPLES.md allows it)
 - `src/lib/domain/errors/` — Keep domain errors for programmer errors; add Result types for business errors in use cases
@@ -148,17 +160,20 @@ Start with Approach A's structure but implement in phases:
 - `src/lib/application/useCases/` — Convert session service methods to standalone use-case functions
 
 ### Step 3: Infrastructure
+
 - `src/lib/infrastructure/repositories/` — Port Prisma adapters
 - `src/lib/infrastructure/services/` — Clock, IdGenerator
 - `src/lib/infrastructure/environment.ts` — Composition root (server-side)
 - `src/lib/server/` — Server-only code (Prisma client, auth config)
 
 ### Step 4: Auth
+
 - Evaluate Auth.js for SvelteKit (successor to NextAuth) or Lucia
 - Implement Google OAuth + session management
 - PIN auth for shared devices
 
 ### Step 5: First feature (Presence)
+
 - `src/routes/` — Layout with auth, classroom routes
 - `src/routes/classroom/[id]/+page.server.ts` — Load function using use cases
 - `src/routes/classroom/[id]/presence/` — Presence management page
@@ -166,10 +181,12 @@ Start with Approach A's structure but implement in phases:
 - Validate the full stack works end-to-end
 
 ### Step 6: Smartboard display
+
 - `src/routes/display/[code]/` — Public display route (no auth)
 - Port smartboard components
 
 ### Proposed directory structure:
+
 ```
 src/
 ├── lib/

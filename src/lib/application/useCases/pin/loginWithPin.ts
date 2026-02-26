@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import type { PinRepository } from '$lib/application/ports/PinRepository';
-import type { Clock } from '$lib/application/ports/Clock';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -18,8 +17,9 @@ export type LoginWithPinError =
   | { type: 'INTERNAL_ERROR'; message: string };
 
 export async function loginWithPin(
-  deps: { pinRepo: PinRepository; clock: Clock },
-  input: { classroomCode: string; pin: string }
+  deps: { pinRepo: PinRepository },
+  input: { classroomCode: string; pin: string },
+  now: Date = new Date()
 ): Promise<Result<PinLoginResult, LoginWithPinError>> {
   try {
     const classroomId = await deps.pinRepo.findClassroomIdByDisplayCode(
@@ -46,7 +46,6 @@ export async function loginWithPin(
     }
 
     const token = randomBytes(32).toString('hex');
-    const now = deps.clock.now();
     const expiresAt = new Date(now.getTime() + PIN_SESSION_DURATION_MS);
 
     await deps.pinRepo.deletePinSessionsForPerson(matchedPersonId);

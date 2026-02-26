@@ -1,7 +1,6 @@
 import type { SessionRepository, SessionRecord } from '$lib/application/ports/SessionRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
 import type { EventStore } from '$lib/application/ports/EventStore';
-import type { Clock } from '$lib/application/ports/Clock';
 import { createSession } from './createSession';
 import { startSession } from './startSession';
 import type { Result } from '$lib/types/result';
@@ -21,12 +20,10 @@ export async function createAndStartSession(
     sessionRepo: SessionRepository;
     classroomRepo: ClassroomRepository;
     eventStore: EventStore;
-    clock: Clock;
   },
-  input: { classroomId: string; actorId: string }
+  input: { classroomId: string; actorId: string },
+  now: Date = new Date()
 ): Promise<Result<SessionRecord, CreateAndStartSessionError>> {
-  const now = deps.clock.now();
-
   const createResult = await createSession(
     { sessionRepo: deps.sessionRepo },
     {

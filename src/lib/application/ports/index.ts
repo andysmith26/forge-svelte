@@ -84,5 +84,4 @@ export type {
 } from './RealtimeNotificationRepository';
 
 export type { EventStore, AppendEventInput, StoredEvent, EventFilters } from './EventStore';
-export type { Clock } from './Clock';
 export type { IdGenerator } from './IdGenerator';

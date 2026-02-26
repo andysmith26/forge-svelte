@@ -28,7 +28,13 @@
     {#each requests as req (req.id)}
       <div class="mt-3 rounded-lg bg-white p-3">
         <div class="flex items-center gap-2">
-          <Badge variant={req.urgency === 'blocked' ? 'red' : req.urgency === 'question' ? 'blue' : 'green'}>
+          <Badge
+            variant={req.urgency === 'blocked'
+              ? 'red'
+              : req.urgency === 'question'
+                ? 'blue'
+                : 'green'}
+          >
             {urgencyLabel[req.urgency] ?? req.urgency}
           </Badge>
           {#if req.category}

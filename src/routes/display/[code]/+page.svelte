@@ -18,23 +18,18 @@
     clearInterval(intervalId);
   });
 
-  const timeString = $derived(
-    now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  );
+  const timeString = $derived(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
   const hasActiveSession = $derived(data.session?.status === 'active');
 
   const ninjaMap = $derived(
     new Map<string, string[]>(
-      data.ninjaAssignments.reduce(
-        (acc, a) => {
-          const existing = acc.get(a.personId) ?? [];
-          existing.push(a.domainName);
-          acc.set(a.personId, existing);
-          return acc;
-        },
-        new Map<string, string[]>()
-      )
+      data.ninjaAssignments.reduce((acc, a) => {
+        const existing = acc.get(a.personId) ?? [];
+        existing.push(a.domainName);
+        acc.set(a.personId, existing);
+        return acc;
+      }, new Map<string, string[]>())
     )
   );
 
@@ -80,7 +75,9 @@
       {#if hasActiveSession}
         <div class="flex items-center gap-2">
           <span class="relative inline-flex h-3 w-3">
-            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+            <span
+              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"
+            ></span>
             <span class="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
           </span>
           <span class="text-sm text-green-400">Session Active</span>
@@ -100,7 +97,11 @@
         <p class="text-2xl text-gray-500">Welcome to {data.classroom.name}</p>
       </div>
     {:else}
-      <div class="grid gap-8 {data.settings.presenceEnabled && data.settings.helpEnabled ? 'lg:grid-cols-2' : ''}">
+      <div
+        class="grid gap-8 {data.settings.presenceEnabled && data.settings.helpEnabled
+          ? 'lg:grid-cols-2'
+          : ''}"
+      >
         {#if data.settings.presenceEnabled}
           <div>
             <div class="mb-4 flex items-center justify-between">
@@ -125,11 +126,15 @@
                       {isNinja ? 'bg-purple-900/50 ring-1 ring-purple-500' : 'bg-gray-800'}"
                   >
                     <div class="relative">
-                      <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-700 text-xl font-bold">
+                      <div
+                        class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-700 text-xl font-bold"
+                      >
                         {person.displayName.charAt(0).toUpperCase()}
                       </div>
                       {#if isNinja}
-                        <span class="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-xs font-bold">
+                        <span
+                          class="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-xs font-bold"
+                        >
                           N
                         </span>
                       {/if}
@@ -141,7 +146,9 @@
                     {#if domains.length > 0}
                       <div class="mt-1 flex flex-wrap justify-center gap-1">
                         {#each domains as domain}
-                          <span class="rounded-full bg-purple-600 px-2 py-0.5 text-xs">{domain}</span>
+                          <span class="rounded-full bg-purple-600 px-2 py-0.5 text-xs"
+                            >{domain}</span
+                          >
                         {/each}
                       </div>
                     {/if}
@@ -161,8 +168,18 @@
 
             {#if data.queue.length === 0}
               <div class="flex flex-col items-center py-12 text-gray-500">
-                <svg class="mb-2 h-10 w-10 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  class="mb-2 h-10 w-10 text-green-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <p>No one waiting for help</p>
               </div>
@@ -170,21 +187,33 @@
               <div class="space-y-3">
                 {#each data.queue.slice(0, 10) as item, i (item.id)}
                   {@const isClaimed = item.status === 'claimed'}
-                  <div class="flex items-center gap-4 rounded-lg p-4 {isClaimed ? 'border border-blue-500 bg-gray-800' : 'bg-gray-800'}">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-700 text-lg font-bold">
+                  <div
+                    class="flex items-center gap-4 rounded-lg p-4 {isClaimed
+                      ? 'border border-blue-500 bg-gray-800'
+                      : 'bg-gray-800'}"
+                  >
+                    <div
+                      class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-700 text-lg font-bold"
+                    >
                       {i + 1}
                     </div>
                     <div class="flex-1">
                       <p class="text-lg font-semibold">{item.requester.displayName}</p>
                       <div class="flex items-center gap-2">
-                        <span class="rounded-full px-2 py-0.5 text-xs font-medium {urgencyColor[item.urgency] ?? 'bg-gray-500'}">
+                        <span
+                          class="rounded-full px-2 py-0.5 text-xs font-medium {urgencyColor[
+                            item.urgency
+                          ] ?? 'bg-gray-500'}"
+                        >
                           {urgencyLabel[item.urgency] ?? item.urgency}
                         </span>
                         {#if item.category}
                           <span class="text-xs text-gray-400">{item.category.name}</span>
                         {/if}
                         {#if item.claimedBy}
-                          <span class="text-xs text-blue-400">{item.claimedBy.displayName} is helping</span>
+                          <span class="text-xs text-blue-400"
+                            >{item.claimedBy.displayName} is helping</span
+                          >
                         {/if}
                       </div>
                     </div>

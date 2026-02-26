@@ -24,10 +24,7 @@ export class PrismaHelpRepository implements HelpRepository {
     return this.db.helpCategory.findUnique({ where: { id } });
   }
 
-  async findCategoryByName(
-    classroomId: string,
-    name: string
-  ): Promise<HelpCategoryRecord | null> {
+  async findCategoryByName(classroomId: string, name: string): Promise<HelpCategoryRecord | null> {
     return this.db.helpCategory.findFirst({
       where: { classroomId, name, isActive: true }
     });
@@ -75,10 +72,7 @@ export class PrismaHelpRepository implements HelpRepository {
     return this.db.helpRequest.findUnique({ where: { id } });
   }
 
-  async findOpenRequest(
-    sessionId: string,
-    requesterId: string
-  ): Promise<HelpRequestRecord | null> {
+  async findOpenRequest(sessionId: string, requesterId: string): Promise<HelpRequestRecord | null> {
     return this.db.helpRequest.findFirst({
       where: {
         sessionId,
@@ -131,10 +125,7 @@ export class PrismaHelpRepository implements HelpRepository {
     });
   }
 
-  async listResolvedSamples(
-    classroomId: string,
-    limit: number
-  ): Promise<ResolvedRequestSample[]> {
+  async listResolvedSamples(classroomId: string, limit: number): Promise<ResolvedRequestSample[]> {
     return this.db.helpRequest.findMany({
       where: {
         classroomId,

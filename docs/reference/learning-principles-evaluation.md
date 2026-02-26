@@ -133,19 +133,19 @@ The "Chores" module is marked "Coming Soon." When designed, it must avoid becomi
 
 ## Summary
 
-| # | Recommendation | Primary Principle |
-|---|---|---|
-| 1 | Build the Projects module for student artifacts | 4 — Artifacts |
-| 2 | Add project gallery/showcase to smartboard | 4, 14 — Artifacts + Computer-worthy |
-| 3 | Deepen help request form to require student hypotheses | 2, 7 — Agency + Debugging |
-| 4 | Rethink Ninja badges as self-declared "ask me about" | 12 — No gamification |
-| 5 | Let students write in their own help topics | 13 — Learner-driven sequence |
-| 6 | Design teacher review as narrative, not metrics | 9 — No numbers |
-| 7 | Support multi-session project continuity | 11 — Time for immersion |
-| 8 | Expand student control over profile & visibility | 2 — Child as agent |
-| 9 | Reimagine smartboard as student-controlled space | 2, 4, 14 — Agency + Artifacts |
-| 10 | Make help urgency optional or remove it | 2, 13 — Agency + Learner sequence |
-| 11 | Add student reflection/journal tied to projects | 1, 4, 7 — Construction + Debugging |
-| 12 | Design Chores as community contributions, not tracking | 8, 9, 15 — No compliance |
+| #   | Recommendation                                         | Primary Principle                   |
+| --- | ------------------------------------------------------ | ----------------------------------- |
+| 1   | Build the Projects module for student artifacts        | 4 — Artifacts                       |
+| 2   | Add project gallery/showcase to smartboard             | 4, 14 — Artifacts + Computer-worthy |
+| 3   | Deepen help request form to require student hypotheses | 2, 7 — Agency + Debugging           |
+| 4   | Rethink Ninja badges as self-declared "ask me about"   | 12 — No gamification                |
+| 5   | Let students write in their own help topics            | 13 — Learner-driven sequence        |
+| 6   | Design teacher review as narrative, not metrics        | 9 — No numbers                      |
+| 7   | Support multi-session project continuity               | 11 — Time for immersion             |
+| 8   | Expand student control over profile & visibility       | 2 — Child as agent                  |
+| 9   | Reimagine smartboard as student-controlled space       | 2, 4, 14 — Agency + Artifacts       |
+| 10  | Make help urgency optional or remove it                | 2, 13 — Agency + Learner sequence   |
+| 11  | Add student reflection/journal tied to projects        | 1, 4, 7 — Construction + Debugging  |
+| 12  | Design Chores as community contributions, not tracking | 8, 9, 15 — No compliance            |
 
 The overarching theme: Forge currently serves **teachers managing classrooms**. The principles demand it serve **students constructing knowledge**. The biggest shift is making student-created artifacts the center of the app, not operational logistics.

@@ -12,10 +12,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   }
 
   const env = getEnvironment();
-  const result = await loginWithPin(
-    { pinRepo: env.pinRepo, clock: env.clock },
-    { classroomCode, pin }
-  );
+  const result = await loginWithPin({ pinRepo: env.pinRepo }, { classroomCode, pin });
 
   if (result.status === 'err') {
     if (result.error.type === 'INVALID_CREDENTIALS') {

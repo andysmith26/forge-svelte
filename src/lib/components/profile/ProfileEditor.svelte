@@ -53,13 +53,14 @@
 
     <form method="POST" action="/classroom/{classroomId}?/updateProfile" class="mt-4 space-y-4">
       <div>
-        <label for="displayName" class="block text-sm font-medium text-gray-700">Display Name</label>
+        <label for="displayName" class="block text-sm font-medium text-gray-700">Display Name</label
+        >
         <input
           id="displayName"
           name="displayName"
           type="text"
           bind:value={displayName}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
           required
         />
       </div>
@@ -72,7 +73,7 @@
           type="text"
           bind:value={pronouns}
           placeholder="e.g., they/them"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
         />
       </div>
 
@@ -84,7 +85,7 @@
           type="text"
           bind:value={askMeAbout}
           placeholder="e.g., JavaScript, 3D printing"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
         />
         <p class="mt-1 text-xs text-gray-500">Comma-separated topics</p>
       </div>
@@ -111,7 +112,9 @@
           <dt class="text-sm text-gray-500">Ask Me About</dt>
           <dd class="flex flex-wrap gap-1">
             {#each profile.askMeAbout as topic}
-              <span class="inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+              <span
+                class="inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
+              >
                 {topic}
               </span>
             {/each}

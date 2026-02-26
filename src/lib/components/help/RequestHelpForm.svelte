@@ -30,7 +30,7 @@
           id="categoryId"
           name="categoryId"
           bind:value={categoryId}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
         >
           <option value="">None</option>
           {#each categories as cat (cat.id)}
@@ -51,7 +51,7 @@
         rows={3}
         required
         placeholder="Describe your problem or question..."
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
+        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
       ></textarea>
     </div>
 
@@ -67,7 +67,7 @@
         required
         minlength={20}
         placeholder="Describe what you've already tried..."
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:outline-none focus:ring-1 focus:ring-forge-blue"
+        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
       ></textarea>
       <p class="mt-1 text-xs {meetsMinimum ? 'text-green-600' : 'text-gray-500'}">
         {charCount}/20 characters minimum
@@ -81,31 +81,37 @@
       <div class="mt-2 space-y-2">
         <label
           class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors
-            {urgency === 'blocked' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:bg-gray-50'}"
+            {urgency === 'blocked'
+            ? 'border-red-500 bg-red-50'
+            : 'border-gray-200 hover:bg-gray-50'}"
         >
           <input type="radio" name="urgency" value="blocked" bind:group={urgency} class="mt-1" />
           <div>
-            <p class="font-medium text-sm">Stuck and blocked</p>
+            <p class="text-sm font-medium">Stuck and blocked</p>
             <p class="text-xs text-gray-500">I can't continue without help</p>
           </div>
         </label>
         <label
           class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors
-            {urgency === 'question' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}"
+            {urgency === 'question'
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-200 hover:bg-gray-50'}"
         >
           <input type="radio" name="urgency" value="question" bind:group={urgency} class="mt-1" />
           <div>
-            <p class="font-medium text-sm">Have a question</p>
+            <p class="text-sm font-medium">Have a question</p>
             <p class="text-xs text-gray-500">I have a question but can keep working</p>
           </div>
         </label>
         <label
           class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors
-            {urgency === 'check_work' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'}"
+            {urgency === 'check_work'
+            ? 'border-green-500 bg-green-50'
+            : 'border-gray-200 hover:bg-gray-50'}"
         >
           <input type="radio" name="urgency" value="check_work" bind:group={urgency} class="mt-1" />
           <div>
-            <p class="font-medium text-sm">Check my work</p>
+            <p class="text-sm font-medium">Check my work</p>
             <p class="text-xs text-gray-500">I want someone to review what I did</p>
           </div>
         </label>

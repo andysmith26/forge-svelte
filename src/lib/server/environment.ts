@@ -8,10 +8,9 @@ import type {
   PinRepository,
   RealtimeNotificationRepository,
   EventStore,
-  Clock,
   IdGenerator
 } from '$lib/application/ports';
-import { SystemClock, UuidIdGenerator } from '$lib/infrastructure/services';
+import { UuidIdGenerator } from '$lib/infrastructure/services';
 import {
   PrismaClassroomRepository,
   PrismaSessionRepository,
@@ -35,7 +34,6 @@ export interface AppEnvironment {
   pinRepo: PinRepository;
   realtimeNotificationRepo: RealtimeNotificationRepository;
   eventStore: EventStore;
-  clock: Clock;
   idGenerator: IdGenerator;
 }
 
@@ -57,7 +55,6 @@ export function getEnvironment(): AppEnvironment {
     pinRepo: new PrismaPinRepository(prisma),
     realtimeNotificationRepo: new PrismaRealtimeNotificationRepository(prisma),
     eventStore: new PrismaEventStore(prisma, projectorRegistry),
-    clock: new SystemClock(),
     idGenerator: new UuidIdGenerator()
   };
 

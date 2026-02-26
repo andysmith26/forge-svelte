@@ -51,8 +51,7 @@ export const actions: Actions = {
       {
         sessionRepo: env.sessionRepo,
         classroomRepo: env.classroomRepo,
-        eventStore: env.eventStore,
-        clock: env.clock
+        eventStore: env.eventStore
       },
       { classroomId: params.classroomId, actorId: actor.personId }
     );

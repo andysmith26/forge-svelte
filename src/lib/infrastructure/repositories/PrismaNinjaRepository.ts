@@ -29,10 +29,7 @@ export class PrismaNinjaRepository implements NinjaRepository {
     return this.db.ninjaDomain.findUnique({ where: { id } });
   }
 
-  async findDomainByName(
-    classroomId: string,
-    name: string
-  ): Promise<NinjaDomainRecord | null> {
+  async findDomainByName(classroomId: string, name: string): Promise<NinjaDomainRecord | null> {
     return this.db.ninjaDomain.findFirst({
       where: { classroomId, name, isActive: true }
     });
@@ -79,9 +76,7 @@ export class PrismaNinjaRepository implements NinjaRepository {
     return result.count;
   }
 
-  async listAssignmentsByClassroom(
-    classroomId: string
-  ): Promise<NinjaAssignmentWithRelations[]> {
+  async listAssignmentsByClassroom(classroomId: string): Promise<NinjaAssignmentWithRelations[]> {
     return this.db.ninjaAssignment.findMany({
       where: {
         ninjaDomain: { classroomId, isActive: true },
@@ -119,18 +114,13 @@ export class PrismaNinjaRepository implements NinjaRepository {
     });
   }
 
-  async getAssignment(
-    personId: string,
-    domainId: string
-  ): Promise<NinjaAssignmentRecord | null> {
+  async getAssignment(personId: string, domainId: string): Promise<NinjaAssignmentRecord | null> {
     return this.db.ninjaAssignment.findUnique({
       where: { personId_ninjaDomainId: { personId, ninjaDomainId: domainId } }
     });
   }
 
-  async createAssignment(
-    input: CreateNinjaAssignmentInput
-  ): Promise<NinjaAssignmentWithRelations> {
+  async createAssignment(input: CreateNinjaAssignmentInput): Promise<NinjaAssignmentWithRelations> {
     return this.db.ninjaAssignment.create({
       data: {
         personId: input.personId,

@@ -33,7 +33,9 @@
   {:else}
     <div class="flex items-center gap-3 rounded-lg bg-yellow-50 p-4">
       <StatusDot color="yellow" />
-      <p class="text-sm text-gray-600">No active session. Wait for your teacher to start the session.</p>
+      <p class="text-sm text-gray-600">
+        No active session. Wait for your teacher to start the session.
+      </p>
     </div>
   {/if}
 
@@ -57,7 +59,10 @@
           </form>
         {:else}
           <form method="POST" action="?/signIn">
-            <Button type="submit" class="w-full bg-green-600 hover:bg-green-700 focus:ring-green-500">
+            <Button
+              type="submit"
+              class="w-full bg-green-600 hover:bg-green-700 focus:ring-green-500"
+            >
               Sign In
             </Button>
           </form>

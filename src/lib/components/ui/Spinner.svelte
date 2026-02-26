@@ -11,7 +11,9 @@
 </script>
 
 <span
-  class="inline-block animate-spin rounded-full border-2 border-current border-t-transparent {sizeClasses[size]} {className}"
+  class="inline-block animate-spin rounded-full border-2 border-current border-t-transparent {sizeClasses[
+    size
+  ]} {className}"
   role="status"
   aria-label="Loading"
 >

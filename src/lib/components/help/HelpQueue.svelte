@@ -58,8 +58,18 @@
 
 {#if queue.length === 0}
   <div class="flex flex-col items-center py-12 text-gray-500">
-    <svg class="mb-2 h-10 w-10 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <svg
+      class="mb-2 h-10 w-10 text-green-400"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
     </svg>
     <p>No one needs help right now</p>
   </div>
@@ -74,8 +84,8 @@
           {isClaimed ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}"
       >
         <div class="flex items-center gap-3">
-          <span class="text-xs font-mono text-gray-400">#{i + 1}</span>
-          <span class="font-medium text-gray-900 truncate">{item.requester.displayName}</span>
+          <span class="font-mono text-xs text-gray-400">#{i + 1}</span>
+          <span class="truncate font-medium text-gray-900">{item.requester.displayName}</span>
           <Badge variant={urgencyVariant[item.urgency] ?? 'gray'}>
             {urgencyLabel[item.urgency] ?? item.urgency}
           </Badge>
@@ -94,9 +104,16 @@
           >
             <svg
               class="h-5 w-5 transition-transform {expandedId === item.id ? 'rotate-180' : ''}"
-              fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
             </svg>
           </button>
         </div>
@@ -109,11 +126,11 @@
           <div class="mt-3 space-y-2 border-t border-gray-200 pt-3">
             <div>
               <p class="text-xs font-medium text-gray-500">Description</p>
-              <p class="whitespace-pre-wrap text-sm text-gray-700">{item.description}</p>
+              <p class="text-sm whitespace-pre-wrap text-gray-700">{item.description}</p>
             </div>
             <div>
               <p class="text-xs font-medium text-gray-500">What they tried</p>
-              <p class="whitespace-pre-wrap text-sm text-gray-600">{item.whatITried}</p>
+              <p class="text-sm whitespace-pre-wrap text-gray-600">{item.whatITried}</p>
             </div>
           </div>
         {/if}
@@ -135,7 +152,11 @@
             {#if isClaimed}
               <form method="POST" action="?/resolve">
                 <input type="hidden" name="requestId" value={item.id} />
-                <Button type="submit" size="sm" class="bg-green-600 hover:bg-green-700 focus:ring-green-500">
+                <Button
+                  type="submit"
+                  size="sm"
+                  class="bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                >
                   Resolve
                 </Button>
               </form>

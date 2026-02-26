@@ -62,7 +62,9 @@
     <div class="flex items-center gap-3 rounded-lg bg-yellow-50 p-4">
       <StatusDot color="yellow" />
       <p class="text-sm text-gray-600">
-        {isTeacher ? 'No active session' : 'No active session. Wait for your teacher to start the session.'}
+        {isTeacher
+          ? 'No active session'
+          : 'No active session. Wait for your teacher to start the session.'}
       </p>
     </div>
 

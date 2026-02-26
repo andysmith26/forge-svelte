@@ -20,7 +20,11 @@
 
 <span class="relative inline-flex h-3 w-3 {className}">
   {#if pulse}
-    <span class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 {colorClasses[color]}"></span>
+    <span
+      class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 {colorClasses[
+        color
+      ]}"
+    ></span>
   {/if}
   <span class="relative inline-flex h-3 w-3 rounded-full {colorClasses[color]}"></span>
 </span>

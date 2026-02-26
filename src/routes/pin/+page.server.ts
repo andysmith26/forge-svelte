@@ -15,15 +15,9 @@ export const load: PageServerLoad = async ({ locals }) => {
   const env = getEnvironment();
   const classroomId = locals.actor.pinClassroomId!;
 
-  const classroomResult = await getClassroom(
-    { classroomRepo: env.classroomRepo },
-    { classroomId }
-  );
+  const classroomResult = await getClassroom({ classroomRepo: env.classroomRepo }, { classroomId });
 
-  const sessionResult = await getCurrentSession(
-    { sessionRepo: env.sessionRepo },
-    { classroomId }
-  );
+  const sessionResult = await getCurrentSession({ sessionRepo: env.sessionRepo }, { classroomId });
 
   const session =
     sessionResult.status === 'ok' && sessionResult.value

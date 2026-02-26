@@ -108,7 +108,7 @@ export const actions: Actions = {
 
     const env = getEnvironment();
     const result = await removeStudent(
-      { personRepo: env.personRepo, clock: env.clock },
+      { personRepo: env.personRepo },
       { classroomId: params.classroomId, personId }
     );
 
@@ -129,12 +129,19 @@ export const actions: Actions = {
     if (!csvData) return fail(400, { error: 'No CSV data provided' });
 
     const lines = csvData.split('\n').filter((l) => l.trim());
-    if (lines.length < 2) return fail(400, { error: 'CSV must have a header row and at least one data row' });
+    if (lines.length < 2)
+      return fail(400, { error: 'CSV must have a header row and at least one data row' });
 
     const header = lines[0].toLowerCase();
-    const nameCol = header.split(',').findIndex((h) => ['name', 'student_name', 'student'].includes(h.trim()));
-    const emailCol = header.split(',').findIndex((h) => ['email', 'student_email', 'email_address'].includes(h.trim()));
-    const gradeCol = header.split(',').findIndex((h) => ['grade', 'grade_level', 'gradelevel'].includes(h.trim()));
+    const nameCol = header
+      .split(',')
+      .findIndex((h) => ['name', 'student_name', 'student'].includes(h.trim()));
+    const emailCol = header
+      .split(',')
+      .findIndex((h) => ['email', 'student_email', 'email_address'].includes(h.trim()));
+    const gradeCol = header
+      .split(',')
+      .findIndex((h) => ['grade', 'grade_level', 'gradelevel'].includes(h.trim()));
 
     if (nameCol === -1 || emailCol === -1) {
       return fail(400, { error: 'CSV must have "name" and "email" columns' });

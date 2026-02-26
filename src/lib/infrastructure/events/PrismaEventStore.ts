@@ -24,10 +24,7 @@ export class PrismaEventStore implements EventStore {
     });
   }
 
-  private async appendWithTx(
-    input: AppendEventInput,
-    tx: TransactionClient
-  ): Promise<StoredEvent> {
+  private async appendWithTx(input: AppendEventInput, tx: TransactionClient): Promise<StoredEvent> {
     const event = await tx.domainEvent.create({
       data: {
         schoolId: input.schoolId,
@@ -41,10 +38,7 @@ export class PrismaEventStore implements EventStore {
       }
     });
 
-    await this.projectorRegistry.apply(
-      event as StoredEvent,
-      tx as unknown as PrismaClient
-    );
+    await this.projectorRegistry.apply(event as StoredEvent, tx as unknown as PrismaClient);
 
     return event as StoredEvent;
   }

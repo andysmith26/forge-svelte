@@ -1,5 +1,4 @@
 import type { PersonRepository } from '$lib/application/ports/PersonRepository';
-import type { Clock } from '$lib/application/ports/Clock';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -8,8 +7,9 @@ export type RemoveStudentError =
   | { type: 'INTERNAL_ERROR'; message: string };
 
 export async function removeStudent(
-  deps: { personRepo: PersonRepository; clock: Clock },
-  input: { classroomId: string; personId: string }
+  deps: { personRepo: PersonRepository },
+  input: { classroomId: string; personId: string },
+  now: Date = new Date()
 ): Promise<Result<void, RemoveStudentError>> {
   try {
     const membership = await deps.personRepo.getMembership(input.personId, input.classroomId);
@@ -20,7 +20,7 @@ export async function removeStudent(
 
     await deps.personRepo.updateMembership(membership.id, {
       isActive: false,
-      leftAt: deps.clock.now()
+      leftAt: now
     });
 
     return ok(undefined);

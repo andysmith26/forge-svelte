@@ -22,7 +22,9 @@
 </script>
 
 <div
-  class="inline-flex items-center justify-center rounded-full bg-forge-blue-light font-semibold text-forge-blue {sizeClasses[size]} {className}"
+  class="inline-flex items-center justify-center rounded-full bg-forge-blue-light font-semibold text-forge-blue {sizeClasses[
+    size
+  ]} {className}"
   aria-hidden="true"
 >
   {initial}

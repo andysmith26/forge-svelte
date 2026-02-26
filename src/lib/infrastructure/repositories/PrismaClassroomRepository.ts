@@ -42,10 +42,7 @@ export class PrismaClassroomRepository implements ClassroomRepository {
     }));
   }
 
-  async getMembership(
-    personId: string,
-    classroomId: string
-  ): Promise<ClassroomMembership | null> {
+  async getMembership(personId: string, classroomId: string): Promise<ClassroomMembership | null> {
     return this.db.classroomMembership.findFirst({
       where: { personId, classroomId, isActive: true }
     });
