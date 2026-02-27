@@ -2,6 +2,8 @@
   import type { LayoutData } from './$types';
   import { createClassroomSubscription } from '$lib/realtime';
   import { ConnectionStatus } from '$lib/components/ui';
+  import { getModuleNavItems } from '$lib/domain/types/module-nav';
+  import { DEFAULT_CLASSROOM_SETTINGS } from '$lib/domain/types/classroom-settings';
 
   const { data, children }: { data: LayoutData; children: import('svelte').Snippet } = $props();
 
@@ -9,20 +11,25 @@
 
   const realtime = createClassroomSubscription(data.classroom.id, data.currentSession?.id ?? null);
 
-  const navItems = $derived(
-    [
-      { label: 'Dashboard', href: `/classroom/${data.classroom.id}` },
-      data.settings?.modules.presence.enabled
-        ? { label: 'Presence', href: `/classroom/${data.classroom.id}/presence` }
-        : null,
-      data.settings?.modules.help.enabled
-        ? { label: 'Help', href: `/classroom/${data.classroom.id}/help` }
-        : null,
-      isTeacher ? { label: 'Ninja', href: `/classroom/${data.classroom.id}/ninja` } : null,
-      isTeacher ? { label: 'Roster', href: `/classroom/${data.classroom.id}/roster` } : null,
-      isTeacher ? { label: 'Settings', href: `/classroom/${data.classroom.id}/settings` } : null
-    ].filter(Boolean) as { label: string; href: string }[]
+  const moduleNavItems = $derived(
+    getModuleNavItems(
+      data.classroom.id,
+      data.settings ?? DEFAULT_CLASSROOM_SETTINGS,
+      data.membership.role
+    )
   );
+
+  const navItems = $derived([
+    { label: 'Dashboard', href: `/classroom/${data.classroom.id}` },
+    ...moduleNavItems,
+    ...(isTeacher
+      ? [
+          { label: 'Ninja', href: `/classroom/${data.classroom.id}/ninja` },
+          { label: 'Roster', href: `/classroom/${data.classroom.id}/roster` },
+          { label: 'Settings', href: `/classroom/${data.classroom.id}/settings` }
+        ]
+      : [])
+  ]);
 </script>
 
 <div class="mb-6">

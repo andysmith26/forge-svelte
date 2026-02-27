@@ -1,12 +1,11 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { Button } from '$lib/components/ui';
-  import { MODULE_INFO } from '$lib/domain/types/classroom-settings';
+  import { MODULE_DEFINITIONS } from '$lib/domain/types/classroom-settings';
 
   const { data }: { data: PageData } = $props();
 
-  const modules = ['presence', 'help', 'projects', 'chores'] as const;
-  const notImplemented = new Set(['projects', 'chores']);
+  const allModules = Object.values(MODULE_DEFINITIONS);
 </script>
 
 <div class="mx-auto max-w-2xl">
@@ -18,17 +17,16 @@
 
   <form method="POST" action="?/updateModules">
     <div class="space-y-3">
-      {#each modules as mod (mod)}
-        {@const info = MODULE_INFO[mod]}
-        {@const enabled = data.classroomSettings.modules[mod].enabled}
-        {@const disabled = notImplemented.has(mod)}
+      {#each allModules as def (def.id)}
+        {@const enabled = data.classroomSettings.modules[def.id].enabled}
+        {@const disabled = def.status === 'coming_soon'}
         <label
           class="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm
             {disabled ? 'opacity-60' : ''}"
         >
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-medium text-gray-900">{info.name}</span>
+              <span class="font-medium text-gray-900">{def.name}</span>
               {#if disabled}
                 <span
                   class="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800"
@@ -37,12 +35,12 @@
                 </span>
               {/if}
             </div>
-            <p class="text-sm text-gray-500">{info.description}</p>
+            <p class="text-sm text-gray-500">{def.description}</p>
           </div>
           <div class="relative ml-4">
             <input
               type="checkbox"
-              name={mod}
+              name={def.id}
               checked={enabled}
               {disabled}
               value="on"

@@ -136,6 +136,10 @@ export class ClassroomEntity {
     return this.isModuleEnabled('chores');
   }
 
+  hasProfileEnabled(): boolean {
+    return this.isModuleEnabled('profile');
+  }
+
   setModuleEnabled(module: ClassroomModule, enabled: boolean): ClassroomEntity {
     const newSettings: ClassroomSettings = {
       ...this.settings,

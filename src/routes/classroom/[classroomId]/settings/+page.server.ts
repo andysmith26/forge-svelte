@@ -3,7 +3,11 @@ import { fail } from '@sveltejs/kit';
 import { getEnvironment } from '$lib/server/environment';
 import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
 import { updateModules } from '$lib/application/useCases/classroom/updateModules';
-import type { ClassroomModule } from '$lib/domain/types/classroom-settings';
+import {
+  CLASSROOM_MODULES,
+  DEFAULT_CLASSROOM_SETTINGS,
+  type ClassroomModule
+} from '$lib/domain/types/classroom-settings';
 
 export const load: PageServerLoad = async ({ parent }) => {
   const parentData = await parent();
@@ -16,16 +20,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 
   return {
     classroomSettings:
-      settingsResult.status === 'ok'
-        ? settingsResult.value
-        : {
-            modules: {
-              presence: { enabled: true },
-              help: { enabled: false },
-              projects: { enabled: false },
-              chores: { enabled: false }
-            }
-          }
+      settingsResult.status === 'ok' ? settingsResult.value : DEFAULT_CLASSROOM_SETTINGS
   };
 };
 
@@ -37,7 +32,7 @@ export const actions: Actions = {
     const formData = await request.formData();
 
     const modules: Partial<Record<ClassroomModule, boolean>> = {};
-    for (const mod of ['presence', 'help', 'projects', 'chores'] as ClassroomModule[]) {
+    for (const mod of Object.values(CLASSROOM_MODULES)) {
       const value = formData.get(mod);
       if (value !== null) {
         modules[mod] = value === 'on';

@@ -36,8 +36,8 @@ export const load: PageServerLoad = async ({ params }) => {
       : null;
 
   const settings = settingsResult.status === 'ok' ? settingsResult.value : null;
-  const presenceEnabled = settings?.modules.presence.enabled ?? false;
-  const helpEnabled = settings?.modules.help.enabled ?? false;
+  const presenceEnabled = settings?.modules.presence?.enabled ?? false;
+  const helpEnabled = settings?.modules.help?.enabled ?? false;
 
   let present: {
     id: string;

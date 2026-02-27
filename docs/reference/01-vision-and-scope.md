@@ -144,9 +144,57 @@ Forge V1 delivers the minimum operational capabilities needed to support constru
 
 - **Peer expertise reframed.** The ninja badge system is replaced by student-self-declared "ask me about" expertise. Students identify their own areas of competence rather than receiving a teacher-assigned status. This is meta-learning about community, not gamification. _(Principle 12)_
 
-- **Help urgency made optional.** Pre-categorized urgency levels (blocked/question/check_work) are available but not required. Teachers should triage based on their knowledge of the child, not a software-assigned tag. _(Principles 2, 10)_
+- **Help urgency made optional.** Pre-categorized urgency levels (blocked/question/check*work) are available but not required. Teachers should triage based on their knowledge of the child, not a software-assigned tag. *(Principles 2, 10)\_
 
 - **Teacher session review designed as narrative.** The teacher dashboard shows what students worked on and what they struggled with — not average wait times, completion rates, or time-on-task metrics. _(Principle 9)_
+
+### Module System
+
+Forge is a modular classroom OS. **Modules** are the unit of capability that teachers enable or disable per classroom.
+
+#### Philosophy
+
+Not every classroom needs every feature on day one. A teacher starting with Forge should be able to begin with a clean, minimal experience — just Presence — and progressively enable capabilities as the class is ready. Modules are the mechanism for this controlled rollout. Disabled modules are invisible to students: no partial states, no "coming soon" badges, no cognitive overhead from features that aren't in use yet.
+
+#### Progressive Rollout
+
+A typical rollout might look like:
+
+| Week | Module enabled | Why now                                                                                                    |
+| ---- | -------------- | ---------------------------------------------------------------------------------------------------------- |
+| 1    | Presence       | Establish the rhythm of signing in. Students learn the tool exists.                                        |
+| 2    | Profile        | Students customize how they appear — display name, pronouns, "ask me about" topics. Agency from the start. |
+| 3    | Chores         | Establish shared responsibility for the learning space early.                                              |
+| 4+   | Projects       | When multi-session builds begin, add project tracking and handoffs.                                        |
+| 5+   | Help           | Introduce the help queue once students are building and need peer support.                                 |
+
+The teacher controls this timeline entirely from the Settings page. There is no prescribed sequence — some classrooms may enable Help before Profile, or skip Chores altogether.
+
+#### Core Modules (V1)
+
+| Module   | Purpose                                                 |
+| -------- | ------------------------------------------------------- |
+| Presence | Track who is here during class sessions                 |
+| Profile  | Students customize their identity and self-presentation |
+| Help     | Peer help queue with ninja specializations              |
+| Projects | Multi-session project tracking and handoffs             |
+| Chores   | Classroom task management and shared responsibility     |
+
+Core modules ship with Forge and are maintained by the core team. Each module declares its own routes, navigation items, and optional smartboard panels.
+
+#### Community Modules (V2 Vision)
+
+In V2, teachers or students will be able to build **add-on modules** that plug into the same system. Community modules would:
+
+- Package as self-contained route groups with their own domain logic
+- Register via a standard module definition interface
+- Receive sandboxed data access — a per-classroom JSON data store, not direct access to core entities like Person or HelpRequest
+- Require teacher approval to install in a classroom
+- Adhere to Forge's constructionist principles — no gamification, no surveillance, no scoring
+
+Examples might include: a materials inventory tracker, a peer review board, a tool certification checklist, or a custom display for a specific robotics competition.
+
+Distribution would start as file-system-based (drop a folder in) and eventually move to a simple community registry.
 
 ### V1 Constraints
 
@@ -276,16 +324,17 @@ When teachers act on behalf of students, those actions are labeled (`byTeacher: 
 
 Features explicitly deferred to V2+:
 
-| Feature                         | Rationale for Deferral                                                   |
-| ------------------------------- | ------------------------------------------------------------------------ |
-| Photo capture                   | Device complexity; text-only handoffs prove the model first              |
-| Volunteer accounts              | Permission model needs V1 learnings                                      |
-| Student reflection/journal      | Valuable construction activity, but projects come first                  |
-| Student-controlled smartboard   | Read-only proves the concept; student control adds complexity            |
-| Project gallery / showcase view | Extends projects with public presentation; V1 establishes the foundation |
-| Parent dashboards               | Privacy implications; V1 is teacher/student only                         |
-| Offline mode                    | Requires significant architecture changes                                |
-| Cross-school identity           | Single-school model is simpler                                           |
+| Feature                         | Rationale for Deferral                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------- |
+| Photo capture                   | Device complexity; text-only handoffs prove the model first                      |
+| Volunteer accounts              | Permission model needs V1 learnings                                              |
+| Student reflection/journal      | Valuable construction activity, but projects come first                          |
+| Student-controlled smartboard   | Read-only proves the concept; student control adds complexity                    |
+| Project gallery / showcase view | Extends projects with public presentation; V1 establishes the foundation         |
+| Parent dashboards               | Privacy implications; V1 is teacher/student only                                 |
+| Offline mode                    | Requires significant architecture changes                                        |
+| Cross-school identity           | Single-school model is simpler                                                   |
+| Community/add-on module system  | Core module system must prove the model first; sandbox design needs V1 learnings |
 
 ---
 
