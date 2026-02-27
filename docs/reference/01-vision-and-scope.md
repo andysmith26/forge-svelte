@@ -22,7 +22,7 @@ Forge is not a gradebook, curriculum platform, or task manager. It is the connec
 
 ## Learning Philosophy
 
-Forge's design is grounded in the constructionist learning tradition of Piaget, Papert, and Stager. The full set of 15 learning principles is documented in [`PRINCIPLES_LEARNING.md`](../../PRINCIPLES_LEARNING.md). Those principles are constraints, not suggestions — if a feature violates them, it doesn't belong in Forge.
+Forge's design is grounded in the constructionist learning tradition of Piaget, Papert, and Stager. The full set of 15 learning principles is documented in [`02-learning-principles.md`](02-learning-principles.md). Those principles are constraints, not suggestions — if a feature violates them, it doesn't belong in Forge.
 
 From those principles, four operating commitments guide every design decision:
 
@@ -221,17 +221,7 @@ Distribution would start as file-system-based (drop a folder in) and eventually 
 
 ## Architecture
 
-Forge is an **event-sourced system**. All state changes occur through append-only domain events. Current state is derived by replaying or projecting those events into read models.
-
-**Why this matters:**
-
-- **Complete audit trail.** Every action is recorded. Teacher interventions are labeled (`byTeacher: true`) and never overwrite student events.
-- **No data loss.** Bugs in how we display data can be fixed without losing the underlying record. Projections can be rebuilt from events at any time.
-- **Evolvable views.** New ways of looking at classroom data can be added retroactively by writing new projections over existing events.
-
-**Sessions are time containers.** Sessions bound presence and help requests. They do not constrain project or chore persistence. Projects and chores live across sessions — because construction doesn't stop when the bell rings.
-
-**Real-time where it matters.** Presence, help queue, and smartboard views update within 2 seconds. Everything else updates on navigation or refresh.
+See [`03-architecture.md`](03-architecture.md) for full technical architecture. Key architectural commitments are captured in the Core Invariants below.
 
 ---
 
@@ -340,7 +330,7 @@ Features explicitly deferred to V2+:
 
 ## Key Decisions
 
-1. **Constructionist philosophy as foundation.** Forge is built on Piaget/Papert/Stager. Every feature is evaluated against [`PRINCIPLES_LEARNING.md`](../../PRINCIPLES_LEARNING.md).
+1. **Constructionist philosophy as foundation.** Forge is built on Piaget/Papert/Stager. Every feature is evaluated against [`02-learning-principles.md`](02-learning-principles.md).
 
 2. **Projects elevated to Phase 2.** Students producing artifacts is the core purpose, not an add-on.
 

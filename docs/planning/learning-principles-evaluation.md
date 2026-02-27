@@ -1,4 +1,4 @@
-# Evaluating Forge Against PRINCIPLES_LEARNING.md
+# Evaluating Forge Against Learning Principles
 
 The app already does several things well: it avoids scoring dashboards, rejects leaderboards, and positions teachers as facilitators (claiming help requests, not grading). But there are significant gaps. Here are 12 concrete recommendations, each tied to a specific principle.
 

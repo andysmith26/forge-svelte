@@ -1,6 +1,67 @@
 # Forge — Architecture
 
-This document describes how Forge implements the principles defined in [PRINCIPLES_TECHNICAL.md](PRINCIPLES_TECHNICAL.md) within a SvelteKit application.
+This document describes how Forge is built. For what Forge is and why, see [01-vision-and-scope.md](01-vision-and-scope.md). For the learning principles that constrain design, see [02-learning-principles.md](02-learning-principles.md).
+
+---
+
+## Design Values
+
+1. **Clarity over cleverness** — Code should be readable and predictable.
+2. **Explicit over implicit** — Dependencies, data flow, and error states should be visible.
+3. **Testability by design** — Architecture enables testing at every layer.
+4. **Framework independence** — Business logic survives framework changes.
+
+---
+
+## Foundational Commitments
+
+These commitments flow from the [01-vision-and-scope.md](01-vision-and-scope.md) and shape every architectural decision.
+
+**Event-sourced.** All state changes occur through append-only domain events. Current state is derived by replaying or projecting those events into read models.
+
+- **Complete audit trail.** Every action is recorded. Teacher interventions are labeled (`byTeacher: true`) and never overwrite student events.
+- **No data loss.** Bugs in how we display data can be fixed without losing the underlying record. Projections can be rebuilt from events at any time.
+- **Evolvable views.** New ways of looking at classroom data can be added retroactively by writing new projections over existing events.
+
+**Sessions are time containers.** Sessions bound presence and help requests. They do not constrain project or chore persistence. Projects and chores live across sessions — because construction doesn't stop when the bell rings.
+
+**Real-time where it matters.** Presence, help queue, and smartboard views update within 2 seconds. Everything else updates on navigation or refresh.
+
+---
+
+## Layered Architecture
+
+Forge follows a **hexagonal architecture** (ports & adapters) with a domain-centric, use-case-oriented design.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         UI Layer                            │
+│         (Routes, Pages, Components, View Logic)             │
+├─────────────────────────────────────────────────────────────┤
+│                    Application Layer                        │
+│            (Use Cases, Ports, Orchestration)                │
+├─────────────────────────────────────────────────────────────┤
+│                      Domain Layer                           │
+│      (Entities, Value Objects, Domain Events, Invariants)   │
+├─────────────────────────────────────────────────────────────┤
+│                   Infrastructure Layer                      │
+│   (Repositories, External APIs, Storage, Framework Glue)    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Dependencies flow inward: UI → Application → Domain ← Infrastructure.
+
+### Dependency Rules
+
+| Layer          | May Import From                   |
+| -------------- | --------------------------------- |
+| Domain         | Only other domain modules         |
+| Ports          | Domain (for types)                |
+| Use Cases      | Domain, Ports, other Use Cases    |
+| Infrastructure | Domain, Ports (never use cases)   |
+| UI             | Use Cases, Domain (for types)     |
+
+ESLint rules in `eslint.config.js` enforce these boundaries at build time. Violations cause lint errors, preventing accidental coupling.
 
 ---
 
@@ -39,7 +100,7 @@ src/
 │   │   │   ├── presence/
 │   │   │   ├── help/
 │   │   │   ├── classroom/
-│   │   │   ├── ninja/
+│   │   │   ├── ninja/             # Peer expertise (legacy name)
 │   │   │   ├── person/
 │   │   │   └── pin/
 │   │   └── smartboard/            # Data providers for public displays
@@ -73,9 +134,11 @@ src/
 
 ## Layer 1: Domain
 
-### Entities
+### Entity Design
 
-Forge entities use **Level 2** (class-based) design from the principles doc. Each entity has:
+Forge uses a **complexity gradient** for entity design. Most entities start as plain types; entities with state machines or lifecycle complexity use class-based design.
+
+**Class-based entities** (Level 2) have:
 
 - **Private constructor** — prevents direct instantiation
 - **`static create()`** — validates input, enforces invariants
@@ -91,10 +154,12 @@ Forge entities use **Level 2** (class-based) design from the principles doc. Eac
 | `SignInEntity`      | Class  | Attendance tracking with duration calculation         |
 | `HelpRequestEntity` | Class  | State machine: pending → claimed → resolved/cancelled |
 | `Membership`        | Type   | Plain data — role, active status                      |
-| `NinjaDomain`       | Type   | Plain data — skill category definition                |
-| `NinjaAssignment`   | Type   | Plain data — person-to-domain mapping                 |
+| `NinjaDomain`       | Type   | Plain data — peer expertise category definition       |
+| `NinjaAssignment`   | Type   | Plain data — person-to-expertise mapping              |
 
-**Why Level 2 for the main entities:** Session and HelpRequest have state machines with 3+ transition guards scattered across use cases — the exact signal described in the principles doc for upgrading from plain types. Membership, NinjaDomain, and NinjaAssignment remain plain types because they're simple data containers with no lifecycle.
+**Why class-based for the main entities:** Session and HelpRequest have state machines with 3+ transition guards scattered across use cases. Membership, NinjaDomain, and NinjaAssignment remain plain types because they're simple data containers with no lifecycle.
+
+> **Terminology note:** The codebase uses "ninja" as a legacy name for what the [01-vision-and-scope.md](01-vision-and-scope.md) calls **peer expertise** — student-self-declared "ask me about" areas. The V&S explicitly replaces the teacher-assigned "ninja badge" concept with self-declared expertise. A future rename may align the code with this language.
 
 ### Errors
 
@@ -125,11 +190,13 @@ Each event carries `EventMetadata` (eventId, occurredAt, correlationId, version)
 
 Feature modules are defined as domain objects in `src/lib/domain/modules/`:
 
-- `presenceModule` — Attendance tracking
-- `helpModule` — Help queue
-- `profileModule` — User profile customization
-- `projectsModule` — Project management (coming soon)
-- `choresModule` — Chore assignments (coming soon)
+| Module           | Purpose                                                        | Status       |
+| ---------------- | -------------------------------------------------------------- | ------------ |
+| `presenceModule` | Attendance tracking                                            | Implemented  |
+| `helpModule`     | Help queue with student-declared peer expertise                | Implemented  |
+| `profileModule`  | Student identity customization and "ask me about" declarations | Implemented  |
+| `projectsModule` | Multi-session project tracking and handoffs                    | Not yet implemented |
+| `choresModule`   | Classroom task management and shared responsibility            | Not yet implemented |
 
 Each module defines: id, name, description, navigation item, smartboard panel, status, default enabled state, and visibility by role. Modules are toggled per-classroom via `ClassroomSettings`.
 
@@ -150,9 +217,9 @@ All external dependencies are accessed through port interfaces defined in `src/l
 | `ClassroomRepository`            | Classrooms, members, settings  |
 | `PresenceRepository`             | Sign-in/out, presence lists    |
 | `HelpRepository`                 | Help requests, categories      |
-| `NinjaRepository`                | Skill domains, assignments     |
+| `NinjaRepository`                | Peer expertise domains, assignments |
 | `PinRepository`                  | PIN auth, sessions, candidates |
-| `RealtimeNotificationRepository` | WebSocket notifications        |
+| `RealtimeNotificationRepository` | Real-time push notifications   |
 | `EventStore`                     | Domain event persistence       |
 
 **Service ports:**
@@ -210,9 +277,11 @@ type RequestHelpError =
   | { type: 'INTERNAL_ERROR'; message: string };
 ```
 
-### Smartboard Providers
+### Smartboard
 
-`src/lib/application/smartboard/` contains data providers that compose use cases for public classroom displays. Each implements `SmartboardDataProvider<TDeps, TData>` and aggregates data from multiple use cases into a single response for the display route.
+The **smartboard** is a public, unauthenticated display designed for a classroom-mounted screen. It shows real-time operational status — who is present, the help queue, active projects, and chore status — without requiring login. See [01-vision-and-scope.md](01-vision-and-scope.md) for the per-phase smartboard capabilities.
+
+`src/lib/application/smartboard/` contains data providers that compose use cases for these displays. Each implements `SmartboardDataProvider<TDeps, TData>` and aggregates data from multiple use cases into a single response for the `/display/[code]` route.
 
 ---
 
@@ -255,7 +324,7 @@ Memory repositories share a `MemoryStore` — a single in-memory data structure 
 | `/classroom/[classroomId]/presence` | Attendance tracking             |
 | `/classroom/[classroomId]/help`     | Help queue                      |
 | `/classroom/[classroomId]/roster`   | Student management + PINs       |
-| `/classroom/[classroomId]/ninja`    | Ninja domains & assignments     |
+| `/classroom/[classroomId]/ninja`    | Peer expertise management       |
 | `/classroom/[classroomId]/profile`  | Student profile editing         |
 | `/classroom/[classroomId]/settings` | Module configuration            |
 | `/display/[code]`                   | Public smartboard display       |
@@ -344,6 +413,21 @@ Routes use `locals.actor` without caring which auth method was used.
 
 ---
 
+## Not Yet Implemented
+
+The following capabilities are defined in the [01-vision-and-scope.md](01-vision-and-scope.md) but do not yet have architecture in the codebase:
+
+| Capability | V&S Phase | Design Intent |
+| ---------- | --------- | ------------- |
+| **Projects** | Phase 2 | Multi-session project tracking, handoffs between students, artifact documentation. Core to constructionist purpose — see V&S Key Decision #2. |
+| **Chores** | Phase 5 | Shared responsibility for the learning space. Students participate in maintaining the classroom — this is meta-construction, not mere administration. |
+| **Teacher Dashboard** | Phase 6 | Narrative session review. Shows what students worked on and struggled with — not metrics, completion rates, or time-on-task. See V&S Key Decision #9. |
+| **Student Home** | Phase 6 | Clear starting point each session — what to pick up, who needs help, what's due. |
+
+When these are implemented, they will follow the same patterns: domain entities + events, use case functions with Result types, port-based infrastructure, and module registration.
+
+---
+
 ## Testing
 
 ### Test Utilities
@@ -369,16 +453,3 @@ Each returns a fully-typed mock with `vi.fn()` stubs and sensible defaults.
 | --------- | ----------------- | ------------------------------------------- |
 | Domain    | Unit tests        | `src/lib/domain/entities/*.test.ts`         |
 | Use Cases | Integration tests | `src/lib/application/useCases/**/*.test.ts` |
-
----
-
-## Dependency Enforcement
-
-ESLint rules in `eslint.config.js` enforce layer boundaries at build time:
-
-- Domain must not import from application, infrastructure, or routes
-- Use cases must not import from infrastructure
-- Infrastructure must not import from use cases or routes
-- Routes must not import directly from infrastructure
-
-Violations cause lint errors, preventing accidental coupling.
