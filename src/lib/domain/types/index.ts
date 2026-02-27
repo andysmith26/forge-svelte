@@ -5,7 +5,6 @@ export {
   CLASSROOM_MODULES,
   DEFAULT_CLASSROOM_SETTINGS,
   EXISTING_CLASSROOM_SETTINGS,
-  MODULE_INFO,
   isValidClassroomSettings,
   parseClassroomSettings
 } from './classroom-settings';

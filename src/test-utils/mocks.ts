@@ -5,6 +5,8 @@ import type { HelpRepository } from '$lib/application/ports/HelpRepository';
 import type { PresenceRepository } from '$lib/application/ports/PresenceRepository';
 import type { EventStore, StoredEvent } from '$lib/application/ports/EventStore';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
+import type { HashService } from '$lib/application/ports/HashService';
+import type { TokenGenerator } from '$lib/application/ports/TokenGenerator';
 
 type MockOf<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R
@@ -130,6 +132,30 @@ export function createMockIdGenerator(ids?: string[]): MockOf<IdGenerator> {
         return ids[index++];
       }
       return `id-${++index}`;
+    })
+  };
+}
+
+export function createMockHashService(
+  overrides?: Partial<MockOf<HashService>>
+): MockOf<HashService> {
+  return {
+    hash: vi.fn().mockImplementation(async (value: string) => `hashed:${value}`),
+    compare: vi
+      .fn()
+      .mockImplementation(async (value: string, hash: string) => hash === `hashed:${value}`),
+    ...overrides
+  };
+}
+
+export function createMockTokenGenerator(tokens?: string[]): MockOf<TokenGenerator> {
+  let index = 0;
+  return {
+    generate: vi.fn().mockImplementation(() => {
+      if (tokens && index < tokens.length) {
+        return tokens[index++];
+      }
+      return `token-${++index}`;
     })
   };
 }

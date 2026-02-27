@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs';
-import { randomBytes } from 'crypto';
 import type { PinRepository } from '$lib/application/ports/PinRepository';
+import type { HashService } from '$lib/application/ports/HashService';
+import type { TokenGenerator } from '$lib/application/ports/TokenGenerator';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -17,7 +17,7 @@ export type LoginWithPinError =
   | { type: 'INTERNAL_ERROR'; message: string };
 
 export async function loginWithPin(
-  deps: { pinRepo: PinRepository },
+  deps: { pinRepo: PinRepository; hashService: HashService; tokenGenerator: TokenGenerator },
   input: { classroomCode: string; pin: string },
   now: Date = new Date()
 ): Promise<Result<PinLoginResult, LoginWithPinError>> {
@@ -34,7 +34,7 @@ export async function loginWithPin(
 
     let matchedPersonId: string | null = null;
     for (const candidate of candidates) {
-      const isMatch = await bcrypt.compare(input.pin, candidate.pinHash);
+      const isMatch = await deps.hashService.compare(input.pin, candidate.pinHash);
       if (isMatch) {
         matchedPersonId = candidate.personId;
         break;
@@ -45,7 +45,7 @@ export async function loginWithPin(
       return err({ type: 'INVALID_CREDENTIALS' });
     }
 
-    const token = randomBytes(32).toString('hex');
+    const token = deps.tokenGenerator.generate();
     const expiresAt = new Date(now.getTime() + PIN_SESSION_DURATION_MS);
 
     await deps.pinRepo.deletePinSessionsForPerson(matchedPersonId);

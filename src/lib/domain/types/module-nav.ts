@@ -1,5 +1,5 @@
 import type { ClassroomSettings } from './classroom-settings';
-import { MODULE_DEFINITIONS } from './classroom-settings';
+import { MODULE_DEFINITIONS } from '$lib/domain/modules';
 import type { Role } from './roles';
 
 export type NavItem = {

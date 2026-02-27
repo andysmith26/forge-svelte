@@ -7,6 +7,7 @@ import { getSignInStatus } from '$lib/application/useCases/presence/getSignInSta
 import { listPresent } from '$lib/application/useCases/presence/listPresent';
 import { listSignInsForSession } from '$lib/application/useCases/presence/listSignInsForSession';
 import { getCurrentSession } from '$lib/application/useCases/session/getCurrentSession';
+import { ok } from '$lib/types/result';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
   const parentData = await parent();
@@ -26,7 +27,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     ),
     parentData.membership.role === 'teacher'
       ? listSignInsForSession({ presenceRepo: env.presenceRepo }, { sessionId: session.id })
-      : Promise.resolve({ status: 'ok' as const, value: [] })
+      : Promise.resolve(ok([]))
   ]);
 
   return {

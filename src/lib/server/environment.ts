@@ -8,12 +8,18 @@ import type {
   PinRepository,
   RealtimeNotificationRepository,
   EventStore,
-  IdGenerator
+  IdGenerator,
+  HashService,
+  TokenGenerator
 } from '$lib/application/ports';
 import type { MemoryStore } from '$lib/infrastructure/repositories/memory/MemoryStore';
 import type { MemoryPinRepository } from '$lib/infrastructure/repositories/memory/MemoryPinRepository';
 import { PUBLIC_DEMO_MODE } from '$env/static/public';
-import { UuidIdGenerator } from '$lib/infrastructure/services';
+import {
+  UuidIdGenerator,
+  BcryptHashService,
+  CryptoTokenGenerator
+} from '$lib/infrastructure/services';
 
 export interface AppEnvironment {
   classroomRepo: ClassroomRepository;
@@ -26,6 +32,8 @@ export interface AppEnvironment {
   realtimeNotificationRepo: RealtimeNotificationRepository;
   eventStore: EventStore;
   idGenerator: IdGenerator;
+  hashService: HashService;
+  tokenGenerator: TokenGenerator;
 }
 
 export const isDemoMode = PUBLIC_DEMO_MODE === 'true';
@@ -85,7 +93,9 @@ async function createDemoEnvironment(): Promise<AppEnvironment> {
     pinRepo,
     realtimeNotificationRepo: new mem.MemoryRealtimeNotificationRepository(),
     eventStore: new mem.MemoryEventStore(store, idGenerator),
-    idGenerator
+    idGenerator,
+    hashService: new BcryptHashService(),
+    tokenGenerator: new CryptoTokenGenerator()
   };
 }
 
@@ -106,6 +116,8 @@ async function createProductionEnvironment(): Promise<AppEnvironment> {
     pinRepo: new repos.PrismaPinRepository(prisma),
     realtimeNotificationRepo: new repos.PrismaRealtimeNotificationRepository(prisma),
     eventStore: new events.PrismaEventStore(prisma, projectorRegistry),
-    idGenerator: new UuidIdGenerator()
+    idGenerator: new UuidIdGenerator(),
+    hashService: new BcryptHashService(),
+    tokenGenerator: new CryptoTokenGenerator()
   };
 }

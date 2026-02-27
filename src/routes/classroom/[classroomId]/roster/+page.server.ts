@@ -185,7 +185,7 @@ export const actions: Actions = {
 
     const env = getEnvironment();
     const result = await generatePin(
-      { pinRepo: env.pinRepo },
+      { pinRepo: env.pinRepo, hashService: env.hashService },
       { classroomId: params.classroomId, personId }
     );
 
@@ -202,7 +202,7 @@ export const actions: Actions = {
 
     const env = getEnvironment();
     const result = await generateAllPins(
-      { pinRepo: env.pinRepo },
+      { pinRepo: env.pinRepo, hashService: env.hashService },
       { classroomId: params.classroomId }
     );
 

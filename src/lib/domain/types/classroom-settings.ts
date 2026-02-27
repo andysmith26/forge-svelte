@@ -1,4 +1,5 @@
 import type { Role } from './roles';
+import { MODULE_DEFINITIONS } from '$lib/domain/modules';
 
 export const CLASSROOM_MODULES = {
   PRESENCE: 'presence',
@@ -31,60 +32,6 @@ export type ModuleDefinition = {
   /** Roles that can see the module nav item. undefined = all roles. */
   visibleTo?: Role[];
 };
-
-export const MODULE_DEFINITIONS: Record<ClassroomModule, ModuleDefinition> = {
-  presence: {
-    id: 'presence',
-    name: 'Presence',
-    description: "Track who's here during class sessions",
-    navItem: { label: 'Presence', hrefSuffix: '/presence' },
-    smartboardPanel: true,
-    status: 'available',
-    defaultEnabled: true
-  },
-  profile: {
-    id: 'profile',
-    name: 'Profile',
-    description: 'Students customize their profile and self-presentation',
-    navItem: { label: 'Profile', hrefSuffix: '/profile' },
-    status: 'available',
-    defaultEnabled: false
-  },
-  help: {
-    id: 'help',
-    name: 'Help Queue & Ninjas',
-    description: 'Peer help queue with ninja specializations',
-    navItem: { label: 'Help', hrefSuffix: '/help' },
-    smartboardPanel: true,
-    status: 'available',
-    defaultEnabled: false
-  },
-  projects: {
-    id: 'projects',
-    name: 'Projects',
-    description: 'Multi-session project tracking and handoffs',
-    navItem: { label: 'Projects', hrefSuffix: '/projects' },
-    status: 'coming_soon',
-    defaultEnabled: false
-  },
-  chores: {
-    id: 'chores',
-    name: 'Chores',
-    description: 'Classroom task management and verification',
-    navItem: { label: 'Chores', hrefSuffix: '/chores' },
-    status: 'coming_soon',
-    defaultEnabled: false
-  }
-};
-
-/** @deprecated Use MODULE_DEFINITIONS instead */
-export const MODULE_INFO: Record<ClassroomModule, { name: string; description: string }> =
-  Object.fromEntries(
-    Object.entries(MODULE_DEFINITIONS).map(([key, def]) => [
-      key,
-      { name: def.name, description: def.description }
-    ])
-  ) as Record<ClassroomModule, { name: string; description: string }>;
 
 export const DEFAULT_CLASSROOM_SETTINGS: ClassroomSettings = {
   modules: Object.fromEntries(

@@ -1,9 +1,7 @@
-import bcrypt from 'bcryptjs';
 import type { PinRepository, PinCandidate } from '$lib/application/ports/PinRepository';
+import type { HashService } from '$lib/application/ports/HashService';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
-
-const BCRYPT_ROUNDS = 10;
 
 export type GeneratePinError =
   | { type: 'NOT_FOUND' }
@@ -11,7 +9,7 @@ export type GeneratePinError =
   | { type: 'INTERNAL_ERROR'; message: string };
 
 export async function generatePin(
-  deps: { pinRepo: PinRepository },
+  deps: { pinRepo: PinRepository; hashService: HashService },
   input: { classroomId: string; personId: string }
 ): Promise<Result<string, GeneratePinError>> {
   try {
@@ -21,13 +19,18 @@ export async function generatePin(
       return err({ type: 'NOT_FOUND' });
     }
 
-    const pin = await generateUniquePin(deps.pinRepo, input.classroomId, input.personId);
+    const pin = await generateUniquePin(
+      deps.pinRepo,
+      deps.hashService,
+      input.classroomId,
+      input.personId
+    );
 
     if (!pin) {
       return err({ type: 'UNABLE_TO_GENERATE' });
     }
 
-    const pinHash = await bcrypt.hash(pin, BCRYPT_ROUNDS);
+    const pinHash = await deps.hashService.hash(pin);
     await deps.pinRepo.updatePersonPinHash(input.personId, pinHash);
 
     return ok(pin);
@@ -41,6 +44,7 @@ export async function generatePin(
 
 export async function generateUniquePin(
   pinRepo: PinRepository,
+  hashService: HashService,
   classroomId: string,
   excludePersonId?: string,
   length: number = 4,
@@ -51,7 +55,7 @@ export async function generateUniquePin(
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const pin = generateRandomPin(length);
-    const inUse = await isPinInUse(pin, loginCandidates, excludePersonId);
+    const inUse = await isPinInUse(hashService, pin, loginCandidates, excludePersonId);
 
     if (!inUse) {
       return pin;
@@ -59,7 +63,14 @@ export async function generateUniquePin(
   }
 
   if (length < 6) {
-    return generateUniquePin(pinRepo, classroomId, excludePersonId, length + 1, loginCandidates);
+    return generateUniquePin(
+      pinRepo,
+      hashService,
+      classroomId,
+      excludePersonId,
+      length + 1,
+      loginCandidates
+    );
   }
 
   return null;
@@ -73,6 +84,7 @@ function generateRandomPin(length: number): string {
 }
 
 async function isPinInUse(
+  hashService: HashService,
   pin: string,
   candidates: PinCandidate[],
   excludePersonId?: string
@@ -81,7 +93,7 @@ async function isPinInUse(
     if (excludePersonId && candidate.personId === excludePersonId) {
       continue;
     }
-    const isMatch = await bcrypt.compare(pin, candidate.pinHash);
+    const isMatch = await hashService.compare(pin, candidate.pinHash);
     if (isMatch) {
       return true;
     }

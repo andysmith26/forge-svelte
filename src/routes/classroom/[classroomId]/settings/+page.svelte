@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { Button } from '$lib/components/ui';
-  import { MODULE_DEFINITIONS } from '$lib/domain/types/classroom-settings';
+  import { MODULE_DEFINITIONS } from '$lib/domain/modules';
 
   const { data }: { data: PageData } = $props();
 

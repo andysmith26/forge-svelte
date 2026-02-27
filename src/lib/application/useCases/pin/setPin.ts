@@ -1,9 +1,7 @@
-import bcrypt from 'bcryptjs';
 import type { PinRepository } from '$lib/application/ports/PinRepository';
+import type { HashService } from '$lib/application/ports/HashService';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
-
-const BCRYPT_ROUNDS = 10;
 
 export type SetPinError =
   | { type: 'NOT_FOUND' }
@@ -11,7 +9,7 @@ export type SetPinError =
   | { type: 'INTERNAL_ERROR'; message: string };
 
 export async function setPin(
-  deps: { pinRepo: PinRepository },
+  deps: { pinRepo: PinRepository; hashService: HashService },
   input: { classroomId: string; personId: string; pin: string }
 ): Promise<Result<void, SetPinError>> {
   try {
@@ -25,13 +23,13 @@ export async function setPin(
 
     for (const candidate of candidates) {
       if (candidate.personId === input.personId) continue;
-      const isMatch = await bcrypt.compare(input.pin, candidate.pinHash);
+      const isMatch = await deps.hashService.compare(input.pin, candidate.pinHash);
       if (isMatch) {
         return err({ type: 'PIN_IN_USE' });
       }
     }
 
-    const pinHash = await bcrypt.hash(input.pin, BCRYPT_ROUNDS);
+    const pinHash = await deps.hashService.hash(input.pin);
     await deps.pinRepo.updatePersonPinHash(input.personId, pinHash);
 
     return ok(undefined);

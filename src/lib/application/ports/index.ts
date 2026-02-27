@@ -85,3 +85,5 @@ export type {
 
 export type { EventStore, AppendEventInput, StoredEvent, EventFilters } from './EventStore';
 export type { IdGenerator } from './IdGenerator';
+export type { HashService } from './HashService';
+export type { TokenGenerator } from './TokenGenerator';

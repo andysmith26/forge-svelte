@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import SessionControl from '$lib/components/session/SessionControl.svelte';
-  import ProfileEditor from '$lib/components/profile/ProfileEditor.svelte';
   import { StatusDot } from '$lib/components/ui';
 
   const { data }: { data: PageData } = $props();
 
   const isTeacher = $derived(data.membership.role === 'teacher');
+  const profileEnabled = $derived(data.settings?.modules.profile?.enabled ?? false);
 </script>
 
 <div class="grid gap-6 lg:grid-cols-2">
@@ -38,8 +38,27 @@
   </div>
 
   <div class="space-y-6">
-    {#if data.profile}
-      <ProfileEditor profile={data.profile} classroomId={data.classroom.id} />
+    {#if profileEnabled && data.profile}
+      <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 class="mb-3 text-lg font-semibold text-gray-900">Your Profile</h2>
+        <div class="space-y-1 text-sm text-gray-700">
+          <p class="font-medium">{data.profile.displayName}</p>
+          {#if data.profile.pronouns}
+            <p class="text-gray-500">{data.profile.pronouns}</p>
+          {/if}
+          {#if data.profile.askMeAbout.length > 0}
+            <p class="text-gray-500">Ask me about: {data.profile.askMeAbout.join(', ')}</p>
+          {/if}
+        </div>
+        <div class="mt-3">
+          <a
+            href="/classroom/{data.classroom.id}/profile"
+            class="text-sm text-forge-blue hover:underline"
+          >
+            Edit Profile
+          </a>
+        </div>
+      </div>
     {/if}
 
     {#if isTeacher}
