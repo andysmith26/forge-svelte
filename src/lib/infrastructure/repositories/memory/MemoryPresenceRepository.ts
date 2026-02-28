@@ -16,9 +16,9 @@ export class MemoryPresenceRepository implements PresenceRepository {
     private readonly idGen: IdGenerator
   ) {}
 
-  async getSignIn(sessionId: string, personId: string): Promise<SignInRecord | null> {
+  async getActiveSignIn(sessionId: string, personId: string): Promise<SignInRecord | null> {
     for (const s of this.store.signIns.values()) {
-      if (s.sessionId === sessionId && s.personId === personId) return s;
+      if (s.sessionId === sessionId && s.personId === personId && s.signedOutAt === null) return s;
     }
     return null;
   }

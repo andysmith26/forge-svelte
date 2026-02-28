@@ -4,7 +4,6 @@ import type { ClassroomRepository } from '$lib/application/ports/ClassroomReposi
 import type { EventStore } from '$lib/application/ports/EventStore';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
 import { SessionEntity } from '$lib/domain/entities/session.entity';
-import { SignInEntity } from '$lib/domain/entities/sign-in.entity';
 import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
@@ -34,9 +33,9 @@ export async function signIn(
   }
 ): Promise<Result<SignInRecord, SignInError>> {
   try {
-    const [session, existingSignIn] = await Promise.all([
+    const [session, activeSignIn] = await Promise.all([
       deps.sessionRepo.getById(input.sessionId),
-      deps.presenceRepo.getSignIn(input.sessionId, input.personId)
+      deps.presenceRepo.getActiveSignIn(input.sessionId, input.personId)
     ]);
 
     if (!session) {
@@ -48,11 +47,8 @@ export async function signIn(
       return err({ type: 'SESSION_NOT_ACTIVE' });
     }
 
-    if (existingSignIn) {
-      const signInEntity = SignInEntity.fromRecord(existingSignIn);
-      if (signInEntity.isSignedIn()) {
-        return err({ type: 'ALREADY_SIGNED_IN' });
-      }
+    if (activeSignIn) {
+      return err({ type: 'ALREADY_SIGNED_IN' });
     }
 
     if (input.pinClassroomId && input.pinClassroomId !== session.classroomId) {
@@ -69,7 +65,7 @@ export async function signIn(
       return err({ type: 'CLASSROOM_NOT_FOUND' });
     }
 
-    const signInId = existingSignIn?.id ?? deps.idGenerator.generate();
+    const signInId = deps.idGenerator.generate();
 
     await deps.eventStore.appendAndEmit({
       schoolId: classroom.schoolId,
@@ -90,7 +86,7 @@ export async function signIn(
       }
     });
 
-    const result = await deps.presenceRepo.getSignIn(input.sessionId, input.personId);
+    const result = await deps.presenceRepo.getActiveSignIn(input.sessionId, input.personId);
     if (!result) {
       return err({ type: 'SIGN_IN_NOT_FOUND_AFTER_CREATE' });
     }

@@ -21,37 +21,15 @@ export class SignInProjector implements Projector {
       case 'PERSON_SIGNED_IN': {
         const payload = event.payload as PersonSignedInPayload;
 
-        const existing = await tx.signIn.findUnique({
-          where: {
-            sessionId_personId: {
-              sessionId: payload.sessionId,
-              personId: payload.personId
-            }
+        await tx.signIn.create({
+          data: {
+            id: payload.signInId,
+            sessionId: payload.sessionId,
+            personId: payload.personId,
+            signedInAt: event.createdAt,
+            signedInById: payload.signedInBy
           }
         });
-
-        if (existing) {
-          await tx.signIn.update({
-            where: { id: existing.id },
-            data: {
-              signedInAt: event.createdAt,
-              signedOutAt: null,
-              signedInById: payload.signedInBy,
-              signedOutById: null,
-              signoutType: null
-            }
-          });
-        } else {
-          await tx.signIn.create({
-            data: {
-              id: payload.signInId,
-              sessionId: payload.sessionId,
-              personId: payload.personId,
-              signedInAt: event.createdAt,
-              signedInById: payload.signedInBy
-            }
-          });
-        }
         break;
       }
       case 'PERSON_SIGNED_OUT': {

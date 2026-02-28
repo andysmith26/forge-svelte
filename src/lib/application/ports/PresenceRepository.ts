@@ -40,7 +40,7 @@ export type UpdateSignInInput = {
 };
 
 export interface PresenceRepository {
-  getSignIn(sessionId: string, personId: string): Promise<SignInRecord | null>;
+  getActiveSignIn(sessionId: string, personId: string): Promise<SignInRecord | null>;
   createSignIn(input: CreateSignInInput): Promise<SignInRecord>;
   updateSignIn(id: string, input: UpdateSignInInput): Promise<SignInRecord>;
   listPresentPeople(sessionId: string): Promise<PersonPresence[]>;

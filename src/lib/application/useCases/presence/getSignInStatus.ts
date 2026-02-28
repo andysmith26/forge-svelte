@@ -9,7 +9,7 @@ export async function getSignInStatus(
   input: { sessionId: string; personId: string }
 ): Promise<Result<SignInRecord | null, GetSignInStatusError>> {
   try {
-    const signIn = await deps.presenceRepo.getSignIn(input.sessionId, input.personId);
+    const signIn = await deps.presenceRepo.getActiveSignIn(input.sessionId, input.personId);
     return ok(signIn);
   } catch (e) {
     return err({

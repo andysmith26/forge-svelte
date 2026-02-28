@@ -69,7 +69,7 @@ export function createMockPresenceRepo(
   overrides?: Partial<MockOf<PresenceRepository>>
 ): MockOf<PresenceRepository> {
   return {
-    getSignIn: vi.fn().mockResolvedValue(null),
+    getActiveSignIn: vi.fn().mockResolvedValue(null),
     createSignIn: vi.fn().mockResolvedValue(null),
     updateSignIn: vi.fn().mockResolvedValue(null),
     listPresentPeople: vi.fn().mockResolvedValue([]),

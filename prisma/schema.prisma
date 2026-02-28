@@ -192,7 +192,7 @@ model SignIn {
   signedInBy  Person       @relation("SignedInBy", fields: [signedInById], references: [id])
   signedOutBy Person?      @relation("SignedOutBy", fields: [signedOutById], references: [id])
 
-  @@unique([sessionId, personId])
+  @@index([sessionId, personId])
   @@index([sessionId, signedOutAt])
   @@map("sign_ins")
 }

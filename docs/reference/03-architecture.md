@@ -77,6 +77,7 @@ ESLint rules in `eslint.config.js` enforce these boundaries at build time. Viola
 | Auth (students) | PIN-based cookie sessions                |
 | Testing         | Vitest                                   |
 | Package manager | pnpm                                     |
+| Realtime        | Supabase Realtime (Postgres changes)     |
 | Build           | Vite                                     |
 
 ---
@@ -118,6 +119,7 @@ src/
 │   │   ├── prisma.ts              # Prisma client singleton
 │   │   └── demo/                  # Demo data seeding
 │   │
+│   ├── realtime/                   # Client-side realtime subscriptions
 │   ├── components/                # Shared UI components
 │   └── types/                     # Shared utility types (Result)
 │
@@ -309,6 +311,53 @@ Memory repositories share a `MemoryStore` — a single in-memory data structure 
 ### Event Store
 
 `PrismaEventStore` persists domain events and dispatches them to projectors. Projectors are registered in a `ProjectorRegistry` and react to specific event types to maintain read-optimized state.
+
+---
+
+## Realtime
+
+Forge uses a **notification-based** realtime pattern rather than streaming live data over WebSockets. This keeps PII off the wire and reuses existing server-side data loading.
+
+### How It Works
+
+```
+Server (use case)                    Client (browser)
+       │                                    │
+       │  INSERT into realtime_notifications │
+       │  (channel, entity_type, entity_id)  │
+       ▼                                    │
+  ┌──────────┐    Postgres changes     ┌────────────┐
+  │ Supabase │ ──────────────────────► │ Supabase   │
+  │ Realtime │    (INSERT event)       │ JS Client  │
+  └──────────┘                         └─────┬──────┘
+                                             │
+                                      invalidateAll()
+                                             │
+                                      SvelteKit re-runs
+                                      load functions
+```
+
+1. **Publish:** Use cases write a row to `realtime_notifications` with a channel name (e.g., `presence:session:abc123`), entity type, and entity ID. No PII is included — only IDs.
+2. **Transport:** Supabase Realtime listens for `INSERT` events on the `realtime_notifications` table via Postgres changes and pushes them to subscribed clients.
+3. **React:** The client-side subscription receives the event and calls SvelteKit's `invalidateAll()`, which re-runs all active `load` functions to fetch fresh data through the normal server-side path.
+
+### Client-Side Module (`src/lib/realtime/`)
+
+| File                       | Purpose                                              |
+| -------------------------- | ---------------------------------------------------- |
+| `supabase.ts`              | Lazy Supabase client singleton from env vars         |
+| `channels.ts`              | `ChannelBuilder` — constructs channel names          |
+| `types.ts`                 | `ConnectionState`, `NotificationRow` types           |
+| `subscription.svelte.ts`   | Subscription factories with Svelte 5 runes           |
+
+Subscription factories (`createClassroomSubscription`, `createPresenceSubscription`, etc.) use `$effect` internally for lifecycle management — they start channels on mount and clean up on teardown. When called inside a parent `$effect`, the inner effects are scoped to it, so changing parameters (e.g., navigating between classrooms) automatically tears down old subscriptions and creates new ones.
+
+### Design Decisions
+
+- **No PII over the wire.** The notification table carries only IDs. All data hydration happens through authenticated server-side load functions.
+- **`invalidateAll()` over granular updates.** Rather than patching client-side state from WebSocket messages, we invalidate SvelteKit's data loading. This is simpler, keeps the server as the single source of truth, and means realtime data goes through the same authorization checks as initial page loads.
+- **Framework-coupled.** The `subscription.svelte.ts` module uses Svelte 5 runes and SvelteKit's `invalidateAll`. This is intentional — realtime subscriptions are a UI concern, not domain logic, so framework coupling here is acceptable.
+- **Graceful degradation.** If Supabase env vars are absent (e.g., demo mode), `getSupabaseClient()` returns `null` and subscriptions show a `disconnected` state. The app remains fully functional — data just refreshes on navigation instead of automatically.
 
 ---
 

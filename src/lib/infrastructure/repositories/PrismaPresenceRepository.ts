@@ -12,9 +12,9 @@ import type {
 export class PrismaPresenceRepository implements PresenceRepository {
   constructor(private readonly db: PrismaClient) {}
 
-  async getSignIn(sessionId: string, personId: string): Promise<SignInRecord | null> {
-    return this.db.signIn.findUnique({
-      where: { sessionId_personId: { sessionId, personId } }
+  async getActiveSignIn(sessionId: string, personId: string): Promise<SignInRecord | null> {
+    return this.db.signIn.findFirst({
+      where: { sessionId, personId, signedOutAt: null }
     });
   }
 

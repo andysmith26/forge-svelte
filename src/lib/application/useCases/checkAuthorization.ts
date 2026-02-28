@@ -62,9 +62,9 @@ export async function requireSignedIn(
     return err({ type: 'NOT_AUTHENTICATED' });
   }
 
-  const signIn = await deps.presenceRepo.getSignIn(sessionId, personId);
+  const signIn = await deps.presenceRepo.getActiveSignIn(sessionId, personId);
 
-  if (!signIn || signIn.signedOutAt) {
+  if (!signIn) {
     return err({ type: 'NOT_SIGNED_IN', sessionId });
   }
 

@@ -106,7 +106,7 @@ describe('requireTeacher', () => {
 describe('requireSignedIn', () => {
   it('returns ok when person is signed in', async () => {
     const presenceRepo = createMockPresenceRepo({
-      getSignIn: vi.fn().mockResolvedValue(signIn)
+      getActiveSignIn: vi.fn().mockResolvedValue(signIn)
     });
 
     const result = await requireSignedIn({ presenceRepo }, 'per-1', 'ses-1');
@@ -129,9 +129,8 @@ describe('requireSignedIn', () => {
   });
 
   it('returns NOT_SIGNED_IN when sign-in has been signed out', async () => {
-    const signedOut = { ...signIn, signedOutAt: new Date() };
     const presenceRepo = createMockPresenceRepo({
-      getSignIn: vi.fn().mockResolvedValue(signedOut)
+      getActiveSignIn: vi.fn().mockResolvedValue(null)
     });
 
     const result = await requireSignedIn({ presenceRepo }, 'per-1', 'ses-1');

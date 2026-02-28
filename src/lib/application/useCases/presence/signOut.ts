@@ -32,7 +32,7 @@ export async function signOut(
   try {
     const [session, signInRecord] = await Promise.all([
       deps.sessionRepo.getById(input.sessionId),
-      deps.presenceRepo.getSignIn(input.sessionId, input.personId)
+      deps.presenceRepo.getActiveSignIn(input.sessionId, input.personId)
     ]);
 
     if (!session) {
@@ -85,12 +85,12 @@ export async function signOut(
       }
     });
 
-    const updated = await deps.presenceRepo.getSignIn(input.sessionId, input.personId);
-    if (!updated) {
-      return err({ type: 'SIGN_IN_NOT_FOUND_AFTER_UPDATE' });
-    }
-
-    return ok(updated);
+    return ok({
+      ...signInRecord,
+      signedOutAt: new Date(),
+      signedOutById: input.actorId,
+      signoutType
+    });
   } catch (e) {
     return err({
       type: 'INTERNAL_ERROR',

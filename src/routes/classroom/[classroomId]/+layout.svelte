@@ -9,7 +9,15 @@
 
   const isTeacher = $derived(data.membership.role === 'teacher');
 
-  const realtime = createClassroomSubscription(data.classroom.id, data.currentSession?.id ?? null);
+  let realtimeState = $state<import('$lib/realtime').RealtimeState>({
+    connectionState: 'connecting',
+    isConnected: false
+  });
+
+  $effect(() => {
+    const sub = createClassroomSubscription(data.classroom.id, data.currentSession?.id ?? null);
+    realtimeState = sub;
+  });
 
   const moduleNavItems = $derived(
     getModuleNavItems(
@@ -39,7 +47,7 @@
       <p class="text-sm text-gray-500">Code: {data.classroom.displayCode}</p>
     </div>
     <div class="flex items-center gap-3">
-      <ConnectionStatus state={realtime.connectionState} />
+      <ConnectionStatus state={realtimeState.connectionState} />
       {#if isTeacher}
         <a
           href="/display/{data.classroom.displayCode}"
