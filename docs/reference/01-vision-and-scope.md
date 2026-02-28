@@ -28,7 +28,7 @@ From those principles, four operating commitments guide every design decision:
 
 ### Students Are the Agents
 
-The locus of control stays with the learner. Students do the thinking — they articulate what they're struggling with, hypothesize about what's wrong, declare their own expertise, and own their artifacts. When Forge asks a student for input, the purpose is to keep the cognitive work with the student, not to collect data for the system. _(Principles 2, 7, 13)_
+The locus of control stays with the learner. Students do the thinking — they articulate what they're struggling with, hypothesize about what's wrong, name their own topics, declare their own expertise, and own their artifacts. They control how they present themselves — choosing their theme color, stating what they're currently working on, and deciding what's visible to the class. When Forge asks a student for input, the purpose is to keep the cognitive work with the student, not to collect data for the system. _(Principles 2, 7, 13)_
 
 ### Logistics Serve Construction
 
@@ -146,6 +146,10 @@ Forge V1 delivers the minimum operational capabilities needed to support constru
 
 - **Help urgency made optional.** Pre-categorized urgency levels (blocked/question/check*work) are available but not required. Teachers should triage based on their knowledge of the child, not a software-assigned tag. *(Principles 2, 10)\_
 
+- **Student-authored help topics.** Students can write in their own topic when requesting help, not just pick from a teacher-defined list. This shifts ownership of categorization to the learner and gives teachers richer signal about what students are actually thinking about. Teacher-defined categories remain available as suggestions, not constraints. _(Principle 13)_
+
+- **Student profile expanded for agency.** The Profile module includes a student-chosen theme color (used as the avatar background with auto-complementary initials), a "currently working on" status visible on the smartboard, and the ability to opt in or out of the help queue display. Students control how they appear and what's public — shifting the smartboard from pure operational display toward student expression. _(Principle 2)_
+
 - **Teacher session review designed as narrative.** The teacher dashboard shows what students worked on and what they struggled with — not average wait times, completion rates, or time-on-task metrics. _(Principle 9)_
 
 ### Module System
@@ -163,7 +167,7 @@ A typical rollout might look like:
 | Week | Module enabled | Why now                                                                                                    |
 | ---- | -------------- | ---------------------------------------------------------------------------------------------------------- |
 | 1    | Presence       | Establish the rhythm of signing in. Students learn the tool exists.                                        |
-| 2    | Profile        | Students customize how they appear — display name, pronouns, "ask me about" topics. Agency from the start. |
+| 2    | Profile        | Students customize how they appear — display name, pronouns, theme color, "ask me about" topics, "currently working on" status. Agency from the start. |
 | 3    | Chores         | Establish shared responsibility for the learning space early.                                              |
 | 4+   | Projects       | When multi-session builds begin, add project tracking and handoffs.                                        |
 | 5+   | Help           | Introduce the help queue once students are building and need peer support.                                 |
@@ -175,7 +179,7 @@ The teacher controls this timeline entirely from the Settings page. There is no 
 | Module   | Purpose                                                 |
 | -------- | ------------------------------------------------------- |
 | Presence | Track who is here during class sessions                 |
-| Profile  | Students customize their identity and self-presentation |
+| Profile  | Student identity, self-presentation, and visibility preferences |
 | Help     | Peer help queue with ninja specializations              |
 | Projects | Multi-session project tracking and handoffs             |
 | Chores   | Classroom task management and shared responsibility     |
@@ -215,7 +219,7 @@ Distribution would start as file-system-based (drop a folder in) and eventually 
 - SEL check-in workflows
 - Cross-school identity
 - Student reflection/journal (V2 — construction activity, but projects come first)
-- Interactive/student-controlled smartboard (V2 — valuable but adds complexity)
+- Interactive/student-controlled smartboard (V2 — student profile data like "currently working on" appears on the smartboard, but students don't directly interact with the display itself)
 
 ---
 
@@ -342,9 +346,9 @@ Features explicitly deferred to V2+:
 
 6. **Teacher interventions are explicit.** Corrections are additive, labeled, and never overwrite student events.
 
-7. **Help keeps thinking with the student.** The help flow requires students to articulate hypotheses, not just describe symptoms.
+7. **Help keeps thinking with the student.** The help flow requires students to articulate hypotheses, not just describe symptoms. Students name their own topics rather than only picking from teacher-defined categories.
 
-8. **Peer expertise is self-declared.** Students identify their own "ask me about" areas rather than receiving teacher-assigned badges.
+8. **Students control their own presentation.** Students identify their own "ask me about" areas, choose their theme color, set a "currently working on" status, and control their visibility in the help queue. No teacher-assigned badges.
 
 9. **Teacher review is narrative, not metrics.** Show what students made and struggled with, not numbers.
 
