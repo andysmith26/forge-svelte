@@ -59,6 +59,7 @@ export function createMockHelpRepo(
     findOpenRequest: vi.fn().mockResolvedValue(null),
     listOpenRequests: vi.fn().mockResolvedValue([]),
     listQueue: vi.fn().mockResolvedValue([]),
+    listAllRequestsForSession: vi.fn().mockResolvedValue([]),
     countPendingBefore: vi.fn().mockResolvedValue(0),
     listResolvedSamples: vi.fn().mockResolvedValue([]),
     ...overrides

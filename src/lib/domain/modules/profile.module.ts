@@ -6,5 +6,5 @@ export const profileModule: ModuleDefinition = {
   description: 'Students customize their profile and self-presentation',
   navItem: { label: 'Profile', hrefSuffix: '/profile' },
   status: 'available',
-  defaultEnabled: false
+  defaultEnabled: true
 };

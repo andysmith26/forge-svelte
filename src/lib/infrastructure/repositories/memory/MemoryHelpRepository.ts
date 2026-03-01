@@ -134,6 +134,25 @@ export class MemoryHelpRepository implements HelpRepository {
     return result.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
 
+  async listAllRequestsForSession(sessionId: string): Promise<HelpQueueItem[]> {
+    const result: HelpQueueItem[] = [];
+    for (const r of this.store.helpRequests.values()) {
+      if (r.sessionId === sessionId) {
+        const requester = this.store.persons.get(r.requesterId);
+        result.push({
+          ...r,
+          requester: {
+            id: r.requesterId,
+            displayName: requester?.displayName ?? 'Unknown'
+          },
+          category: r.categoryId ? this.getCategorySummary(r.categoryId) : null,
+          claimedBy: r.claimedById ? this.getPersonSummary(r.claimedById) : null
+        });
+      }
+    }
+    return result.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
   async countPendingBefore(classroomId: string, createdAt: Date): Promise<number> {
     let count = 0;
     for (const r of this.store.helpRequests.values()) {

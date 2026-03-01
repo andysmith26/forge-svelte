@@ -14,10 +14,10 @@
   } = $props();
 
   const sizeClasses: Record<AvatarSize, string> = {
-    sm: 'h-8 w-8 text-xs',
-    md: 'h-10 w-10 text-sm',
-    lg: 'h-16 w-16 text-xl',
-    xl: 'h-20 w-20 text-2xl'
+    sm: 'h-8 w-8 text-sm',
+    md: 'h-10 w-10 text-base',
+    lg: 'h-16 w-16 text-2xl',
+    xl: 'h-20 w-20 text-3xl'
   };
 
   let initial = $derived(name.charAt(0).toUpperCase());

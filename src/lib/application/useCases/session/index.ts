@@ -24,3 +24,9 @@ export type { CancelSessionError } from './cancelSession';
 
 export { createAndStartSession } from './createAndStartSession';
 export type { CreateAndStartSessionError } from './createAndStartSession';
+
+export { listSessionsWithStats } from './listSessionsWithStats';
+export type { ListSessionsWithStatsError } from './listSessionsWithStats';
+
+export { getSessionAnalytics } from './getSessionAnalytics';
+export type { GetSessionAnalyticsError } from './getSessionAnalytics';

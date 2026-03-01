@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { LayoutData } from './$types';
+  import { page } from '$app/state';
   import { createClassroomSubscription } from '$lib/realtime';
   import { ConnectionStatus } from '$lib/components/ui';
   import { getModuleNavItems } from '$lib/domain/types/module-nav';
@@ -32,6 +33,7 @@
     ...moduleNavItems,
     ...(isTeacher
       ? [
+          { label: 'Sessions', href: `/classroom/${data.classroom.id}/sessions` },
           { label: 'Ninja', href: `/classroom/${data.classroom.id}/ninja` },
           { label: 'Roster', href: `/classroom/${data.classroom.id}/roster` },
           { label: 'Settings', href: `/classroom/${data.classroom.id}/settings` }
@@ -46,40 +48,48 @@
       <h1 class="text-2xl font-bold text-gray-900">{data.classroom.name}</h1>
       <p class="text-sm text-gray-500">Code: {data.classroom.displayCode}</p>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 text-sm">
       <ConnectionStatus state={realtimeState.connectionState} />
       {#if isTeacher}
+        <span class="text-gray-300">|</span>
         <a
           href="/display/{data.classroom.displayCode}"
-          class="text-sm text-forge-blue hover:underline"
+          class="text-gray-500 hover:text-gray-700"
           target="_blank"
         >
           Smartboard
         </a>
       {/if}
       {#if !isTeacher}
-        <a href="/guide.html" target="_blank" class="text-sm text-gray-500 hover:text-gray-700">
+        <span class="text-gray-300">|</span>
+        <a href="/guide.html" target="_blank" class="text-gray-500 hover:text-gray-700">
           Student Guide
         </a>
       {/if}
+      <span class="text-gray-300">|</span>
       {#if data.actor?.authType === 'pin'}
         <form method="POST" action="/api/pin/logout">
-          <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">Log out</button>
+          <button type="submit" class="text-gray-500 hover:text-gray-700">Log out</button>
         </form>
       {:else}
-        <a href="/" class="text-sm text-gray-500 hover:text-gray-700">Back to classrooms</a>
+        <a href="/" class="text-gray-500 hover:text-gray-700">Back to classrooms</a>
       {/if}
     </div>
   </div>
 
   <nav class="mt-4 flex gap-1 border-b border-gray-200">
     {#each navItems as item (item.href)}
+      {@const isActive =
+        item.href === `/classroom/${data.classroom.id}`
+          ? page.url.pathname === item.href
+          : page.url.pathname.startsWith(item.href)}
       <a
         href={item.href}
         class="-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors
-          {false
+          {isActive
           ? 'border-forge-blue text-forge-blue'
           : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
+        aria-current={isActive ? 'page' : undefined}
       >
         {item.label}
       </a>

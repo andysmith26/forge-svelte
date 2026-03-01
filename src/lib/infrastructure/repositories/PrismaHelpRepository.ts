@@ -115,6 +115,18 @@ export class PrismaHelpRepository implements HelpRepository {
     });
   }
 
+  async listAllRequestsForSession(sessionId: string): Promise<HelpQueueItem[]> {
+    return this.db.helpRequest.findMany({
+      where: { sessionId },
+      include: {
+        requester: { select: { id: true, displayName: true } },
+        category: { select: { id: true, name: true } },
+        claimedBy: { select: { id: true, displayName: true } }
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+  }
+
   async countPendingBefore(classroomId: string, createdAt: Date): Promise<number> {
     return this.db.helpRequest.count({
       where: {

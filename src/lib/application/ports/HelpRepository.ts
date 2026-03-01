@@ -105,5 +105,6 @@ export interface HelpRepository {
   listOpenRequests(sessionId: string, requesterId: string): Promise<HelpRequestWithRelations[]>;
   listQueue(sessionId: string): Promise<HelpQueueItem[]>;
   countPendingBefore(classroomId: string, createdAt: Date): Promise<number>;
+  listAllRequestsForSession(sessionId: string): Promise<HelpQueueItem[]>;
   listResolvedSamples(classroomId: string, limit: number): Promise<ResolvedRequestSample[]>;
 }

@@ -45,7 +45,7 @@ export const DEFAULT_CLASSROOM_SETTINGS: ClassroomSettings = {
 export const EXISTING_CLASSROOM_SETTINGS: ClassroomSettings = {
   modules: {
     presence: { enabled: true },
-    profile: { enabled: false },
+    profile: { enabled: true },
     help: { enabled: true },
     projects: { enabled: false },
     chores: { enabled: false }

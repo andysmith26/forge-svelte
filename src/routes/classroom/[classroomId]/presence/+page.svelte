@@ -2,6 +2,7 @@
   import type { PageData } from './$types';
   import PresenceStatus from '$lib/components/presence/PresenceStatus.svelte';
   import PresenceBoard from '$lib/components/presence/PresenceBoard.svelte';
+  import { Button } from '$lib/components/ui';
 
   const { data }: { data: PageData } = $props();
 
@@ -9,16 +10,16 @@
   const hasSession = $derived(!!data.currentSession && data.currentSession.status === 'active');
 </script>
 
-<div class="space-y-6">
-  <PresenceStatus isSignedIn={data.signInStatus?.isSignedIn ?? false} {hasSession} />
+<div class="mx-auto max-w-2xl space-y-6">
+  <div>
+    <PresenceStatus isSignedIn={data.signInStatus?.isSignedIn ?? false} {hasSession} />
+  </div>
 
   {#if hasSession}
     <div>
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900">
-          Who's Here ({data.present.length})
-        </h2>
-      </div>
+      <h2 class="mb-4 text-lg font-semibold text-gray-900">
+        Who's Here ({data.present.length})
+      </h2>
       <PresenceBoard people={data.present} />
     </div>
 
@@ -49,9 +50,7 @@
                     {#if !signIn.signedOutAt}
                       <form method="POST" action="?/signOutOther" class="inline">
                         <input type="hidden" name="personId" value={signIn.personId} />
-                        <button type="submit" class="text-xs text-red-600 hover:underline">
-                          Sign Out
-                        </button>
+                        <Button type="submit" variant="ghost" size="sm">Sign Out</Button>
                       </form>
                     {/if}
                   </td>

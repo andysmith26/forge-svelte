@@ -51,9 +51,7 @@
         <h2 class="text-lg font-semibold text-gray-900">My Profile</h2>
       </div>
       {#if !editing}
-        <button type="button" class="text-sm text-forge-blue hover:underline" onclick={startEdit}>
-          Edit
-        </button>
+        <Button variant="ghost" size="sm" onclick={startEdit}>Edit</Button>
       {/if}
     </div>
 

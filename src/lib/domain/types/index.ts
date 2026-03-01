@@ -9,3 +9,13 @@ export {
   parseClassroomSettings
 } from './classroom-settings';
 export type { ClassroomModule, ClassroomSettings, ModuleConfig } from './classroom-settings';
+export type {
+  SessionListItem,
+  AttendeeRecord,
+  AttendanceSummary,
+  CategoryBreakdown,
+  UrgencyBreakdown,
+  HelpSummary,
+  TimelineEvent,
+  SessionAnalytics
+} from './session-analytics';
