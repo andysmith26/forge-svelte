@@ -172,4 +172,12 @@ export class PrismaPinRepository implements PinRepository {
       select: { id: true }
     });
   }
+
+  async getPersonPinHash(personId: string): Promise<string | null> {
+    const person = await this.db.person.findUnique({
+      where: { id: personId },
+      select: { pinHash: true }
+    });
+    return person?.pinHash ?? null;
+  }
 }

@@ -46,4 +46,5 @@ export interface PinRepository {
   listStudentsWithPins(classroomId: string): Promise<PersonPinRecord[]>;
   listStudentIdsWithoutPins(classroomId: string): Promise<string[]>;
   getMembership(personId: string, classroomId: string): Promise<{ id: string } | null>;
+  getPersonPinHash(personId: string): Promise<string | null>;
 }

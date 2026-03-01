@@ -7,6 +7,8 @@
 
   const isTeacher = $derived(data.membership.role === 'teacher');
   const profileEnabled = $derived(data.settings?.modules.profile?.enabled ?? false);
+  const presenceEnabled = $derived(data.settings?.modules.presence?.enabled ?? false);
+  const hasActiveSession = $derived(data.currentSession?.status === 'active');
 </script>
 
 <div class="grid gap-6 lg:grid-cols-2">
@@ -15,18 +17,51 @@
       <SessionControl session={data.currentSession} {isTeacher} />
     {/if}
 
-    {#if !isTeacher && data.currentSession?.status === 'active'}
+    {#if !isTeacher && presenceEnabled}
       <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <h2 class="mb-3 text-lg font-semibold text-gray-900">Your Presence</h2>
-        <div class="flex items-center gap-3">
-          {#if data.signInStatus.isSignedIn}
-            <StatusDot color="green" />
-            <span class="text-sm font-medium text-green-700">You are signed in</span>
-          {:else}
+
+        {#if hasActiveSession}
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              {#if data.signInStatus.isSignedIn}
+                <StatusDot color="green" />
+                <span class="text-sm font-medium text-green-700">You are signed in</span>
+              {:else}
+                <StatusDot color="gray" />
+                <span class="text-sm text-gray-500">You are not signed in</span>
+              {/if}
+            </div>
+
+            {#if data.signInStatus.isSignedIn}
+              <form method="POST" action="?/signOut">
+                <button
+                  type="submit"
+                  class="rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                >
+                  Sign Out
+                </button>
+              </form>
+            {:else}
+              <form method="POST" action="?/signIn">
+                <button
+                  type="submit"
+                  class="rounded-md bg-forge-blue px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                >
+                  Sign In
+                </button>
+              </form>
+            {/if}
+          </div>
+        {:else}
+          <div class="flex items-center gap-3 rounded-md bg-gray-50 px-4 py-3">
             <StatusDot color="gray" />
-            <span class="text-sm text-gray-500">You are not signed in</span>
-          {/if}
-        </div>
+            <span class="text-sm text-gray-500"
+              >No active session — your teacher will start one</span
+            >
+          </div>
+        {/if}
+
         <div class="mt-3">
           <a
             href="/classroom/{data.classroom.id}/presence"

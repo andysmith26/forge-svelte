@@ -6,6 +6,10 @@ import { createAndStartSession } from '$lib/application/useCases/session/createA
 import { endSession } from '$lib/application/useCases/session/endSession';
 import { cancelSession } from '$lib/application/useCases/session/cancelSession';
 import { getSignInStatus } from '$lib/application/useCases/presence/getSignInStatus';
+import { signIn } from '$lib/application/useCases/presence/signIn';
+import { signOut } from '$lib/application/useCases/presence/signOut';
+import { getCurrentSession } from '$lib/application/useCases/session/getCurrentSession';
+import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
 import { requireTeacher } from '$lib/application/useCases/checkAuthorization';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
@@ -123,6 +127,93 @@ export const actions: Actions = {
     if (authResult.status === 'err') return fail(403, { error: authResult.error.type });
 
     const result = await cancelSession({ sessionRepo: env.sessionRepo }, { sessionId });
+
+    if (result.status === 'err') {
+      return fail(400, { error: result.error.type });
+    }
+
+    return { success: true };
+  },
+
+  signIn: async ({ locals, params }) => {
+    const actor = locals.actor;
+    if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.presence?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
+
+    const sessionResult = await getCurrentSession(
+      { sessionRepo: env.sessionRepo },
+      { classroomId: params.classroomId }
+    );
+    if (sessionResult.status !== 'ok' || !sessionResult.value) {
+      return fail(400, { error: 'No active session' });
+    }
+
+    const result = await signIn(
+      {
+        sessionRepo: env.sessionRepo,
+        presenceRepo: env.presenceRepo,
+        classroomRepo: env.classroomRepo,
+        eventStore: env.eventStore,
+        idGenerator: env.idGenerator
+      },
+      {
+        sessionId: sessionResult.value.id,
+        personId: actor.personId,
+        actorId: actor.personId,
+        pinClassroomId: actor.pinClassroomId
+      }
+    );
+
+    if (result.status === 'err') {
+      return fail(400, { error: result.error.type });
+    }
+
+    return { success: true };
+  },
+
+  signOut: async ({ locals, params }) => {
+    const actor = locals.actor;
+    if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.presence?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
+
+    const sessionResult = await getCurrentSession(
+      { sessionRepo: env.sessionRepo },
+      { classroomId: params.classroomId }
+    );
+    if (sessionResult.status !== 'ok' || !sessionResult.value) {
+      return fail(400, { error: 'No active session' });
+    }
+
+    const result = await signOut(
+      {
+        sessionRepo: env.sessionRepo,
+        presenceRepo: env.presenceRepo,
+        classroomRepo: env.classroomRepo,
+        eventStore: env.eventStore
+      },
+      {
+        sessionId: sessionResult.value.id,
+        personId: actor.personId,
+        actorId: actor.personId,
+        pinClassroomId: actor.pinClassroomId
+      }
+    );
 
     if (result.status === 'err') {
       return fail(400, { error: result.error.type });

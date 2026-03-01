@@ -169,4 +169,8 @@ export class MemoryPinRepository implements PinRepository {
     }
     return null;
   }
+
+  async getPersonPinHash(personId: string): Promise<string | null> {
+    return this.getPinHash(personId);
+  }
 }

@@ -7,6 +7,15 @@ import { getSignInStatus } from '$lib/application/useCases/presence/getSignInSta
 import { signIn } from '$lib/application/useCases/presence/signIn';
 import { signOut } from '$lib/application/useCases/presence/signOut';
 
+type KioskStudent = {
+  id: string;
+  displayName: string;
+  pronouns: string | null;
+  isPresent: boolean;
+  themeColor: string | null;
+  hasPin: boolean;
+};
+
 export const load: PageServerLoad = async ({ params }) => {
   const env = getEnvironment();
 
@@ -33,37 +42,34 @@ export const load: PageServerLoad = async ({ params }) => {
     return {
       classroom: { id: classroom.id, name: classroom.name, displayCode: classroom.displayCode },
       session,
-      students: [] as {
-        id: string;
-        displayName: string;
-        pronouns: string | null;
-        isPresent: boolean;
-        themeColor: string | null;
-      }[],
+      students: [] as KioskStudent[],
       demoMode: isDemoMode,
       demoPins: {} as Record<string, string>
     };
   }
 
-  const [members, presentResult] = await Promise.all([
+  const [members, presentResult, studentsWithPins] = await Promise.all([
     env.classroomRepo.listMembers(classroom.id),
-    listPresent({ presenceRepo: env.presenceRepo }, { sessionId: session.id })
+    listPresent({ presenceRepo: env.presenceRepo }, { sessionId: session.id }),
+    env.pinRepo.listStudentsWithPins(classroom.id)
   ]);
 
   const presentPeople = presentResult.status === 'ok' ? presentResult.value : [];
   const presentMap = new Map(presentPeople.map((p) => [p.id, p]));
+  const pinMap = new Map(studentsWithPins.map((s) => [s.id, s.hasPin]));
 
-  const students = members
+  const students: KioskStudent[] = members
     .filter((m) => m.role === 'student')
     .map((m) => ({
       id: m.id,
       displayName: m.displayName,
       pronouns: m.pronouns,
       isPresent: presentMap.has(m.id),
-      themeColor: presentMap.get(m.id)?.themeColor ?? null
+      themeColor: presentMap.get(m.id)?.themeColor ?? null,
+      hasPin: pinMap.get(m.id) ?? false
     }));
 
-  let demoPins: Record<string, string> = {};
+  const demoPins: Record<string, string> = {};
   if (isDemoMode) {
     const store = getDemoStore();
     if (store) {
@@ -103,9 +109,18 @@ export const actions: Actions = {
     const personId = formData.get('personId') as string;
     if (!personId) return fail(400, { error: 'Missing personId' });
 
+    const pin = (formData.get('pin') as string) || '';
+
     const membership = await env.classroomRepo.getMembership(personId, classroom.id);
     if (!membership || membership.role !== 'student') {
       return fail(403, { error: 'Not a student in this classroom' });
+    }
+
+    const pinHash = await env.pinRepo.getPersonPinHash(personId);
+    if (pinHash) {
+      if (!pin) return fail(403, { error: 'PIN_REQUIRED' });
+      const pinValid = await env.hashService.compare(pin, pinHash);
+      if (!pinValid) return fail(403, { error: 'INVALID_PIN' });
     }
 
     const statusResult = await getSignInStatus(

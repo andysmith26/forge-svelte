@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { enhance } from '$app/forms';
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
   import { createClassroomSubscription } from '$lib/realtime';
   import Avatar from '$lib/components/ui/Avatar.svelte';
 
@@ -25,14 +25,52 @@
     clearInterval(intervalId);
   });
 
-  const timeString = $derived(
-    now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  );
+  const timeString = $derived(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
   const hasActiveSession = $derived(data.session?.status === 'active');
   const presentCount = $derived(data.students.filter((s) => s.isPresent).length);
 
   let togglingIds = $state(new Set<string>());
+
+  type ModalStudent = {
+    id: string;
+    displayName: string;
+    themeColor: string | null;
+    isPresent: boolean;
+  };
+
+  let pinModalStudent = $state<ModalStudent | null>(null);
+  let pinInput = $state('');
+  let pinError = $state('');
+  let pinInputEl = $state<HTMLInputElement | null>(null);
+  let pinSubmitting = $state(false);
+
+  function openPinModal(student: ModalStudent) {
+    pinModalStudent = student;
+    pinInput = '';
+    pinError = '';
+    pinSubmitting = false;
+    tick().then(() => pinInputEl?.focus());
+  }
+
+  function closePinModal() {
+    pinModalStudent = null;
+    pinInput = '';
+    pinError = '';
+    pinSubmitting = false;
+  }
+
+  function handleCardClick(student: (typeof data.students)[number], event: Event) {
+    if (student.hasPin) {
+      event.preventDefault();
+      openPinModal({
+        id: student.id,
+        displayName: student.displayName,
+        themeColor: student.themeColor,
+        isPresent: student.isPresent
+      });
+    }
+  }
 </script>
 
 <svelte:head>
@@ -91,6 +129,7 @@
             <button
               type="submit"
               disabled={togglingIds.has(student.id)}
+              onclick={(e) => handleCardClick(student, e)}
               class="flex w-full flex-col items-center rounded-xl p-5 transition-all active:scale-95
                 {student.isPresent
                 ? 'bg-green-900/30 ring-2 ring-green-500'
@@ -136,3 +175,94 @@
     Kiosk Mode — {data.classroom.displayCode}
   </footer>
 </div>
+
+{#if pinModalStudent}
+  {@const modalStudent = pinModalStudent}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+    onkeydown={(e) => {
+      if (e.key === 'Escape') closePinModal();
+    }}
+  >
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div class="absolute inset-0" onclick={closePinModal}></div>
+    <div class="relative w-full max-w-sm rounded-2xl bg-gray-800 p-8 shadow-2xl">
+      <div class="flex flex-col items-center">
+        <Avatar name={modalStudent.displayName} size="xl" themeColor={modalStudent.themeColor} />
+        <h2 class="mt-4 text-xl font-bold text-white">{modalStudent.displayName}</h2>
+        <p class="mt-1 text-sm text-gray-400">
+          {modalStudent.isPresent ? 'Enter PIN to sign out' : 'Enter PIN to sign in'}
+        </p>
+      </div>
+
+      <form
+        method="POST"
+        action="?/togglePresence"
+        class="mt-6"
+        use:enhance={() => {
+          pinSubmitting = true;
+          togglingIds.add(modalStudent.id);
+          togglingIds = togglingIds;
+          return async ({ result, update }) => {
+            pinSubmitting = false;
+            togglingIds.delete(modalStudent.id);
+            togglingIds = togglingIds;
+            if (result.type === 'failure') {
+              const errorMsg = (result.data as { error?: string } | undefined)?.error;
+              if (errorMsg === 'PIN_REQUIRED' || errorMsg === 'INVALID_PIN') {
+                pinError = 'Incorrect PIN. Try again.';
+                pinInput = '';
+                tick().then(() => pinInputEl?.focus());
+                return;
+              }
+            }
+            closePinModal();
+            await update();
+          };
+        }}
+      >
+        <input type="hidden" name="personId" value={modalStudent.id} />
+        <input type="hidden" name="pin" value={pinInput} />
+
+        <div>
+          <input
+            bind:this={pinInputEl}
+            bind:value={pinInput}
+            type="password"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
+            placeholder="Enter PIN"
+            class="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 text-center
+              text-2xl tracking-[0.5em] text-white placeholder:tracking-normal
+              placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50
+              focus:outline-none"
+          />
+          {#if pinError}
+            <p class="mt-2 text-center text-sm text-red-400">{pinError}</p>
+          {/if}
+        </div>
+
+        <div class="mt-6 flex gap-3">
+          <button
+            type="button"
+            onclick={closePinModal}
+            class="flex-1 rounded-lg bg-gray-700 px-4 py-3 text-sm font-medium text-gray-300
+              transition-colors hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!pinInput || pinSubmitting}
+            class="flex-1 rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white
+              transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pinSubmitting ? 'Verifying...' : 'Confirm'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
