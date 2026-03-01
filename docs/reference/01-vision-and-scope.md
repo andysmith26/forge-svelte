@@ -164,25 +164,25 @@ Not every classroom needs every feature on day one. A teacher starting with Forg
 
 A typical rollout might look like:
 
-| Week | Module enabled | Why now                                                                                                    |
-| ---- | -------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1    | Presence       | Establish the rhythm of signing in. Students learn the tool exists.                                        |
+| Week | Module enabled | Why now                                                                                                                                                |
+| ---- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | Presence       | Establish the rhythm of signing in. Students learn the tool exists.                                                                                    |
 | 2    | Profile        | Students customize how they appear — display name, pronouns, theme color, "ask me about" topics, "currently working on" status. Agency from the start. |
-| 3    | Chores         | Establish shared responsibility for the learning space early.                                              |
-| 4+   | Projects       | When multi-session builds begin, add project tracking and handoffs.                                        |
-| 5+   | Help           | Introduce the help queue once students are building and need peer support.                                 |
+| 3    | Chores         | Establish shared responsibility for the learning space early.                                                                                          |
+| 4+   | Projects       | When multi-session builds begin, add project tracking and handoffs.                                                                                    |
+| 5+   | Help           | Introduce the help queue once students are building and need peer support.                                                                             |
 
 The teacher controls this timeline entirely from the Settings page. There is no prescribed sequence — some classrooms may enable Help before Profile, or skip Chores altogether.
 
 #### Core Modules (V1)
 
-| Module   | Purpose                                                 |
-| -------- | ------------------------------------------------------- |
-| Presence | Track who is here during class sessions                 |
+| Module   | Purpose                                                         |
+| -------- | --------------------------------------------------------------- |
+| Presence | Track who is here during class sessions                         |
 | Profile  | Student identity, self-presentation, and visibility preferences |
-| Help     | Peer help queue with ninja specializations              |
-| Projects | Multi-session project tracking and handoffs             |
-| Chores   | Classroom task management and shared responsibility     |
+| Help     | Peer help queue with ninja specializations                      |
+| Projects | Multi-session project tracking and handoffs                     |
+| Chores   | Classroom task management and shared responsibility             |
 
 Core modules ship with Forge and are maintained by the core team. Each module declares its own routes, navigation items, and optional smartboard panels.
 

@@ -47,7 +47,14 @@ export class PrismaPresenceRepository implements PresenceRepository {
       where: { sessionId, signedOutAt: null },
       include: {
         person: {
-          select: { id: true, displayName: true, pronouns: true, askMeAbout: true }
+          select: {
+            id: true,
+            displayName: true,
+            pronouns: true,
+            askMeAbout: true,
+            themeColor: true,
+            currentlyWorkingOn: true
+          }
         }
       },
       orderBy: { signedInAt: 'asc' }

@@ -1,5 +1,5 @@
 import type { PageServerLoad, Actions } from './$types';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { getEnvironment } from '$lib/server/environment';
 import { getHelpQueue } from '$lib/application/useCases/help/getHelpQueue';
 import { listCategories } from '$lib/application/useCases/help/listCategories';
@@ -10,10 +10,16 @@ import { claimHelpRequest } from '$lib/application/useCases/help/claimHelpReques
 import { unclaimHelpRequest } from '$lib/application/useCases/help/unclaimHelpRequest';
 import { resolveHelpRequest } from '$lib/application/useCases/help/resolveHelpRequest';
 import { getCurrentSession } from '$lib/application/useCases/session/getCurrentSession';
+import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
 import type { HelpUrgency } from '$lib/domain/types/help-urgency';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
   const parentData = await parent();
+
+  if (!parentData.settings?.modules.help?.enabled) {
+    redirect(302, `/classroom/${parentData.classroom.id}`);
+  }
+
   const env = getEnvironment();
   const actor = locals.actor!;
   const session = parentData.currentSession;
@@ -72,6 +78,14 @@ export const actions: Actions = {
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
     const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.help?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
+
     const sessionResult = await getCurrentSession(
       { sessionRepo: env.sessionRepo },
       { classroomId: params.classroomId }
@@ -116,15 +130,23 @@ export const actions: Actions = {
     return { success: true, queuePosition: result.value.queuePosition };
   },
 
-  cancelRequest: async ({ locals, request }) => {
+  cancelRequest: async ({ locals, params, request }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.help?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
 
     const formData = await request.formData();
     const requestId = formData.get('requestId') as string;
     if (!requestId) return fail(400, { error: 'Missing requestId' });
 
-    const env = getEnvironment();
     const result = await cancelHelpRequest(
       {
         helpRepo: env.helpRepo,
@@ -141,15 +163,23 @@ export const actions: Actions = {
     return { success: true };
   },
 
-  claim: async ({ locals, request }) => {
+  claim: async ({ locals, params, request }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.help?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
 
     const formData = await request.formData();
     const requestId = formData.get('requestId') as string;
     if (!requestId) return fail(400, { error: 'Missing requestId' });
 
-    const env = getEnvironment();
     const result = await claimHelpRequest(
       {
         helpRepo: env.helpRepo,
@@ -166,15 +196,23 @@ export const actions: Actions = {
     return { success: true };
   },
 
-  unclaim: async ({ locals, request }) => {
+  unclaim: async ({ locals, params, request }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.help?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
 
     const formData = await request.formData();
     const requestId = formData.get('requestId') as string;
     if (!requestId) return fail(400, { error: 'Missing requestId' });
 
-    const env = getEnvironment();
     const result = await unclaimHelpRequest(
       {
         helpRepo: env.helpRepo,
@@ -191,16 +229,24 @@ export const actions: Actions = {
     return { success: true };
   },
 
-  resolve: async ({ locals, request }) => {
+  resolve: async ({ locals, params, request }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.help?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
 
     const formData = await request.formData();
     const requestId = formData.get('requestId') as string;
     const resolutionNotes = (formData.get('resolutionNotes') as string) || undefined;
     if (!requestId) return fail(400, { error: 'Missing requestId' });
 
-    const env = getEnvironment();
     const result = await resolveHelpRequest(
       {
         helpRepo: env.helpRepo,

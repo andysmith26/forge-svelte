@@ -32,6 +32,9 @@ export class MemoryPersonRepository implements PersonRepository {
       legalName: p.legalName,
       pronouns: p.pronouns,
       askMeAbout: p.askMeAbout,
+      themeColor: p.themeColor,
+      currentlyWorkingOn: p.currentlyWorkingOn,
+      helpQueueVisible: p.helpQueueVisible,
       email: p.email
     };
   }
@@ -43,7 +46,12 @@ export class MemoryPersonRepository implements PersonRepository {
       ...p,
       ...(input.displayName !== undefined && { displayName: input.displayName }),
       ...(input.pronouns !== undefined && { pronouns: input.pronouns }),
-      ...(input.askMeAbout !== undefined && { askMeAbout: input.askMeAbout })
+      ...(input.askMeAbout !== undefined && { askMeAbout: input.askMeAbout }),
+      ...(input.themeColor !== undefined && { themeColor: input.themeColor }),
+      ...(input.currentlyWorkingOn !== undefined && {
+        currentlyWorkingOn: input.currentlyWorkingOn
+      }),
+      ...(input.helpQueueVisible !== undefined && { helpQueueVisible: input.helpQueueVisible })
     };
     this.store.persons.set(id, updated);
     return {
@@ -52,6 +60,9 @@ export class MemoryPersonRepository implements PersonRepository {
       legalName: updated.legalName,
       pronouns: updated.pronouns,
       askMeAbout: updated.askMeAbout,
+      themeColor: updated.themeColor,
+      currentlyWorkingOn: updated.currentlyWorkingOn,
+      helpQueueVisible: updated.helpQueueVisible,
       email: updated.email
     };
   }
@@ -74,6 +85,9 @@ export class MemoryPersonRepository implements PersonRepository {
       pronouns: null,
       gradeLevel: input.gradeLevel ?? null,
       askMeAbout: [],
+      themeColor: null,
+      currentlyWorkingOn: null,
+      helpQueueVisible: true,
       isActive: true
     };
     this.store.persons.set(id, person);

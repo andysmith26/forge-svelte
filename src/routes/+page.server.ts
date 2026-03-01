@@ -8,6 +8,10 @@ export const load: PageServerLoad = async ({ locals }) => {
     redirect(302, '/login');
   }
 
+  if (locals.actor.authType === 'pin' && locals.actor.pinClassroomId) {
+    redirect(302, `/classroom/${locals.actor.pinClassroomId}`);
+  }
+
   const env = getEnvironment();
   const result = await listMyClassrooms(
     { classroomRepo: env.classroomRepo },

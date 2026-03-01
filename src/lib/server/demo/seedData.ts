@@ -31,6 +31,9 @@ export function seedDemoData(store: MemoryStore, pinRepo: MemoryPinRepository): 
     pronouns: null,
     gradeLevel: null,
     askMeAbout: [],
+    themeColor: null,
+    currentlyWorkingOn: null,
+    helpQueueVisible: true,
     isActive: true
   });
   store.personCreatedAt.set(DEMO_TEACHER_PERSON_ID, now);
@@ -75,6 +78,9 @@ export function seedDemoData(store: MemoryStore, pinRepo: MemoryPinRepository): 
       pronouns: null,
       gradeLevel: student.grade,
       askMeAbout: [],
+      themeColor: null,
+      currentlyWorkingOn: null,
+      helpQueueVisible: true,
       isActive: true
     });
     store.personCreatedAt.set(student.id, now);

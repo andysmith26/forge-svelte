@@ -121,6 +121,16 @@ export type HelpCancelledPayload = {
 
 export type HelpCancelledEvent = DomainEvent<'HELP_CANCELLED', HelpCancelledPayload>;
 
+// Profile Events
+
+export type ProfileUpdatedPayload = {
+  personId: string;
+  schoolId: string;
+  changedFields: string[];
+};
+
+export type ProfileUpdatedEvent = DomainEvent<'PROFILE_UPDATED', ProfileUpdatedPayload>;
+
 // Union type of all events
 
 export type ForgeEvent =
@@ -132,7 +142,8 @@ export type ForgeEvent =
   | HelpClaimedEvent
   | HelpUnclaimedEvent
   | HelpResolvedEvent
-  | HelpCancelledEvent;
+  | HelpCancelledEvent
+  | ProfileUpdatedEvent;
 
 export type EventType = ForgeEvent['type'];
 

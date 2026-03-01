@@ -52,7 +52,7 @@
         return;
       }
 
-      window.location.href = '/pin';
+      window.location.href = `/classroom/${data.classroomId}`;
     } catch {
       error = 'Failed to sign in. Please try again.';
       loading = false;

@@ -19,17 +19,22 @@ export class PrismaPersonRepository implements PersonRepository {
     return this.db.person.findUnique({ where: { id } });
   }
 
+  private static readonly profileSelect = {
+    id: true,
+    displayName: true,
+    legalName: true,
+    pronouns: true,
+    askMeAbout: true,
+    themeColor: true,
+    currentlyWorkingOn: true,
+    helpQueueVisible: true,
+    email: true
+  } as const;
+
   async getProfile(id: string): Promise<PersonProfile | null> {
     return this.db.person.findUnique({
       where: { id },
-      select: {
-        id: true,
-        displayName: true,
-        legalName: true,
-        pronouns: true,
-        askMeAbout: true,
-        email: true
-      }
+      select: PrismaPersonRepository.profileSelect
     });
   }
 
@@ -39,16 +44,12 @@ export class PrismaPersonRepository implements PersonRepository {
       data: {
         displayName: input.displayName,
         pronouns: input.pronouns,
-        askMeAbout: input.askMeAbout
+        askMeAbout: input.askMeAbout,
+        themeColor: input.themeColor,
+        currentlyWorkingOn: input.currentlyWorkingOn,
+        helpQueueVisible: input.helpQueueVisible
       },
-      select: {
-        id: true,
-        displayName: true,
-        legalName: true,
-        pronouns: true,
-        askMeAbout: true,
-        email: true
-      }
+      select: PrismaPersonRepository.profileSelect
     });
   }
 

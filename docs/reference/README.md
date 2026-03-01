@@ -4,11 +4,11 @@ These documents define what Forge is, why it works this way, and how it's built.
 
 ## Document Hierarchy
 
-| Document | Role | Scope |
-| -------- | ---- | ----- |
-| [**01-vision-and-scope**](01-vision-and-scope.md) | Source of truth for *what* and *why* | Forge-specific: philosophy, problem, users, V1 scope, invariants |
-| [**02-learning-principles**](02-learning-principles.md) | Philosophical foundation | Universal: 15 constructionist constraints from Piaget, Papert, and Stager |
-| [**03-architecture**](03-architecture.md) | Source of truth for *how* | Forge-specific: layers, patterns, tech stack, directory structure |
+| Document                                                | Role                                 | Scope                                                                     |
+| ------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------- |
+| [**01-vision-and-scope**](01-vision-and-scope.md)       | Source of truth for _what_ and _why_ | Forge-specific: philosophy, problem, users, V1 scope, invariants          |
+| [**02-learning-principles**](02-learning-principles.md) | Philosophical foundation             | Universal: 15 constructionist constraints from Piaget, Papert, and Stager |
+| [**03-architecture**](03-architecture.md)               | Source of truth for _how_            | Forge-specific: layers, patterns, tech stack, directory structure         |
 
 ## How They Relate
 

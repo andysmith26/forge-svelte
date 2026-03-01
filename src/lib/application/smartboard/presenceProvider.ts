@@ -7,6 +7,8 @@ export type PresencePanelData = {
   displayName: string;
   pronouns: string | null;
   askMeAbout: string[];
+  themeColor: string | null;
+  currentlyWorkingOn: string | null;
 }[];
 
 export const presenceSmartboardProvider: SmartboardDataProvider<
@@ -22,7 +24,9 @@ export const presenceSmartboardProvider: SmartboardDataProvider<
         id: p.id,
         displayName: p.displayName,
         pronouns: p.pronouns,
-        askMeAbout: p.askMeAbout
+        askMeAbout: p.askMeAbout,
+        themeColor: p.themeColor,
+        currentlyWorkingOn: p.currentlyWorkingOn
       }));
     }
     return [];

@@ -107,8 +107,11 @@ model Person {
   gradeLevel  String?   @map("grade_level")
   pinHash     String?   @map("pin_hash") // bcrypt hash of PIN
   googleId    String?   @unique @map("google_id")
-  askMeAbout  String[]  @map("ask_me_about")
-  isActive    Boolean   @default(true) @map("is_active")
+  askMeAbout         String[]  @map("ask_me_about")
+  themeColor         String?   @map("theme_color")
+  currentlyWorkingOn String?   @map("currently_working_on")
+  helpQueueVisible   Boolean   @default(true) @map("help_queue_visible")
+  isActive           Boolean   @default(true) @map("is_active")
   lastLoginAt DateTime? @map("last_login_at")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")

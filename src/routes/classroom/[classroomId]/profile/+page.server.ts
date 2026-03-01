@@ -3,6 +3,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { getEnvironment } from '$lib/server/environment';
 import { getProfile } from '$lib/application/useCases/person/getProfile';
 import { updateProfile } from '$lib/application/useCases/person/updateProfile';
+import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
   const parentData = await parent();
@@ -29,15 +30,27 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
             legalName: '',
             pronouns: null,
             askMeAbout: [],
+            themeColor: null,
+            currentlyWorkingOn: null,
+            helpQueueVisible: true,
             email: null
           }
   };
 };
 
 export const actions: Actions = {
-  updateProfile: async ({ locals, request }) => {
+  updateProfile: async ({ locals, params, request }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.profile?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
 
     const formData = await request.formData();
     const displayName = formData.get('displayName') as string;
@@ -49,15 +62,27 @@ export const actions: Actions = {
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
+    const themeColor = (formData.get('themeColor') as string) || null;
+    const currentlyWorkingOn = (formData.get('currentlyWorkingOn') as string) || null;
+    const helpQueueVisible = formData.get('helpQueueVisible') !== 'false';
 
-    const env = getEnvironment();
     const result = await updateProfile(
-      { personRepo: env.personRepo },
-      { personId: actor.personId, displayName, pronouns, askMeAbout }
+      { personRepo: env.personRepo, eventStore: env.eventStore },
+      {
+        personId: actor.personId,
+        displayName,
+        pronouns,
+        askMeAbout,
+        themeColor,
+        currentlyWorkingOn,
+        helpQueueVisible
+      }
     );
 
     if (result.status === 'err') {
-      return fail(400, { error: result.error.message });
+      const errorMessage =
+        result.error.type === 'NOT_FOUND' ? 'Profile not found' : result.error.message;
+      return fail(400, { error: errorMessage });
     }
 
     return { success: true };

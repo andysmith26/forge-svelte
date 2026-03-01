@@ -57,7 +57,18 @@
           Smartboard
         </a>
       {/if}
-      <a href="/" class="text-sm text-gray-500 hover:text-gray-700">Back to classrooms</a>
+      {#if !isTeacher}
+        <a href="/guide.html" target="_blank" class="text-sm text-gray-500 hover:text-gray-700">
+          Student Guide
+        </a>
+      {/if}
+      {#if data.actor?.authType === 'pin'}
+        <form method="POST" action="/api/pin/logout">
+          <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">Log out</button>
+        </form>
+      {:else}
+        <a href="/" class="text-sm text-gray-500 hover:text-gray-700">Back to classrooms</a>
+      {/if}
     </div>
   </div>
 

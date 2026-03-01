@@ -32,5 +32,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     maxAge: 4 * 60 * 60
   });
 
-  return json({ success: true });
+  return json({ success: true, classroomId: result.value.classroomId });
 };

@@ -6,6 +6,7 @@ import { createAndStartSession } from '$lib/application/useCases/session/createA
 import { endSession } from '$lib/application/useCases/session/endSession';
 import { cancelSession } from '$lib/application/useCases/session/cancelSession';
 import { getSignInStatus } from '$lib/application/useCases/presence/getSignInStatus';
+import { requireTeacher } from '$lib/application/useCases/checkAuthorization';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
   const parentData = await parent();
@@ -34,7 +35,10 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
         ? {
             displayName: profileResult.value.displayName,
             pronouns: profileResult.value.pronouns,
-            askMeAbout: profileResult.value.askMeAbout
+            askMeAbout: profileResult.value.askMeAbout,
+            themeColor: profileResult.value.themeColor,
+            currentlyWorkingOn: profileResult.value.currentlyWorkingOn,
+            helpQueueVisible: profileResult.value.helpQueueVisible
           }
         : null,
     signInStatus
@@ -47,6 +51,13 @@ export const actions: Actions = {
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
     const env = getEnvironment();
+    const authResult = await requireTeacher(
+      { classroomRepo: env.classroomRepo },
+      actor.personId,
+      params.classroomId
+    );
+    if (authResult.status === 'err') return fail(403, { error: authResult.error.type });
+
     const result = await createAndStartSession(
       {
         sessionRepo: env.sessionRepo,
@@ -63,7 +74,7 @@ export const actions: Actions = {
     return { success: true };
   },
 
-  endSession: async ({ locals, request }) => {
+  endSession: async ({ locals, request, params }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
@@ -72,6 +83,13 @@ export const actions: Actions = {
     if (!sessionId) return fail(400, { error: 'Missing sessionId' });
 
     const env = getEnvironment();
+    const authResult = await requireTeacher(
+      { classroomRepo: env.classroomRepo },
+      actor.personId,
+      params.classroomId
+    );
+    if (authResult.status === 'err') return fail(403, { error: authResult.error.type });
+
     const result = await endSession(
       {
         sessionRepo: env.sessionRepo,
@@ -88,7 +106,7 @@ export const actions: Actions = {
     return { success: true };
   },
 
-  cancelSession: async ({ locals, request }) => {
+  cancelSession: async ({ locals, request, params }) => {
     const actor = locals.actor;
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
@@ -97,6 +115,13 @@ export const actions: Actions = {
     if (!sessionId) return fail(400, { error: 'Missing sessionId' });
 
     const env = getEnvironment();
+    const authResult = await requireTeacher(
+      { classroomRepo: env.classroomRepo },
+      actor.personId,
+      params.classroomId
+    );
+    if (authResult.status === 'err') return fail(403, { error: authResult.error.type });
+
     const result = await cancelSession({ sessionRepo: env.sessionRepo }, { sessionId });
 
     if (result.status === 'err') {

@@ -21,5 +21,7 @@ export type {
   HelpResolvedEvent,
   HelpResolvedPayload,
   HelpCancelledEvent,
-  HelpCancelledPayload
+  HelpCancelledPayload,
+  ProfileUpdatedEvent,
+  ProfileUpdatedPayload
 } from './events';

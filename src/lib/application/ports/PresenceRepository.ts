@@ -16,6 +16,8 @@ export type PersonPresence = {
   displayName: string;
   pronouns: string | null;
   askMeAbout: string[];
+  themeColor: string | null;
+  currentlyWorkingOn: string | null;
 };
 
 export type SignInWithActors = SignInRecord & {

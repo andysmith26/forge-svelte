@@ -9,6 +9,8 @@
       displayName: string;
       pronouns: string | null;
       askMeAbout: string[];
+      themeColor?: string | null;
+      currentlyWorkingOn?: string | null;
     }[];
   } = $props();
 </script>
@@ -20,14 +22,17 @@
     {#each people as person (person.id)}
       <div class="rounded-lg bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
         <div class="flex flex-col items-center text-center">
-          <Avatar name={person.displayName} size="lg" />
+          <Avatar name={person.displayName} size="lg" themeColor={person.themeColor} />
           <p class="mt-2 font-medium text-gray-900">{person.displayName}</p>
           {#if person.pronouns}
             <p class="text-xs text-gray-500">{person.pronouns}</p>
           {/if}
+          {#if person.currentlyWorkingOn}
+            <p class="mt-1 text-xs text-gray-600 italic">{person.currentlyWorkingOn}</p>
+          {/if}
           {#if person.askMeAbout.length > 0}
             <div class="mt-2 flex flex-wrap justify-center gap-1">
-              {#each person.askMeAbout.slice(0, 3) as topic}
+              {#each person.askMeAbout.slice(0, 3) as topic (topic)}
                 <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800">
                   {topic}
                 </span>

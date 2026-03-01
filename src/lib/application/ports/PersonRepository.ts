@@ -10,6 +10,9 @@ export type PersonRecord = {
   pronouns: string | null;
   gradeLevel: string | null;
   askMeAbout: string[];
+  themeColor: string | null;
+  currentlyWorkingOn: string | null;
+  helpQueueVisible: boolean;
   isActive: boolean;
 };
 
@@ -19,6 +22,9 @@ export type PersonProfile = {
   legalName: string;
   pronouns: string | null;
   askMeAbout: string[];
+  themeColor: string | null;
+  currentlyWorkingOn: string | null;
+  helpQueueVisible: boolean;
   email: string | null;
 };
 
@@ -43,6 +49,9 @@ export type UpdateProfileInput = {
   displayName?: string;
   pronouns?: string | null;
   askMeAbout?: string[];
+  themeColor?: string | null;
+  currentlyWorkingOn?: string | null;
+  helpQueueVisible?: boolean;
 };
 
 export type StudentSummary = {

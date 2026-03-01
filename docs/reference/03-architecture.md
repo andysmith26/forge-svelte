@@ -53,13 +53,13 @@ Dependencies flow inward: UI → Application → Domain ← Infrastructure.
 
 ### Dependency Rules
 
-| Layer          | May Import From                   |
-| -------------- | --------------------------------- |
-| Domain         | Only other domain modules         |
-| Ports          | Domain (for types)                |
-| Use Cases      | Domain, Ports, other Use Cases    |
-| Infrastructure | Domain, Ports (never use cases)   |
-| UI             | Use Cases, Domain (for types)     |
+| Layer          | May Import From                 |
+| -------------- | ------------------------------- |
+| Domain         | Only other domain modules       |
+| Ports          | Domain (for types)              |
+| Use Cases      | Domain, Ports, other Use Cases  |
+| Infrastructure | Domain, Ports (never use cases) |
+| UI             | Use Cases, Domain (for types)   |
 
 ESLint rules in `eslint.config.js` enforce these boundaries at build time. Violations cause lint errors, preventing accidental coupling.
 
@@ -192,11 +192,11 @@ Each event carries `EventMetadata` (eventId, occurredAt, correlationId, version)
 
 Feature modules are defined as domain objects in `src/lib/domain/modules/`:
 
-| Module           | Purpose                                                        | Status       |
-| ---------------- | -------------------------------------------------------------- | ------------ |
-| `presenceModule` | Attendance tracking                                            | Implemented  |
-| `helpModule`     | Help queue with student-declared peer expertise                | Implemented  |
-| `profileModule`  | Student identity customization and "ask me about" declarations | Implemented  |
+| Module           | Purpose                                                        | Status              |
+| ---------------- | -------------------------------------------------------------- | ------------------- |
+| `presenceModule` | Attendance tracking                                            | Implemented         |
+| `helpModule`     | Help queue with student-declared peer expertise                | Implemented         |
+| `profileModule`  | Student identity customization and "ask me about" declarations | Implemented         |
 | `projectsModule` | Multi-session project tracking and handoffs                    | Not yet implemented |
 | `choresModule`   | Classroom task management and shared responsibility            | Not yet implemented |
 
@@ -212,17 +212,17 @@ All external dependencies are accessed through port interfaces defined in `src/l
 
 **Repository ports:**
 
-| Port                             | Responsibility                 |
-| -------------------------------- | ------------------------------ |
-| `SessionRepository`              | Session CRUD + queries         |
-| `PersonRepository`               | People, memberships, profiles  |
-| `ClassroomRepository`            | Classrooms, members, settings  |
-| `PresenceRepository`             | Sign-in/out, presence lists    |
-| `HelpRepository`                 | Help requests, categories      |
+| Port                             | Responsibility                      |
+| -------------------------------- | ----------------------------------- |
+| `SessionRepository`              | Session CRUD + queries              |
+| `PersonRepository`               | People, memberships, profiles       |
+| `ClassroomRepository`            | Classrooms, members, settings       |
+| `PresenceRepository`             | Sign-in/out, presence lists         |
+| `HelpRepository`                 | Help requests, categories           |
 | `NinjaRepository`                | Peer expertise domains, assignments |
-| `PinRepository`                  | PIN auth, sessions, candidates |
-| `RealtimeNotificationRepository` | Real-time push notifications   |
-| `EventStore`                     | Domain event persistence       |
+| `PinRepository`                  | PIN auth, sessions, candidates      |
+| `RealtimeNotificationRepository` | Real-time push notifications        |
+| `EventStore`                     | Domain event persistence            |
 
 **Service ports:**
 
@@ -343,12 +343,12 @@ Server (use case)                    Client (browser)
 
 ### Client-Side Module (`src/lib/realtime/`)
 
-| File                       | Purpose                                              |
-| -------------------------- | ---------------------------------------------------- |
-| `supabase.ts`              | Lazy Supabase client singleton from env vars         |
-| `channels.ts`              | `ChannelBuilder` — constructs channel names          |
-| `types.ts`                 | `ConnectionState`, `NotificationRow` types           |
-| `subscription.svelte.ts`   | Subscription factories with Svelte 5 runes           |
+| File                     | Purpose                                      |
+| ------------------------ | -------------------------------------------- |
+| `supabase.ts`            | Lazy Supabase client singleton from env vars |
+| `channels.ts`            | `ChannelBuilder` — constructs channel names  |
+| `types.ts`               | `ConnectionState`, `NotificationRow` types   |
+| `subscription.svelte.ts` | Subscription factories with Svelte 5 runes   |
 
 Subscription factories (`createClassroomSubscription`, `createPresenceSubscription`, etc.) use `$effect` internally for lifecycle management — they start channels on mount and clean up on teardown. When called inside a parent `$effect`, the inner effects are scoped to it, so changing parameters (e.g., navigating between classrooms) automatically tears down old subscriptions and creates new ones.
 
@@ -466,12 +466,12 @@ Routes use `locals.actor` without caring which auth method was used.
 
 The following capabilities are defined in the [01-vision-and-scope.md](01-vision-and-scope.md) but do not yet have architecture in the codebase:
 
-| Capability | V&S Phase | Design Intent |
-| ---------- | --------- | ------------- |
-| **Projects** | Phase 2 | Multi-session project tracking, handoffs between students, artifact documentation. Core to constructionist purpose — see V&S Key Decision #2. |
-| **Chores** | Phase 5 | Shared responsibility for the learning space. Students participate in maintaining the classroom — this is meta-construction, not mere administration. |
-| **Teacher Dashboard** | Phase 6 | Narrative session review. Shows what students worked on and struggled with — not metrics, completion rates, or time-on-task. See V&S Key Decision #9. |
-| **Student Home** | Phase 6 | Clear starting point each session — what to pick up, who needs help, what's due. |
+| Capability            | V&S Phase | Design Intent                                                                                                                                         |
+| --------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Projects**          | Phase 2   | Multi-session project tracking, handoffs between students, artifact documentation. Core to constructionist purpose — see V&S Key Decision #2.         |
+| **Chores**            | Phase 5   | Shared responsibility for the learning space. Students participate in maintaining the classroom — this is meta-construction, not mere administration. |
+| **Teacher Dashboard** | Phase 6   | Narrative session review. Shows what students worked on and struggled with — not metrics, completion rates, or time-on-task. See V&S Key Decision #9. |
+| **Student Home**      | Phase 6   | Clear starting point each session — what to pick up, who needs help, what's due.                                                                      |
 
 When these are implemented, they will follow the same patterns: domain entities + events, use case functions with Result types, port-based infrastructure, and module registration.
 

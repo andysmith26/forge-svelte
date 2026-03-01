@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forge — Student Guide</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      color: #1f2937;
+      background: #f9fafb;
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 40rem;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e40af;
+    }
+
+    header p {
+      margin-top: 0.25rem;
+      font-size: 0.925rem;
+      color: #6b7280;
+    }
+
+    .section {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .section h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section h2 .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .icon-presence { background: #dcfce7; color: #16a34a; }
+    .icon-profile  { background: #dbeafe; color: #1e40af; }
+
+    .section p, .section li {
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    .section ol {
+      padding-left: 1.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .section ol li {
+      margin-bottom: 0.35rem;
+    }
+
+    .section ol li strong {
+      color: #111827;
+    }
+
+    .tip {
+      margin-top: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      border-radius: 0.25rem;
+      font-size: 0.85rem;
+      color: #92400e;
+    }
+
+    .tip strong {
+      color: #78350f;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Forge Student Guide</h1>
+      <p>Everything you need to get started in your classroom.</p>
+    </header>
+
+    <!-- Presence -->
+    <div class="section">
+      <h2><span class="icon icon-presence">&#10004;</span> Presence</h2>
+      <p>The Presence module lets you sign in to class so your teacher knows you're here.</p>
+      <ol>
+        <li>Go to the <strong>Presence</strong> tab in your classroom.</li>
+        <li>Press the <strong>Sign In</strong> button when you arrive.</li>
+        <li>You'll see a green dot next to your name confirming you're signed in.</li>
+        <li>The <strong>"Who's Here"</strong> board shows everyone who is currently present.</li>
+        <li>When you leave, press <strong>Sign Out</strong>.</li>
+      </ol>
+      <div class="tip">
+        <strong>Tip:</strong> You can only sign in while a class session is active. If you don't see the Sign In button, ask your teacher to start a session.
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="section">
+      <h2><span class="icon icon-profile">&#9998;</span> Profile</h2>
+      <p>Your profile lets classmates and your teacher learn a little about you.</p>
+      <ol>
+        <li>Go to the <strong>Profile</strong> tab (or click <strong>Edit Profile</strong> on the dashboard).</li>
+        <li><strong>Display Name</strong> — the name shown on the smartboard and presence board.</li>
+        <li><strong>Pronouns</strong> — optionally share your pronouns (e.g., they/them).</li>
+        <li><strong>Theme Color</strong> — pick a color for your avatar. Choose a preset or use the color picker.</li>
+        <li><strong>Ask Me About</strong> — list up to 5 topics you're happy to help others with, separated by commas.</li>
+        <li><strong>Currently Working On</strong> — share what you're building or studying. This shows on the smartboard.</li>
+      </ol>
+      <div class="tip">
+        <strong>Tip:</strong> Your profile info appears on the <strong>Who's Here</strong> board when you're signed in, so keep it up to date!
+      </div>
+    </div>
+
+    <footer>Forge &mdash; Built for learners.</footer>
+  </div>
+</body>
+</html>

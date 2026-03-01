@@ -1,5 +1,5 @@
 import type { PageServerLoad, Actions } from './$types';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { getEnvironment } from '$lib/server/environment';
 import { signIn } from '$lib/application/useCases/presence/signIn';
 import { signOut } from '$lib/application/useCases/presence/signOut';
@@ -7,10 +7,16 @@ import { getSignInStatus } from '$lib/application/useCases/presence/getSignInSta
 import { listPresent } from '$lib/application/useCases/presence/listPresent';
 import { listSignInsForSession } from '$lib/application/useCases/presence/listSignInsForSession';
 import { getCurrentSession } from '$lib/application/useCases/session/getCurrentSession';
+import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
 import { ok } from '$lib/types/result';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
   const parentData = await parent();
+
+  if (!parentData.settings?.modules.presence?.enabled) {
+    redirect(302, `/classroom/${parentData.classroom.id}`);
+  }
+
   const env = getEnvironment();
   const actor = locals.actor!;
   const session = parentData.currentSession;
@@ -37,7 +43,9 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
             id: p.id,
             displayName: p.displayName,
             pronouns: p.pronouns,
-            askMeAbout: p.askMeAbout
+            askMeAbout: p.askMeAbout,
+            themeColor: p.themeColor,
+            currentlyWorkingOn: p.currentlyWorkingOn
           }))
         : [],
     signInStatus:
@@ -66,6 +74,14 @@ export const actions: Actions = {
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
     const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.presence?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
+
     const sessionResult = await getCurrentSession(
       { sessionRepo: env.sessionRepo },
       { classroomId: params.classroomId }
@@ -102,6 +118,14 @@ export const actions: Actions = {
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
     const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.presence?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
+
     const sessionResult = await getCurrentSession(
       { sessionRepo: env.sessionRepo },
       { classroomId: params.classroomId }
@@ -137,6 +161,14 @@ export const actions: Actions = {
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
     const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.presence?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
+
     const sessionResult = await getCurrentSession(
       { sessionRepo: env.sessionRepo },
       { classroomId: params.classroomId }
@@ -177,6 +209,14 @@ export const actions: Actions = {
     if (!actor) return fail(401, { error: 'Not authenticated' });
 
     const env = getEnvironment();
+    const settingsResult = await getClassroomSettings(
+      { classroomRepo: env.classroomRepo },
+      { classroomId: params.classroomId }
+    );
+    if (settingsResult.status !== 'ok' || !settingsResult.value.modules.presence?.enabled) {
+      return fail(403, { error: 'Module disabled' });
+    }
+
     const sessionResult = await getCurrentSession(
       { sessionRepo: env.sessionRepo },
       { classroomId: params.classroomId }

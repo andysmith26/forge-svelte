@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import SessionControl from '$lib/components/session/SessionControl.svelte';
-  import { StatusDot } from '$lib/components/ui';
+  import { StatusDot, Avatar } from '$lib/components/ui';
 
   const { data }: { data: PageData } = $props();
 
@@ -11,7 +11,9 @@
 
 <div class="grid gap-6 lg:grid-cols-2">
   <div class="space-y-6">
-    <SessionControl session={data.currentSession} {isTeacher} />
+    {#if isTeacher}
+      <SessionControl session={data.currentSession} {isTeacher} />
+    {/if}
 
     {#if !isTeacher && data.currentSession?.status === 'active'}
       <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -40,7 +42,10 @@
   <div class="space-y-6">
     {#if profileEnabled && data.profile}
       <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 class="mb-3 text-lg font-semibold text-gray-900">Your Profile</h2>
+        <div class="mb-3 flex items-center gap-3">
+          <Avatar name={data.profile.displayName || 'A'} themeColor={data.profile.themeColor} />
+          <h2 class="text-lg font-semibold text-gray-900">Your Profile</h2>
+        </div>
         <div class="space-y-1 text-sm text-gray-700">
           <p class="font-medium">{data.profile.displayName}</p>
           {#if data.profile.pronouns}
@@ -48,6 +53,9 @@
           {/if}
           {#if data.profile.askMeAbout.length > 0}
             <p class="text-gray-500">Ask me about: {data.profile.askMeAbout.join(', ')}</p>
+          {/if}
+          {#if data.profile.currentlyWorkingOn}
+            <p class="text-gray-500 italic">Working on: {data.profile.currentlyWorkingOn}</p>
           {/if}
         </div>
         <div class="mt-3">

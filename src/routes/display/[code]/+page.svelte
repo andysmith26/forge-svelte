@@ -136,7 +136,10 @@
                   >
                     <div class="relative">
                       <div
-                        class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-700 text-xl font-bold"
+                        class="flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold"
+                        style={person.themeColor
+                          ? `background-color: ${person.themeColor}`
+                          : 'background-color: rgb(55, 65, 81)'}
                       >
                         {person.displayName.charAt(0).toUpperCase()}
                       </div>
@@ -151,6 +154,11 @@
                     <p class="mt-2 text-center text-sm font-medium">{person.displayName}</p>
                     {#if person.pronouns}
                       <p class="text-xs text-gray-400">{person.pronouns}</p>
+                    {/if}
+                    {#if person.currentlyWorkingOn}
+                      <p class="mt-1 max-w-full truncate text-xs text-gray-300 italic">
+                        {person.currentlyWorkingOn}
+                      </p>
                     {/if}
                     {#if domains.length > 0}
                       <div class="mt-1 flex flex-wrap justify-center gap-1">
