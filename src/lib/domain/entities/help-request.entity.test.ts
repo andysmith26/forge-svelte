@@ -11,6 +11,8 @@ function validProps(overrides?: Partial<HelpRequestProps>): HelpRequestProps {
     categoryId: null,
     description: 'I need help with my code',
     whatITried: 'I tried reading the docs and debugging step by step',
+    hypothesis: null,
+    topic: null,
     urgency: 'question',
     status: 'pending',
     claimedById: null,

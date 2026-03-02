@@ -40,7 +40,9 @@ export async function requestHelp(
     categoryId?: string | null;
     description: string;
     whatITried: string;
-    urgency: HelpUrgency;
+    hypothesis?: string | null;
+    topic?: string | null;
+    urgency?: HelpUrgency | null;
     pinClassroomId?: string | null;
   }
 ): Promise<Result<RequestHelpResult, RequestHelpError>> {
@@ -97,10 +99,12 @@ export async function requestHelp(
         sessionId: session.id,
         classroomId: session.classroomId,
         requesterId: input.requesterId,
-        urgency: input.urgency,
+        urgency: input.urgency ?? null,
         categoryId: input.categoryId ?? null,
         description: input.description,
         whatITried: input.whatITried,
+        hypothesis: input.hypothesis ?? null,
+        topic: input.topic ?? null,
         byTeacher
       }
     });

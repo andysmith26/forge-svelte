@@ -34,7 +34,6 @@
     ...(isTeacher
       ? [
           { label: 'Sessions', href: `/classroom/${data.classroom.id}/sessions` },
-          { label: 'Ninja', href: `/classroom/${data.classroom.id}/ninja` },
           { label: 'Roster', href: `/classroom/${data.classroom.id}/roster` },
           { label: 'Settings', href: `/classroom/${data.classroom.id}/settings` }
         ]

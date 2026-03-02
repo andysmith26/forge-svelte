@@ -33,6 +33,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
             themeColor: null,
             currentlyWorkingOn: null,
             helpQueueVisible: true,
+            smartboardVisible: true,
             email: null
           }
   };
@@ -65,6 +66,7 @@ export const actions: Actions = {
     const themeColor = (formData.get('themeColor') as string) || null;
     const currentlyWorkingOn = (formData.get('currentlyWorkingOn') as string) || null;
     const helpQueueVisible = formData.get('helpQueueVisible') !== 'false';
+    const smartboardVisible = formData.get('smartboardVisible') !== 'false';
 
     const result = await updateProfile(
       { personRepo: env.personRepo, eventStore: env.eventStore },
@@ -75,7 +77,8 @@ export const actions: Actions = {
         askMeAbout,
         themeColor,
         currentlyWorkingOn,
-        helpQueueVisible
+        helpQueueVisible,
+        smartboardVisible
       }
     );
 

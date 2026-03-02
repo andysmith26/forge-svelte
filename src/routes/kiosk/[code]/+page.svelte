@@ -7,10 +7,7 @@
 
   const { data }: { data: PageData } = $props();
 
-  const realtime = createClassroomSubscription(
-    data.classroom.displayCode,
-    data.session?.id ?? null
-  );
+  const realtime = createClassroomSubscription(data.classroom.id, data.session?.id ?? null);
 
   let now = $state(new Date());
   let intervalId: ReturnType<typeof setInterval>;

@@ -12,6 +12,7 @@ export type PersonProps = {
   readonly themeColor: string | null;
   readonly currentlyWorkingOn: string | null;
   readonly helpQueueVisible: boolean;
+  readonly smartboardVisible: boolean;
   readonly isActive: boolean;
 };
 
@@ -50,6 +51,9 @@ export class PersonEntity {
   }
   get helpQueueVisible(): boolean {
     return this.props.helpQueueVisible;
+  }
+  get smartboardVisible(): boolean {
+    return this.props.smartboardVisible;
   }
   get isActive(): boolean {
     return this.props.isActive;
@@ -148,6 +152,7 @@ export class PersonEntity {
     themeColor?: string | null;
     currentlyWorkingOn?: string | null;
     helpQueueVisible?: boolean;
+    smartboardVisible?: boolean;
   }): PersonEntity {
     if (updates.displayName !== undefined) {
       PersonEntity.validateDisplayName(updates.displayName);
@@ -176,7 +181,11 @@ export class PersonEntity {
       helpQueueVisible:
         updates.helpQueueVisible !== undefined
           ? updates.helpQueueVisible
-          : this.props.helpQueueVisible
+          : this.props.helpQueueVisible,
+      smartboardVisible:
+        updates.smartboardVisible !== undefined
+          ? updates.smartboardVisible
+          : this.props.smartboardVisible
     });
   }
 

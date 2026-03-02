@@ -4,6 +4,7 @@ import { ok, err } from '$lib/types/result';
 
 export type ListPresentError = { type: 'INTERNAL_ERROR'; message: string };
 
+/** Lists present people for authenticated views (classroom presence page, kiosk). */
 export async function listPresent(
   deps: { presenceRepo: PresenceRepository },
   input: { sessionId: string }

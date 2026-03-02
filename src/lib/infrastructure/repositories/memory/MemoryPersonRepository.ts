@@ -35,6 +35,7 @@ export class MemoryPersonRepository implements PersonRepository {
       themeColor: p.themeColor,
       currentlyWorkingOn: p.currentlyWorkingOn,
       helpQueueVisible: p.helpQueueVisible,
+      smartboardVisible: p.smartboardVisible ?? true,
       email: p.email
     };
   }
@@ -51,7 +52,8 @@ export class MemoryPersonRepository implements PersonRepository {
       ...(input.currentlyWorkingOn !== undefined && {
         currentlyWorkingOn: input.currentlyWorkingOn
       }),
-      ...(input.helpQueueVisible !== undefined && { helpQueueVisible: input.helpQueueVisible })
+      ...(input.helpQueueVisible !== undefined && { helpQueueVisible: input.helpQueueVisible }),
+      ...(input.smartboardVisible !== undefined && { smartboardVisible: input.smartboardVisible })
     };
     this.store.persons.set(id, updated);
     return {
@@ -63,6 +65,7 @@ export class MemoryPersonRepository implements PersonRepository {
       themeColor: updated.themeColor,
       currentlyWorkingOn: updated.currentlyWorkingOn,
       helpQueueVisible: updated.helpQueueVisible,
+      smartboardVisible: updated.smartboardVisible ?? true,
       email: updated.email
     };
   }
@@ -88,6 +91,7 @@ export class MemoryPersonRepository implements PersonRepository {
       themeColor: null,
       currentlyWorkingOn: null,
       helpQueueVisible: true,
+      smartboardVisible: true,
       isActive: true
     };
     this.store.persons.set(id, person);

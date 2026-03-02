@@ -13,6 +13,7 @@ export type PersonRecord = {
   themeColor: string | null;
   currentlyWorkingOn: string | null;
   helpQueueVisible: boolean;
+  smartboardVisible: boolean;
   isActive: boolean;
 };
 
@@ -25,6 +26,7 @@ export type PersonProfile = {
   themeColor: string | null;
   currentlyWorkingOn: string | null;
   helpQueueVisible: boolean;
+  smartboardVisible: boolean;
   email: string | null;
 };
 
@@ -52,6 +54,7 @@ export type UpdateProfileInput = {
   themeColor?: string | null;
   currentlyWorkingOn?: string | null;
   helpQueueVisible?: boolean;
+  smartboardVisible?: boolean;
 };
 
 export type StudentSummary = {

@@ -24,9 +24,9 @@ export const presenceSmartboardProvider: SmartboardDataProvider<
         id: p.id,
         displayName: p.displayName,
         pronouns: p.pronouns,
-        askMeAbout: p.askMeAbout,
+        askMeAbout: p.smartboardVisible ? p.askMeAbout : [],
         themeColor: p.themeColor,
-        currentlyWorkingOn: p.currentlyWorkingOn
+        currentlyWorkingOn: p.smartboardVisible ? p.currentlyWorkingOn : null
       }));
     }
     return [];

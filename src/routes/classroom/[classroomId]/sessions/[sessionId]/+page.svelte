@@ -32,7 +32,7 @@
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
   }
 
-  function urgencyLabel(urgency: string): string {
+  function urgencyLabel(urgency: string | null): string {
     switch (urgency) {
       case 'blocked':
         return 'Blocked';
@@ -40,12 +40,14 @@
         return 'Question';
       case 'check_work':
         return 'Check Work';
+      case null:
+        return 'Unspecified';
       default:
         return urgency;
     }
   }
 
-  function urgencyVariant(urgency: string): 'red' | 'blue' | 'purple' {
+  function urgencyVariant(urgency: string | null): 'red' | 'blue' | 'purple' {
     switch (urgency) {
       case 'blocked':
         return 'red';

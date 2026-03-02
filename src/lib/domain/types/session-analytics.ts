@@ -36,7 +36,7 @@ export type CategoryBreakdown = {
 };
 
 export type UrgencyBreakdown = {
-  urgency: HelpUrgency;
+  urgency: HelpUrgency | null;
   count: number;
 };
 

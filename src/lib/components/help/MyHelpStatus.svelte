@@ -7,7 +7,7 @@
     requests: {
       id: string;
       description: string;
-      urgency: string;
+      urgency: string | null;
       status: string;
       createdAt: string;
       category: { id: string; name: string } | null;
@@ -28,15 +28,17 @@
     {#each requests as req (req.id)}
       <div class="mt-3 rounded-lg bg-white p-3">
         <div class="flex items-center gap-2">
-          <Badge
-            variant={req.urgency === 'blocked'
-              ? 'red'
-              : req.urgency === 'question'
-                ? 'blue'
-                : 'green'}
-          >
-            {urgencyLabel[req.urgency] ?? req.urgency}
-          </Badge>
+          {#if req.urgency}
+            <Badge
+              variant={req.urgency === 'blocked'
+                ? 'red'
+                : req.urgency === 'question'
+                  ? 'blue'
+                  : 'green'}
+            >
+              {urgencyLabel[req.urgency] ?? req.urgency}
+            </Badge>
+          {/if}
           {#if req.category}
             <span class="text-xs text-gray-500">{req.category.name}</span>
           {/if}

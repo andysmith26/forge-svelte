@@ -11,6 +11,7 @@
   let themeColor = $state(data.profile.themeColor ?? '#4A90D9');
   let currentlyWorkingOn = $state(data.profile.currentlyWorkingOn ?? '');
   let helpQueueVisible = $state(data.profile.helpQueueVisible);
+  let smartboardVisible = $state(data.profile.smartboardVisible);
   let error = $state<string | null>(null);
 
   const presetColors = ['#4A90D9', '#E74C3C', '#2ECC71', '#F39C12', '#9B59B6', '#1ABC9C'];
@@ -29,6 +30,7 @@
     themeColor = data.profile.themeColor ?? '#4A90D9';
     currentlyWorkingOn = data.profile.currentlyWorkingOn ?? '';
     helpQueueVisible = data.profile.helpQueueVisible;
+    smartboardVisible = data.profile.smartboardVisible;
     editing = true;
     error = null;
   }
@@ -164,6 +166,24 @@
         </div>
         <input type="hidden" name="helpQueueVisible" value={helpQueueVisible ? 'true' : 'false'} />
 
+        <div class="flex items-center gap-2">
+          <input
+            id="smartboardVisible"
+            name="smartboardVisible"
+            type="checkbox"
+            bind:checked={smartboardVisible}
+            class="h-4 w-4 rounded border-gray-300 text-forge-blue focus:ring-forge-blue"
+          />
+          <label for="smartboardVisible" class="text-sm text-gray-700"
+            >Show my details on the smartboard</label
+          >
+        </div>
+        <input
+          type="hidden"
+          name="smartboardVisible"
+          value={smartboardVisible ? 'true' : 'false'}
+        />
+
         <div class="flex gap-2">
           <Button type="submit">Save</Button>
           <Button type="button" variant="secondary" onclick={cancel}>Cancel</Button>
@@ -205,6 +225,12 @@
           <dt class="text-sm text-gray-500">Help Queue Visibility</dt>
           <dd class="text-sm text-gray-900">
             {data.profile.helpQueueVisible ? 'Visible' : 'Hidden'}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm text-gray-500">Smartboard Visibility</dt>
+          <dd class="text-sm text-gray-900">
+            {data.profile.smartboardVisible ? 'Visible' : 'Hidden'}
           </dd>
         </div>
       </dl>

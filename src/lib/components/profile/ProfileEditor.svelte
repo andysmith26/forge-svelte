@@ -12,6 +12,7 @@
       themeColor: string | null;
       currentlyWorkingOn: string | null;
       helpQueueVisible: boolean;
+      smartboardVisible: boolean;
     };
     classroomId: string;
   } = $props();
@@ -23,6 +24,7 @@
   let themeColor = $state(profile.themeColor ?? '#4A90D9');
   let currentlyWorkingOn = $state(profile.currentlyWorkingOn ?? '');
   let helpQueueVisible = $state(profile.helpQueueVisible);
+  let smartboardVisible = $state(profile.smartboardVisible);
   let error = $state<string | null>(null);
   let saving = $state(false);
 
@@ -42,6 +44,7 @@
     themeColor = profile.themeColor ?? '#4A90D9';
     currentlyWorkingOn = profile.currentlyWorkingOn ?? '';
     helpQueueVisible = profile.helpQueueVisible;
+    smartboardVisible = profile.smartboardVisible;
     editing = true;
     error = null;
   }
@@ -183,6 +186,20 @@
       </div>
       <input type="hidden" name="helpQueueVisible" value={helpQueueVisible ? 'true' : 'false'} />
 
+      <div class="flex items-center gap-2">
+        <input
+          id="pe-smartboardVisible"
+          name="smartboardVisible"
+          type="checkbox"
+          bind:checked={smartboardVisible}
+          class="h-4 w-4 rounded border-gray-300 text-forge-blue focus:ring-forge-blue"
+        />
+        <label for="pe-smartboardVisible" class="text-sm text-gray-700"
+          >Show my details on the smartboard</label
+        >
+      </div>
+      <input type="hidden" name="smartboardVisible" value={smartboardVisible ? 'true' : 'false'} />
+
       <div class="flex gap-2">
         <Button type="submit" loading={saving}>Save</Button>
         <Button type="button" variant="secondary" onclick={cancel}>Cancel</Button>
@@ -224,6 +241,12 @@
         <dt class="text-sm text-gray-500">Help Queue Visibility</dt>
         <dd class="text-sm text-gray-900">
           {profile.helpQueueVisible ? 'Visible' : 'Hidden'}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm text-gray-500">Smartboard Visibility</dt>
+        <dd class="text-sm text-gray-900">
+          {profile.smartboardVisible ? 'Visible' : 'Hidden'}
         </dd>
       </div>
     </dl>

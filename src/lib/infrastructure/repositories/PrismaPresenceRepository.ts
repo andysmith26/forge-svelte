@@ -53,7 +53,8 @@ export class PrismaPresenceRepository implements PresenceRepository {
             pronouns: true,
             askMeAbout: true,
             themeColor: true,
-            currentlyWorkingOn: true
+            currentlyWorkingOn: true,
+            smartboardVisible: true
           }
         }
       },

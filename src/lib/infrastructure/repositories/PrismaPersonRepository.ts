@@ -28,6 +28,7 @@ export class PrismaPersonRepository implements PersonRepository {
     themeColor: true,
     currentlyWorkingOn: true,
     helpQueueVisible: true,
+    smartboardVisible: true,
     email: true
   } as const;
 
@@ -47,7 +48,8 @@ export class PrismaPersonRepository implements PersonRepository {
         askMeAbout: input.askMeAbout,
         themeColor: input.themeColor,
         currentlyWorkingOn: input.currentlyWorkingOn,
-        helpQueueVisible: input.helpQueueVisible
+        helpQueueVisible: input.helpQueueVisible,
+        smartboardVisible: input.smartboardVisible
       },
       select: PrismaPersonRepository.profileSelect
     });

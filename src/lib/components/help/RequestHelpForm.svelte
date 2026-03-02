@@ -11,6 +11,8 @@
 
   let description = $state('');
   let whatITried = $state('');
+  let hypothesis = $state('');
+  let topic = $state('');
   let urgency = $state('');
   let categoryId = $state('');
   let charCount = $derived(whatITried.length);
@@ -23,23 +25,6 @@
   </Alert>
 {:else}
   <form method="POST" action="?/requestHelp" class="space-y-4">
-    {#if categories.length > 0}
-      <div>
-        <label for="categoryId" class="block text-sm font-medium text-gray-700">Category</label>
-        <select
-          id="categoryId"
-          name="categoryId"
-          bind:value={categoryId}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
-        >
-          <option value="">None</option>
-          {#each categories as cat (cat.id)}
-            <option value={cat.id}>{cat.name}</option>
-          {/each}
-        </select>
-      </div>
-    {/if}
-
     <div>
       <label for="description" class="block text-sm font-medium text-gray-700">
         What do you need help with? <span class="text-red-500">*</span>
@@ -74,10 +59,53 @@
       </p>
     </div>
 
+    <div>
+      <label for="hypothesis" class="block text-sm font-medium text-gray-700">
+        What do you think is happening?
+      </label>
+      <textarea
+        id="hypothesis"
+        name="hypothesis"
+        bind:value={hypothesis}
+        rows={2}
+        placeholder="Your best guess about what's going wrong..."
+        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
+      ></textarea>
+    </div>
+
+    <div class="flex gap-3">
+      {#if categories.length > 0}
+        <div class="flex-1">
+          <label for="categoryId" class="block text-sm font-medium text-gray-700">Category</label>
+          <select
+            id="categoryId"
+            name="categoryId"
+            bind:value={categoryId}
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
+          >
+            <option value="">None</option>
+            {#each categories as cat (cat.id)}
+              <option value={cat.id}>{cat.name}</option>
+            {/each}
+          </select>
+        </div>
+      {/if}
+      <div class="flex-1">
+        <label for="topic" class="block text-sm font-medium text-gray-700">Topic</label>
+        <input
+          id="topic"
+          name="topic"
+          type="text"
+          bind:value={topic}
+          maxlength={100}
+          placeholder="e.g., wiring, code bug, 3D print"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
+        />
+      </div>
+    </div>
+
     <fieldset>
-      <legend class="block text-sm font-medium text-gray-700">
-        Urgency <span class="text-red-500">*</span>
-      </legend>
+      <legend class="block text-sm font-medium text-gray-700">Urgency</legend>
       <div class="mt-2 space-y-2">
         <label
           class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors
@@ -118,11 +146,7 @@
       </div>
     </fieldset>
 
-    <Button
-      type="submit"
-      class="w-full"
-      disabled={!description.trim() || !meetsMinimum || !urgency}
-    >
+    <Button type="submit" class="w-full" disabled={!description.trim() || !meetsMinimum}>
       Request Help
     </Button>
   </form>

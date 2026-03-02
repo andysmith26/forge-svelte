@@ -5,13 +5,16 @@
     id: string;
     description: string;
     whatITried: string;
-    urgency: string;
+    hypothesis: string | null;
+    topic: string | null;
+    urgency: string | null;
     status: string;
     createdAt: string;
     claimedAt: string | null;
     requester: { id: string; displayName: string };
     category: { id: string; name: string } | null;
     claimedBy: { id: string; displayName: string } | null;
+    canClaim?: boolean;
   };
 
   const {
@@ -79,6 +82,7 @@
       {@const isClaimed = item.status === 'claimed'}
       {@const isMyItem = item.requester.id === actorId}
       {@const isClaimedByMe = item.claimedBy?.id === actorId}
+      {@const showClaimActions = isTeacher || item.canClaim || isClaimedByMe}
       <div
         class="rounded-lg border p-4 transition-colors
           {isClaimed ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'}"
@@ -86,9 +90,14 @@
         <div class="flex items-center gap-3">
           <span class="font-mono text-xs text-gray-400">#{i + 1}</span>
           <span class="truncate font-medium text-gray-900">{item.requester.displayName}</span>
-          <Badge variant={urgencyVariant[item.urgency] ?? 'gray'}>
-            {urgencyLabel[item.urgency] ?? item.urgency}
-          </Badge>
+          {#if item.urgency}
+            <Badge variant={urgencyVariant[item.urgency] ?? 'gray'}>
+              {urgencyLabel[item.urgency] ?? item.urgency}
+            </Badge>
+          {/if}
+          {#if item.topic}
+            <span class="text-xs text-purple-600">{item.topic}</span>
+          {/if}
           {#if item.category}
             <span class="text-xs text-gray-500">{item.category.name}</span>
           {/if}
@@ -132,12 +141,18 @@
               <p class="text-xs font-medium text-gray-500">What they tried</p>
               <p class="text-sm whitespace-pre-wrap text-gray-600">{item.whatITried}</p>
             </div>
+            {#if item.hypothesis}
+              <div>
+                <p class="text-xs font-medium text-gray-500">What they think is happening</p>
+                <p class="text-sm whitespace-pre-wrap text-gray-600">{item.hypothesis}</p>
+              </div>
+            {/if}
           </div>
         {/if}
 
-        {#if isTeacher || isClaimedByMe}
+        {#if showClaimActions}
           <div class="mt-3 flex gap-2">
-            {#if item.status === 'pending'}
+            {#if item.status === 'pending' && (isTeacher || item.canClaim)}
               <form method="POST" action="?/claim">
                 <input type="hidden" name="requestId" value={item.id} />
                 <Button type="submit" size="sm">Claim</Button>
@@ -149,7 +164,7 @@
                 <Button type="submit" variant="secondary" size="sm">Release</Button>
               </form>
             {/if}
-            {#if isClaimed}
+            {#if isClaimed && (isClaimedByMe || isTeacher)}
               <form method="POST" action="?/resolve">
                 <input type="hidden" name="requestId" value={item.id} />
                 <Button

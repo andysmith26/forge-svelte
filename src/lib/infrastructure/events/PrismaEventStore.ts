@@ -12,6 +12,57 @@ type TransactionClient = Omit<
   '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
 >;
 
+interface NotificationTarget {
+  channel: string;
+  entityType: string;
+  scopeId: string;
+}
+
+function getNotificationTargets(event: StoredEvent): NotificationTarget[] {
+  const targets: NotificationTarget[] = [];
+  const { classroomId, sessionId } = event;
+
+  switch (event.eventType) {
+    case 'PERSON_SIGNED_IN':
+    case 'PERSON_SIGNED_OUT':
+      if (sessionId) {
+        targets.push({
+          channel: `presence:session:${sessionId}`,
+          entityType: 'sign_in',
+          scopeId: sessionId
+        });
+      }
+      break;
+
+    case 'SESSION_STARTED':
+    case 'SESSION_ENDED':
+      if (classroomId) {
+        targets.push({
+          channel: `session:classroom:${classroomId}`,
+          entityType: 'session',
+          scopeId: classroomId
+        });
+      }
+      break;
+
+    case 'HELP_REQUESTED':
+    case 'HELP_CLAIMED':
+    case 'HELP_UNCLAIMED':
+    case 'HELP_RESOLVED':
+    case 'HELP_CANCELLED':
+      if (sessionId) {
+        targets.push({
+          channel: `help:session:${sessionId}`,
+          entityType: 'help_request',
+          scopeId: sessionId
+        });
+      }
+      break;
+  }
+
+  return targets;
+}
+
 export class PrismaEventStore implements EventStore {
   constructor(
     private readonly db: PrismaClient,
@@ -44,10 +95,26 @@ export class PrismaEventStore implements EventStore {
   }
 
   async appendAndEmit(input: AppendEventInput): Promise<StoredEvent> {
-    // In SvelteKit, there's no EventBus — projectors run in the same
-    // transaction and realtime notifications are written separately
-    // by use cases that need them.
-    return this.append(input);
+    const event = await this.append(input);
+
+    const targets = getNotificationTargets(event);
+    if (targets.length > 0) {
+      await Promise.all(
+        targets.map((t) =>
+          this.db.realtimeNotification.create({
+            data: {
+              channel: t.channel,
+              eventType: event.eventType,
+              entityType: t.entityType,
+              entityId: event.entityId,
+              scopeId: t.scopeId
+            }
+          })
+        )
+      );
+    }
+
+    return event;
   }
 
   async loadEvents(filters?: EventFilters): Promise<StoredEvent[]> {

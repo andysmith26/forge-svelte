@@ -66,10 +66,12 @@ export type HelpRequestedPayload = {
   sessionId: string;
   classroomId: string;
   requesterId: string;
-  urgency: string;
+  urgency: string | null;
   categoryId: string | null;
   description: string;
   whatITried: string;
+  hypothesis: string | null;
+  topic: string | null;
   byTeacher: boolean;
 };
 

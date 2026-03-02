@@ -10,7 +10,7 @@ export type HelpPanelData = {
   queue: {
     id: string;
     description: string;
-    urgency: string;
+    urgency: string | null;
     status: string;
     createdAt: string;
     requester: { id: string; displayName: string };

@@ -4,6 +4,7 @@ import { ok, err } from '$lib/types/result';
 
 export type ListPresentPublicError = { type: 'INTERNAL_ERROR'; message: string };
 
+/** Lists present people for public/unauthenticated views (smartboard). Respects smartboardVisible. */
 export async function listPresentPublic(
   deps: { presenceRepo: PresenceRepository },
   input: { sessionId: string }

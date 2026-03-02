@@ -113,13 +113,6 @@ export class SignInEntity {
     return this.signoutType === 'self';
   }
 
-  getDurationMinutes(): number | null {
-    if (!this.signedOutAt) {
-      return null;
-    }
-    return Math.round((this.signedOutAt.getTime() - this.signedInAt.getTime()) / (1000 * 60));
-  }
-
   signOut(
     signedOutById: string,
     signoutType: SignoutType,

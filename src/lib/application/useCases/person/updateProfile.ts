@@ -75,6 +75,11 @@ export async function updateProfile(
       changedFields.push('helpQueueVisible');
     }
 
+    if (input.smartboardVisible !== undefined) {
+      updateData.smartboardVisible = input.smartboardVisible;
+      changedFields.push('smartboardVisible');
+    }
+
     const profile = await deps.personRepo.updateProfile(input.personId, updateData);
 
     if (changedFields.length > 0) {

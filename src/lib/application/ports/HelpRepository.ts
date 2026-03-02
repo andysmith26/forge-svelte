@@ -20,7 +20,9 @@ export type HelpRequestRecord = {
   categoryId: string | null;
   description: string;
   whatITried: string;
-  urgency: HelpUrgency;
+  hypothesis: string | null;
+  topic: string | null;
+  urgency: HelpUrgency | null;
   status: HelpStatus;
   claimedById: string | null;
   claimedAt: Date | null;
@@ -78,7 +80,9 @@ export type CreateRequestInput = {
   categoryId: string | null;
   description: string;
   whatITried: string;
-  urgency: HelpUrgency;
+  hypothesis: string | null;
+  topic: string | null;
+  urgency: HelpUrgency | null;
 };
 
 export type UpdateRequestInput = {

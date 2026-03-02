@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ params }) => {
   }
 
   return {
-    classroom: { name: classroom.name, displayCode: classroom.displayCode },
+    classroom: { id: classroom.id, name: classroom.name, displayCode: classroom.displayCode },
     session,
     settings: { presenceEnabled, helpEnabled },
     present,

@@ -11,7 +11,9 @@ export type HelpRequestProps = {
   readonly categoryId: string | null;
   readonly description: string;
   readonly whatITried: string;
-  readonly urgency: HelpUrgency;
+  readonly hypothesis: string | null;
+  readonly topic: string | null;
+  readonly urgency: HelpUrgency | null;
   readonly status: HelpStatus;
   readonly claimedById: string | null;
   readonly claimedAt: Date | null;
@@ -46,7 +48,13 @@ export class HelpRequestEntity {
   get whatITried(): string {
     return this.props.whatITried;
   }
-  get urgency(): HelpUrgency {
+  get hypothesis(): string | null {
+    return this.props.hypothesis;
+  }
+  get topic(): string | null {
+    return this.props.topic;
+  }
+  get urgency(): HelpUrgency | null {
     return this.props.urgency;
   }
   get status(): HelpStatus {
@@ -78,7 +86,15 @@ export class HelpRequestEntity {
     HelpRequestEntity.validateDescription(props.description);
     HelpRequestEntity.validateWhatITried(props.whatITried);
     HelpRequestEntity.validateRequesterId(props.requesterId);
-    HelpRequestEntity.validateUrgency(props.urgency);
+    if (props.urgency !== null) {
+      HelpRequestEntity.validateUrgency(props.urgency);
+    }
+    if (props.hypothesis !== null) {
+      HelpRequestEntity.validateHypothesis(props.hypothesis);
+    }
+    if (props.topic !== null) {
+      HelpRequestEntity.validateTopic(props.topic);
+    }
 
     return new HelpRequestEntity(props);
   }
@@ -118,6 +134,18 @@ export class HelpRequestEntity {
     const validUrgencies = ['blocked', 'question', 'check_work'];
     if (!validUrgencies.includes(urgency)) {
       throw new ValidationError(`Invalid urgency: ${urgency}`);
+    }
+  }
+
+  static validateHypothesis(hypothesis: string): void {
+    if (hypothesis.length > 1000) {
+      throw new ValidationError('Hypothesis must be 1000 characters or less');
+    }
+  }
+
+  static validateTopic(topic: string): void {
+    if (topic.length > 100) {
+      throw new ValidationError('Topic must be 100 characters or less');
     }
   }
 

@@ -33,7 +33,9 @@ export class HelpRequestProjector implements Projector {
             categoryId: payload.categoryId ?? null,
             description: payload.description,
             whatITried: payload.whatITried,
-            urgency: payload.urgency as HelpUrgency,
+            hypothesis: payload.hypothesis ?? null,
+            topic: payload.topic ?? null,
+            urgency: payload.urgency ? (payload.urgency as HelpUrgency) : null,
             status: 'pending',
             createdAt: event.createdAt
           }

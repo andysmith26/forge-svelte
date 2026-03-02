@@ -34,6 +34,7 @@ export function seedDemoData(store: MemoryStore, pinRepo: MemoryPinRepository): 
     themeColor: null,
     currentlyWorkingOn: null,
     helpQueueVisible: true,
+    smartboardVisible: true,
     isActive: true
   });
   store.personCreatedAt.set(DEMO_TEACHER_PERSON_ID, now);
@@ -81,6 +82,7 @@ export function seedDemoData(store: MemoryStore, pinRepo: MemoryPinRepository): 
       themeColor: null,
       currentlyWorkingOn: null,
       helpQueueVisible: true,
+      smartboardVisible: true,
       isActive: true
     });
     store.personCreatedAt.set(student.id, now);

@@ -18,6 +18,7 @@ export type PersonPresence = {
   askMeAbout: string[];
   themeColor: string | null;
   currentlyWorkingOn: string | null;
+  smartboardVisible: boolean;
 };
 
 export type SignInWithActors = SignInRecord & {

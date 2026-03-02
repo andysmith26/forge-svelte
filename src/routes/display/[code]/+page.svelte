@@ -6,10 +6,7 @@
 
   const { data }: { data: PageData } = $props();
 
-  const realtime = createClassroomSubscription(
-    data.classroom.displayCode,
-    data.session?.id ?? null
-  );
+  const realtime = createClassroomSubscription(data.classroom.id, data.session?.id ?? null);
 
   let now = $state(new Date());
   let intervalId: ReturnType<typeof setInterval>;
@@ -217,13 +214,15 @@
                     <div class="flex-1">
                       <p class="text-lg font-semibold">{item.requester.displayName}</p>
                       <div class="flex items-center gap-2">
-                        <span
-                          class="rounded-full px-2 py-0.5 text-xs font-medium {urgencyColor[
-                            item.urgency
-                          ] ?? 'bg-gray-500'}"
-                        >
-                          {urgencyLabel[item.urgency] ?? item.urgency}
-                        </span>
+                        {#if item.urgency}
+                          <span
+                            class="rounded-full px-2 py-0.5 text-xs font-medium {urgencyColor[
+                              item.urgency
+                            ] ?? 'bg-gray-500'}"
+                          >
+                            {urgencyLabel[item.urgency] ?? item.urgency}
+                          </span>
+                        {/if}
                         {#if item.category}
                           <span class="text-xs text-gray-400">{item.category.name}</span>
                         {/if}

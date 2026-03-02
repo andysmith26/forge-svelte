@@ -148,7 +148,7 @@ function buildHelpSummary(requests: HelpQueueItem[]): HelpSummary {
   const responseTimes: number[] = [];
   const resolutionTimes: number[] = [];
   const categoryMap = new Map<string, number>();
-  const urgencyMap = new Map<HelpUrgency, number>();
+  const urgencyMap = new Map<HelpUrgency | null, number>();
 
   for (const req of requests) {
     switch (req.status) {

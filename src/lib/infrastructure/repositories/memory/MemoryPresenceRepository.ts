@@ -59,7 +59,8 @@ export class MemoryPresenceRepository implements PresenceRepository {
             pronouns: person.pronouns,
             askMeAbout: person.askMeAbout,
             themeColor: person.themeColor,
-            currentlyWorkingOn: person.currentlyWorkingOn
+            currentlyWorkingOn: person.currentlyWorkingOn,
+            smartboardVisible: person.smartboardVisible ?? true
           });
         }
       }
