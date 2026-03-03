@@ -46,29 +46,29 @@ export class MemoryProjectRepository implements ProjectRepository {
     };
   }
 
-  async listByClassroom(classroomId: string, includeArchived = false): Promise<ProjectListItem[]> {
+  async listBySchool(schoolId: string, includeArchived = false): Promise<ProjectListItem[]> {
     const projects = [...this.store.projects.values()]
-      .filter((p) => p.classroomId === classroomId && (includeArchived || !p.isArchived))
+      .filter((p) => p.schoolId === schoolId && (includeArchived || !p.isArchived))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return projects.map((p) => this.toListItem(p));
   }
 
-  async listByMember(classroomId: string, personId: string): Promise<ProjectListItem[]> {
+  async listByMember(schoolId: string, personId: string): Promise<ProjectListItem[]> {
     const memberProjectIds = [...this.store.projectMemberships.values()]
       .filter((m) => m.personId === personId && m.isActive)
       .map((m) => m.projectId);
 
     return [...this.store.projects.values()]
-      .filter((p) => memberProjectIds.includes(p.id) && p.classroomId === classroomId)
+      .filter((p) => memberProjectIds.includes(p.id) && p.schoolId === schoolId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .map((p) => this.toListItem(p));
   }
 
-  async findByName(classroomId: string, name: string): Promise<ProjectRecord | null> {
+  async findByName(schoolId: string, name: string): Promise<ProjectRecord | null> {
     const lower = name.toLowerCase();
     for (const p of this.store.projects.values()) {
-      if (p.classroomId === classroomId && p.name.toLowerCase() === lower && !p.isArchived) {
+      if (p.schoolId === schoolId && p.name.toLowerCase() === lower && !p.isArchived) {
         return p;
       }
     }
@@ -107,16 +107,13 @@ export class MemoryProjectRepository implements ProjectRepository {
       });
   }
 
-  async getActiveProjectsForPerson(
-    classroomId: string,
-    personId: string
-  ): Promise<ProjectRecord[]> {
+  async getActiveProjectsForPerson(schoolId: string, personId: string): Promise<ProjectRecord[]> {
     const projectIds = [...this.store.projectMemberships.values()]
       .filter((m) => m.personId === personId && m.isActive)
       .map((m) => m.projectId);
 
     return [...this.store.projects.values()].filter(
-      (p) => projectIds.includes(p.id) && p.classroomId === classroomId && !p.isArchived
+      (p) => projectIds.includes(p.id) && p.schoolId === schoolId && !p.isArchived
     );
   }
 

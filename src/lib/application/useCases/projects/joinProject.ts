@@ -1,15 +1,15 @@
 import type { ProjectRepository } from '$lib/application/ports/ProjectRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
+import type { PersonRepository } from '$lib/application/ports/PersonRepository';
 import type { EventStore } from '$lib/application/ports/EventStore';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
 export type JoinProjectError =
   | { type: 'PROJECT_NOT_FOUND' }
-  | { type: 'CLASSROOM_NOT_FOUND' }
-  | { type: 'NOT_CLASSROOM_MEMBER' }
+  | { type: 'NOT_SCHOOL_MEMBER' }
   | { type: 'ALREADY_ACTIVE_MEMBER' }
   | { type: 'PROJECT_ARCHIVED' }
   | { type: 'NOT_BROWSEABLE' }
@@ -19,6 +19,7 @@ export async function joinProject(
   deps: {
     projectRepo: ProjectRepository;
     classroomRepo: ClassroomRepository;
+    personRepo: PersonRepository;
     eventStore: EventStore;
     idGenerator: IdGenerator;
   },
@@ -32,19 +33,13 @@ export async function joinProject(
     if (!project) return err({ type: 'PROJECT_NOT_FOUND' });
     if (project.isArchived) return err({ type: 'PROJECT_ARCHIVED' });
 
-    const classroom = await deps.classroomRepo.getById(project.classroomId);
-    if (!classroom) return err({ type: 'CLASSROOM_NOT_FOUND' });
-
-    const classroomMembership = await deps.classroomRepo.getMembership(
-      input.actorId,
-      project.classroomId
-    );
-    if (!classroomMembership) {
-      return err({ type: 'NOT_CLASSROOM_MEMBER' });
+    const person = await deps.personRepo.getById(input.actorId);
+    if (!person || person.schoolId !== project.schoolId) {
+      return err({ type: 'NOT_SCHOOL_MEMBER' });
     }
 
     // Self-join is only allowed for browseable projects (teachers can always join)
-    const isTeacher = await checkIsTeacher(deps, input.actorId, project.classroomId);
+    const isTeacher = await checkIsSchoolTeacher(deps, input.actorId, project.schoolId);
     if (!isTeacher && project.visibility !== 'browseable') {
       return err({ type: 'NOT_BROWSEABLE' });
     }
@@ -58,15 +53,14 @@ export async function joinProject(
     const byTeacher = isTeacher;
 
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom.schoolId,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       eventType: 'PROJECT_MEMBER_ADDED',
       entityType: 'ProjectMembership',
       entityId: membershipId,
       actorId: input.actorId,
       payload: {
         projectId: input.projectId,
-        classroomId: project.classroomId,
+        schoolId: project.schoolId,
         personId: input.actorId,
         addedBy: input.actorId,
         byTeacher

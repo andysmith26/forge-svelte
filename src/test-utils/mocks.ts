@@ -24,6 +24,7 @@ export function createMockClassroomRepo(
     listMembers: vi.fn().mockResolvedValue([]),
     getMembership: vi.fn().mockResolvedValue(null),
     updateSettings: vi.fn().mockResolvedValue(undefined),
+    listSchoolStudents: vi.fn().mockResolvedValue([]),
     ...overrides
   };
 }
@@ -41,6 +42,7 @@ export function createMockSessionRepo(
     create: vi.fn().mockResolvedValue(null),
     update: vi.fn().mockResolvedValue(null),
     countSessionsSince: vi.fn().mockResolvedValue(0),
+    countSchoolSessionsSince: vi.fn().mockResolvedValue(0),
     ...overrides
   };
 }

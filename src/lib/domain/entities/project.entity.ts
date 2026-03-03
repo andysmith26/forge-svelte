@@ -4,7 +4,7 @@ export type ProjectVisibility = 'browseable' | 'members_only';
 
 export type ProjectProps = {
   readonly id: string;
-  readonly classroomId: string;
+  readonly schoolId: string;
   readonly name: string;
   readonly description: string | null;
   readonly isArchived: boolean;
@@ -19,8 +19,8 @@ export class ProjectEntity {
   get id(): string {
     return this.props.id;
   }
-  get classroomId(): string {
-    return this.props.classroomId;
+  get schoolId(): string {
+    return this.props.schoolId;
   }
   get name(): string {
     return this.props.name;

@@ -27,7 +27,7 @@ export async function getProjectFreshness(
     sessionRepo: SessionRepository;
   },
   input: {
-    classroomId: string;
+    schoolId: string;
     projectIds: string[];
   }
 ): Promise<Result<Map<string, ProjectFreshness>, GetProjectFreshnessError>> {
@@ -48,8 +48,8 @@ export async function getProjectFreshness(
         continue;
       }
 
-      const sessionsSince = await deps.sessionRepo.countSessionsSince(
-        input.classroomId,
+      const sessionsSince = await deps.sessionRepo.countSchoolSessionsSince(
+        input.schoolId,
         lastHandoffAt
       );
 

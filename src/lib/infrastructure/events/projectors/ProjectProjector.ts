@@ -33,7 +33,7 @@ export class ProjectProjector implements Projector {
         await tx.project.create({
           data: {
             id: payload.projectId,
-            classroomId: payload.classroomId,
+            schoolId: payload.schoolId,
             name: payload.name,
             description: payload.description ?? null,
             visibility: (payload.visibility as ProjectVisibility) ?? 'browseable',

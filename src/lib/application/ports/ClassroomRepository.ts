@@ -40,4 +40,5 @@ export interface ClassroomRepository {
   listMembers(classroomId: string): Promise<ClassroomMemberProfile[]>;
   getMembership(personId: string, classroomId: string): Promise<ClassroomMembership | null>;
   updateSettings(classroomId: string, settings: unknown): Promise<void>;
+  listSchoolStudents(schoolId: string): Promise<ClassroomMemberProfile[]>;
 }

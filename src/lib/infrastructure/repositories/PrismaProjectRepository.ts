@@ -33,7 +33,7 @@ export class PrismaProjectRepository implements ProjectRepository {
     if (!project) return null;
     return {
       id: project.id,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       name: project.name,
       description: project.description,
       isArchived: project.isArchived,
@@ -50,8 +50,8 @@ export class PrismaProjectRepository implements ProjectRepository {
     };
   }
 
-  async listByClassroom(classroomId: string, includeArchived = false): Promise<ProjectListItem[]> {
-    const where = includeArchived ? { classroomId } : { classroomId, isArchived: false };
+  async listBySchool(schoolId: string, includeArchived = false): Promise<ProjectListItem[]> {
+    const where = includeArchived ? { schoolId } : { schoolId, isArchived: false };
     const projects = await this.db.project.findMany({
       where,
       include: {
@@ -62,7 +62,7 @@ export class PrismaProjectRepository implements ProjectRepository {
     });
     return projects.map((p) => ({
       id: p.id,
-      classroomId: p.classroomId,
+      schoolId: p.schoolId,
       name: p.name,
       description: p.description,
       isArchived: p.isArchived,
@@ -74,9 +74,9 @@ export class PrismaProjectRepository implements ProjectRepository {
     }));
   }
 
-  async listByMember(classroomId: string, personId: string): Promise<ProjectListItem[]> {
+  async listByMember(schoolId: string, personId: string): Promise<ProjectListItem[]> {
     const memberships = await this.db.projectMembership.findMany({
-      where: { personId, isActive: true, project: { classroomId } },
+      where: { personId, isActive: true, project: { schoolId } },
       include: {
         project: {
           include: {
@@ -92,7 +92,7 @@ export class PrismaProjectRepository implements ProjectRepository {
     });
     return memberships.map((m) => ({
       id: m.project.id,
-      classroomId: m.project.classroomId,
+      schoolId: m.project.schoolId,
       name: m.project.name,
       description: m.project.description,
       isArchived: m.project.isArchived,
@@ -104,10 +104,10 @@ export class PrismaProjectRepository implements ProjectRepository {
     }));
   }
 
-  async findByName(classroomId: string, name: string): Promise<ProjectRecord | null> {
+  async findByName(schoolId: string, name: string): Promise<ProjectRecord | null> {
     return this.db.project.findFirst({
       where: {
-        classroomId,
+        schoolId,
         name: { equals: name, mode: 'insensitive' },
         isArchived: false
       }
@@ -144,15 +144,12 @@ export class PrismaProjectRepository implements ProjectRepository {
     });
   }
 
-  async getActiveProjectsForPerson(
-    classroomId: string,
-    personId: string
-  ): Promise<ProjectRecord[]> {
+  async getActiveProjectsForPerson(schoolId: string, personId: string): Promise<ProjectRecord[]> {
     const memberships = await this.db.projectMembership.findMany({
       where: {
         personId,
         isActive: true,
-        project: { classroomId, isArchived: false }
+        project: { schoolId, isArchived: false }
       },
       include: { project: true }
     });

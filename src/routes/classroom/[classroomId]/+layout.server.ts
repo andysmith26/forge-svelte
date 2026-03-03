@@ -44,7 +44,8 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     classroom: {
       id: classroomResult.value.id,
       name: classroomResult.value.name,
-      displayCode: classroomResult.value.displayCode
+      displayCode: classroomResult.value.displayCode,
+      schoolId: classroomResult.value.schoolId
     },
     membership: {
       role: membershipResult.value.role

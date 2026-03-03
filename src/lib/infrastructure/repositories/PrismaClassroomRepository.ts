@@ -48,6 +48,28 @@ export class PrismaClassroomRepository implements ClassroomRepository {
     });
   }
 
+  async listSchoolStudents(schoolId: string): Promise<ClassroomMemberProfile[]> {
+    const memberships = await this.db.classroomMembership.findMany({
+      where: {
+        isActive: true,
+        role: 'student',
+        classroom: { schoolId }
+      },
+      include: {
+        person: {
+          select: { id: true, displayName: true, pronouns: true, gradeLevel: true }
+        }
+      },
+      distinct: ['personId'],
+      orderBy: { person: { displayName: 'asc' } }
+    });
+
+    return memberships.map((m) => ({
+      ...m.person,
+      role: m.role
+    }));
+  }
+
   async updateSettings(classroomId: string, settings: unknown): Promise<void> {
     await this.db.classroom.update({
       where: { id: classroomId },

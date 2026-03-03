@@ -4,13 +4,12 @@ import type { EventStore } from '$lib/application/ports/EventStore';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
 import { HandoffEntity } from '$lib/domain/entities/handoff.entity';
 import { ValidationError } from '$lib/domain/errors';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
 export type SubmitHandoffError =
   | { type: 'PROJECT_NOT_FOUND' }
-  | { type: 'CLASSROOM_NOT_FOUND' }
   | { type: 'NOT_AUTHORIZED' }
   | { type: 'PROJECT_ARCHIVED' }
   | { type: 'VALIDATION_ERROR'; message: string }
@@ -40,10 +39,7 @@ export async function submitHandoff(
     if (!project) return err({ type: 'PROJECT_NOT_FOUND' });
     if (project.isArchived) return err({ type: 'PROJECT_ARCHIVED' });
 
-    const classroom = await deps.classroomRepo.getById(project.classroomId);
-    if (!classroom) return err({ type: 'CLASSROOM_NOT_FOUND' });
-
-    const isTeacher = await checkIsTeacher(deps, input.authorId, project.classroomId);
+    const isTeacher = await checkIsSchoolTeacher(deps, input.authorId, project.schoolId);
     const isMember = !!(await deps.projectRepo.getActiveMembership(
       input.projectId,
       input.authorId
@@ -78,8 +74,7 @@ export async function submitHandoff(
     const handoffId = deps.idGenerator.generate();
 
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom.schoolId,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       sessionId: input.sessionId ?? undefined,
       eventType: 'HANDOFF_SUBMITTED',
       entityType: 'Handoff',
@@ -88,7 +83,7 @@ export async function submitHandoff(
       payload: {
         handoffId,
         projectId: input.projectId,
-        classroomId: project.classroomId,
+        schoolId: project.schoolId,
         sessionId: input.sessionId ?? null,
         authorId: input.authorId,
         whatIDid: input.whatIDid.trim(),

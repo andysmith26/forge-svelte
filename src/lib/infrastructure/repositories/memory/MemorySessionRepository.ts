@@ -119,4 +119,13 @@ export class MemorySessionRepository implements SessionRepository {
         (s.status === 'active' || s.status === 'ended')
     ).length;
   }
+
+  async countSchoolSessionsSince(schoolId: string, since: Date): Promise<number> {
+    return [...this.store.sessions.values()].filter((s) => {
+      if (!s.actualStartAt || s.actualStartAt <= since) return false;
+      if (s.status !== 'active' && s.status !== 'ended') return false;
+      const classroom = this.store.classrooms.get(s.classroomId);
+      return classroom?.schoolId === schoolId;
+    }).length;
+  }
 }

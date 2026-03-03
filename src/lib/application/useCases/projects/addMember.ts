@@ -1,16 +1,16 @@
 import type { ProjectRepository } from '$lib/application/ports/ProjectRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
+import type { PersonRepository } from '$lib/application/ports/PersonRepository';
 import type { EventStore } from '$lib/application/ports/EventStore';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
 export type AddMemberError =
   | { type: 'PROJECT_NOT_FOUND' }
-  | { type: 'CLASSROOM_NOT_FOUND' }
   | { type: 'NOT_AUTHORIZED' }
-  | { type: 'TARGET_NOT_CLASSROOM_MEMBER' }
+  | { type: 'TARGET_NOT_SCHOOL_MEMBER' }
   | { type: 'ALREADY_ACTIVE_MEMBER' }
   | { type: 'PROJECT_ARCHIVED' }
   | { type: 'INTERNAL_ERROR'; message: string };
@@ -19,6 +19,7 @@ export async function addMember(
   deps: {
     projectRepo: ProjectRepository;
     classroomRepo: ClassroomRepository;
+    personRepo: PersonRepository;
     eventStore: EventStore;
     idGenerator: IdGenerator;
   },
@@ -33,10 +34,7 @@ export async function addMember(
     if (!project) return err({ type: 'PROJECT_NOT_FOUND' });
     if (project.isArchived) return err({ type: 'PROJECT_ARCHIVED' });
 
-    const classroom = await deps.classroomRepo.getById(project.classroomId);
-    if (!classroom) return err({ type: 'CLASSROOM_NOT_FOUND' });
-
-    const actorIsTeacher = await checkIsTeacher(deps, input.actorId, project.classroomId);
+    const actorIsTeacher = await checkIsSchoolTeacher(deps, input.actorId, project.schoolId);
     const actorMembership = await deps.projectRepo.getActiveMembership(
       input.projectId,
       input.actorId
@@ -47,13 +45,10 @@ export async function addMember(
       return err({ type: 'NOT_AUTHORIZED' });
     }
 
-    // Target must be a classroom member
-    const targetClassroomMembership = await deps.classroomRepo.getMembership(
-      input.personId,
-      project.classroomId
-    );
-    if (!targetClassroomMembership) {
-      return err({ type: 'TARGET_NOT_CLASSROOM_MEMBER' });
+    // Target must be in the same school
+    const target = await deps.personRepo.getById(input.personId);
+    if (!target || target.schoolId !== project.schoolId) {
+      return err({ type: 'TARGET_NOT_SCHOOL_MEMBER' });
     }
 
     // Check not already an active member
@@ -66,15 +61,14 @@ export async function addMember(
     const membershipId = deps.idGenerator.generate();
 
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom.schoolId,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       eventType: 'PROJECT_MEMBER_ADDED',
       entityType: 'ProjectMembership',
       entityId: membershipId,
       actorId: input.actorId,
       payload: {
         projectId: input.projectId,
-        classroomId: project.classroomId,
+        schoolId: project.schoolId,
         personId: input.personId,
         addedBy: input.actorId,
         byTeacher

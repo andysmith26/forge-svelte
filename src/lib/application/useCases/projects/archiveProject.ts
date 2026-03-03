@@ -1,7 +1,7 @@
 import type { ProjectRepository } from '$lib/application/ports/ProjectRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
 import type { EventStore } from '$lib/application/ports/EventStore';
-import { requireTeacher } from '$lib/application/useCases/checkAuthorization';
+import { requireSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -28,7 +28,7 @@ export async function archiveProject(
       return err({ type: 'PROJECT_NOT_FOUND' });
     }
 
-    const teacherResult = await requireTeacher(deps, input.actorId, project.classroomId);
+    const teacherResult = await requireSchoolTeacher(deps, input.actorId, project.schoolId);
     if (teacherResult.status === 'err') {
       return err({ type: 'NOT_TEACHER' });
     }
@@ -37,18 +37,15 @@ export async function archiveProject(
       return err({ type: 'ALREADY_ARCHIVED' });
     }
 
-    const classroom = await deps.classroomRepo.getById(project.classroomId);
-
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom!.schoolId,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       eventType: 'PROJECT_ARCHIVED',
       entityType: 'Project',
       entityId: project.id,
       actorId: input.actorId,
       payload: {
         projectId: project.id,
-        classroomId: project.classroomId,
+        schoolId: project.schoolId,
         archivedBy: input.actorId,
         byTeacher: true
       }

@@ -50,7 +50,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     const promptResult = await getHandoffPromptStatus(
       { projectRepo: env.projectRepo, sessionRepo: env.sessionRepo },
       {
-        classroomId: parentData.classroom.id,
+        schoolId: parentData.classroom.schoolId,
         personId: actor.personId,
         sessionId: session.id
       }

@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
   let projectSuggestions: string[] = [];
   if (parentData.settings?.modules.projects?.enabled) {
     const activeProjects = await env.projectRepo.getActiveProjectsForPerson(
-      parentData.classroom.id,
+      parentData.classroom.schoolId,
       actor.personId
     );
     projectSuggestions = activeProjects.map((p) => p.name);

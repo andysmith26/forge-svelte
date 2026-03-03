@@ -1,13 +1,12 @@
 import type { ProjectRepository } from '$lib/application/ports/ProjectRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
 import type { EventStore } from '$lib/application/ports/EventStore';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
 export type RemoveMemberError =
   | { type: 'PROJECT_NOT_FOUND' }
-  | { type: 'CLASSROOM_NOT_FOUND' }
   | { type: 'NOT_AUTHORIZED' }
   | { type: 'NOT_ACTIVE_MEMBER' }
   | { type: 'INTERNAL_ERROR'; message: string };
@@ -28,10 +27,7 @@ export async function removeMember(
     const project = await deps.projectRepo.getById(input.projectId);
     if (!project) return err({ type: 'PROJECT_NOT_FOUND' });
 
-    const classroom = await deps.classroomRepo.getById(project.classroomId);
-    if (!classroom) return err({ type: 'CLASSROOM_NOT_FOUND' });
-
-    const actorIsTeacher = await checkIsTeacher(deps, input.actorId, project.classroomId);
+    const actorIsTeacher = await checkIsSchoolTeacher(deps, input.actorId, project.schoolId);
     const isSelf = input.actorId === input.personId;
 
     // Only the person themselves or a teacher can remove a member
@@ -47,15 +43,14 @@ export async function removeMember(
     const byTeacher = actorIsTeacher;
 
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom.schoolId,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       eventType: 'PROJECT_MEMBER_REMOVED',
       entityType: 'ProjectMembership',
       entityId: membership.id,
       actorId: input.actorId,
       payload: {
         projectId: input.projectId,
-        classroomId: project.classroomId,
+        schoolId: project.schoolId,
         personId: input.personId,
         removedBy: input.actorId,
         byTeacher

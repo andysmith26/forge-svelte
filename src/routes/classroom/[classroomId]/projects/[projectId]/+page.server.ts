@@ -68,15 +68,15 @@ export const load: PageServerLoad = async ({ locals, params, parent }) => {
   // Unread count
   const unreadCount = await env.projectRepo.countUnread(params.projectId, actor.personId);
 
-  // Get classroom students for the "add member" dropdown (teacher or member)
-  let classroomStudents: { personId: string; displayName: string }[] = [];
+  // Get school students for the "add member" dropdown (teacher or member)
+  let schoolStudents: { personId: string; displayName: string }[] = [];
   if (isMember || parentData.membership.role === 'teacher') {
-    const allMembers = await env.classroomRepo.listMembers(params.classroomId);
+    const allStudents = await env.classroomRepo.listSchoolStudents(parentData.classroom.schoolId);
     const activeMemberIds = new Set(
       project.members.filter((m) => m.isActive).map((m) => m.personId)
     );
-    classroomStudents = allMembers
-      .filter((m) => !activeMemberIds.has(m.id) && m.role === 'student')
+    schoolStudents = allStudents
+      .filter((m) => !activeMemberIds.has(m.id))
       .map((m) => ({ personId: m.id, displayName: m.displayName }));
   }
 
@@ -98,7 +98,7 @@ export const load: PageServerLoad = async ({ locals, params, parent }) => {
     },
     isMember,
     unreadCount,
-    classroomStudents,
+    schoolStudents,
     subsystems: subsystems.map((s) => ({
       id: s.id,
       name: s.name,
@@ -161,6 +161,7 @@ export const actions: Actions = {
       {
         projectRepo: env.projectRepo,
         classroomRepo: env.classroomRepo,
+        personRepo: env.personRepo,
         eventStore: env.eventStore,
         idGenerator: env.idGenerator
       },
@@ -174,7 +175,7 @@ export const actions: Actions = {
     if (result.status === 'err') {
       const errorMessages: Record<string, string> = {
         ALREADY_ACTIVE_MEMBER: 'This person is already a member',
-        TARGET_NOT_CLASSROOM_MEMBER: 'This person is not in the classroom',
+        TARGET_NOT_SCHOOL_MEMBER: 'This person is not in the school',
         NOT_AUTHORIZED: 'You are not authorized to add members',
         PROJECT_ARCHIVED: 'Cannot add members to an archived project'
       };

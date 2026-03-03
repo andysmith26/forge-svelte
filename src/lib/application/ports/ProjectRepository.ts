@@ -2,7 +2,7 @@ import type { ProjectVisibility } from '$lib/domain/entities/project.entity';
 
 export type ProjectRecord = {
   id: string;
-  classroomId: string;
+  schoolId: string;
   name: string;
   description: string | null;
   isArchived: boolean;
@@ -74,9 +74,9 @@ export interface ProjectRepository {
   // Project CRUD
   getById(id: string): Promise<ProjectRecord | null>;
   getWithMembers(id: string): Promise<ProjectWithMembers | null>;
-  listByClassroom(classroomId: string, includeArchived?: boolean): Promise<ProjectListItem[]>;
-  listByMember(classroomId: string, personId: string): Promise<ProjectListItem[]>;
-  findByName(classroomId: string, name: string): Promise<ProjectRecord | null>;
+  listBySchool(schoolId: string, includeArchived?: boolean): Promise<ProjectListItem[]>;
+  listByMember(schoolId: string, personId: string): Promise<ProjectListItem[]>;
+  findByName(schoolId: string, name: string): Promise<ProjectRecord | null>;
 
   // Membership
   getMembership(projectId: string, personId: string): Promise<ProjectMembershipRecord | null>;
@@ -84,7 +84,7 @@ export interface ProjectRepository {
   listActiveMembers(
     projectId: string
   ): Promise<(ProjectMembershipRecord & { person: { id: string; displayName: string } })[]>;
-  getActiveProjectsForPerson(classroomId: string, personId: string): Promise<ProjectRecord[]>;
+  getActiveProjectsForPerson(schoolId: string, personId: string): Promise<ProjectRecord[]>;
 
   // Subsystems
   listSubsystems(projectId: string): Promise<SubsystemRecord[]>;

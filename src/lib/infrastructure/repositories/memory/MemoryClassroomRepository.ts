@@ -63,6 +63,28 @@ export class MemoryClassroomRepository implements ClassroomRepository {
     return null;
   }
 
+  async listSchoolStudents(schoolId: string): Promise<ClassroomMemberProfile[]> {
+    const seen = new Set<string>();
+    const result: ClassroomMemberProfile[] = [];
+    for (const m of this.store.memberships.values()) {
+      if (!m.isActive || m.role !== 'student') continue;
+      if (seen.has(m.personId)) continue;
+      const classroom = this.store.classrooms.get(m.classroomId);
+      if (!classroom || classroom.schoolId !== schoolId) continue;
+      const person = this.store.persons.get(m.personId);
+      if (!person) continue;
+      seen.add(m.personId);
+      result.push({
+        id: person.id,
+        displayName: person.displayName,
+        pronouns: person.pronouns,
+        gradeLevel: person.gradeLevel,
+        role: m.role
+      });
+    }
+    return result;
+  }
+
   async updateSettings(classroomId: string, settings: unknown): Promise<void> {
     const classroom = this.store.classrooms.get(classroomId);
     if (classroom) {

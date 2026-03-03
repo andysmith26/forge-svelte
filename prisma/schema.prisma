@@ -71,6 +71,7 @@ model School {
 
   classrooms   Classroom[]
   people       Person[]
+  projects     Project[]
   domainEvents DomainEvent[]
 
   @@map("schools")
@@ -95,7 +96,6 @@ model Classroom {
   ninjaDomains   NinjaDomain[]
   helpCategories HelpCategory[]
   helpRequests   HelpRequest[]
-  projects       Project[]
   domainEvents   DomainEvent[]
 
   @@unique([schoolId, slug])
@@ -388,7 +388,7 @@ model HelpRequest {
 
 model Project {
   id          String            @id @default(cuid())
-  classroomId String            @map("classroom_id")
+  schoolId    String            @map("school_id")
   name        String            @db.VarChar(100)
   description String?           @db.VarChar(500)
   isArchived  Boolean           @default(false) @map("is_archived")
@@ -397,14 +397,14 @@ model Project {
   createdAt   DateTime          @default(now()) @map("created_at")
   updatedAt   DateTime          @updatedAt @map("updated_at")
 
-  classroom    Classroom           @relation(fields: [classroomId], references: [id])
+  school       School              @relation(fields: [schoolId], references: [id])
   createdBy    Person              @relation("ProjectCreator", fields: [createdById], references: [id])
   memberships  ProjectMembership[]
   subsystems   Subsystem[]
   handoffs     Handoff[]
   readStatuses HandoffReadStatus[]
 
-  @@index([classroomId, isArchived])
+  @@index([schoolId, isArchived])
   @@map("projects")
 }
 

@@ -2,13 +2,12 @@ import type { ProjectRepository } from '$lib/application/ports/ProjectRepository
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
 import type { EventStore } from '$lib/application/ports/EventStore';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
 export type AddSubsystemError =
   | { type: 'PROJECT_NOT_FOUND' }
-  | { type: 'CLASSROOM_NOT_FOUND' }
   | { type: 'NOT_AUTHORIZED' }
   | { type: 'PROJECT_ARCHIVED' }
   | { type: 'DUPLICATE_NAME' }
@@ -43,10 +42,7 @@ export async function addSubsystem(
     if (!project) return err({ type: 'PROJECT_NOT_FOUND' });
     if (project.isArchived) return err({ type: 'PROJECT_ARCHIVED' });
 
-    const classroom = await deps.classroomRepo.getById(project.classroomId);
-    if (!classroom) return err({ type: 'CLASSROOM_NOT_FOUND' });
-
-    const isTeacher = await checkIsTeacher(deps, input.actorId, project.classroomId);
+    const isTeacher = await checkIsSchoolTeacher(deps, input.actorId, project.schoolId);
     const isMember = !!(await deps.projectRepo.getActiveMembership(input.projectId, input.actorId));
 
     if (!isTeacher && !isMember) {
@@ -61,15 +57,14 @@ export async function addSubsystem(
     const subsystemId = deps.idGenerator.generate();
 
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom.schoolId,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       eventType: 'PROJECT_SUBSYSTEM_ADDED',
       entityType: 'Subsystem',
       entityId: subsystemId,
       actorId: input.actorId,
       payload: {
         projectId: input.projectId,
-        classroomId: project.classroomId,
+        schoolId: project.schoolId,
         subsystemId,
         name,
         addedBy: input.actorId,

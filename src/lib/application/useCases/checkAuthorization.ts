@@ -11,6 +11,7 @@ export type AuthorizationError =
   | { type: 'NOT_AUTHENTICATED' }
   | { type: 'NOT_MEMBER'; classroomId: string }
   | { type: 'NOT_TEACHER'; classroomId: string }
+  | { type: 'NOT_SCHOOL_TEACHER'; schoolId: string }
   | { type: 'NOT_SIGNED_IN'; sessionId: string };
 
 export async function requireMember(
@@ -82,4 +83,36 @@ export async function checkIsTeacher(
 ): Promise<boolean> {
   const result = await requireTeacher(deps, personId, classroomId);
   return result.status === 'ok';
+}
+
+export async function checkIsSchoolTeacher(
+  deps: { classroomRepo: ClassroomRepository },
+  personId: string,
+  schoolId: string
+): Promise<boolean> {
+  const memberships = await deps.classroomRepo.listMembershipsForPerson(personId);
+  return memberships.some(
+    (m) => m.classroom.schoolId === schoolId && m.role === Role.Teacher && m.isActive
+  );
+}
+
+export async function requireSchoolTeacher(
+  deps: { classroomRepo: ClassroomRepository },
+  personId: string,
+  schoolId: string
+): Promise<Result<ClassroomMembership, AuthorizationError>> {
+  if (!personId) {
+    return err({ type: 'NOT_AUTHENTICATED' });
+  }
+
+  const memberships = await deps.classroomRepo.listMembershipsForPerson(personId);
+  const teacherMembership = memberships.find(
+    (m) => m.classroom.schoolId === schoolId && m.role === Role.Teacher && m.isActive
+  );
+
+  if (!teacherMembership) {
+    return err({ type: 'NOT_SCHOOL_TEACHER', schoolId });
+  }
+
+  return ok(teacherMembership);
 }

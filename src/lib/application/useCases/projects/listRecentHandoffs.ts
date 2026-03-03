@@ -13,19 +13,19 @@ export type ListRecentHandoffsError = { type: 'INTERNAL_ERROR'; message: string 
 
 /**
  * Cross-project handoff feed for teachers.
- * Returns recent handoffs across all projects in a classroom.
+ * Returns recent handoffs across all projects in a school.
  */
 export async function listRecentHandoffs(
   deps: {
     projectRepo: ProjectRepository;
   },
   input: {
-    classroomId: string;
+    schoolId: string;
     limit?: number;
   }
 ): Promise<Result<RecentHandoff[], ListRecentHandoffsError>> {
   try {
-    const projects = await deps.projectRepo.listByClassroom(input.classroomId, true);
+    const projects = await deps.projectRepo.listBySchool(input.schoolId, true);
     const limit = input.limit ?? 20;
 
     const allHandoffs: RecentHandoff[] = [];

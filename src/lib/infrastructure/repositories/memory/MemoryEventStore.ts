@@ -292,7 +292,7 @@ export class MemoryEventStore implements EventStore {
     const p = event.payload as unknown as ProjectCreatedPayload;
     this.store.projects.set(p.projectId, {
       id: p.projectId,
-      classroomId: p.classroomId,
+      schoolId: p.schoolId,
       name: p.name,
       description: p.description ?? null,
       isArchived: false,

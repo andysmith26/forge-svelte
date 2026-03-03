@@ -1,11 +1,12 @@
 import type { ProjectRepository, ProjectRecord } from '$lib/application/ports/ProjectRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
+import type { PersonRepository } from '$lib/application/ports/PersonRepository';
 import type { EventStore } from '$lib/application/ports/EventStore';
 import type { IdGenerator } from '$lib/application/ports/IdGenerator';
 import type { ProjectVisibility } from '$lib/domain/entities/project.entity';
 import { ProjectEntity } from '$lib/domain/entities/project.entity';
 import { ValidationError } from '$lib/domain/errors';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -14,8 +15,7 @@ export type CreateProjectResult = {
 };
 
 export type CreateProjectError =
-  | { type: 'CLASSROOM_NOT_FOUND' }
-  | { type: 'NOT_CLASSROOM_MEMBER' }
+  | { type: 'NOT_SCHOOL_MEMBER' }
   | { type: 'DUPLICATE_NAME' }
   | { type: 'VALIDATION_ERROR'; message: string }
   | { type: 'PROJECT_NOT_FOUND_AFTER_CREATE' }
@@ -25,11 +25,12 @@ export async function createProject(
   deps: {
     projectRepo: ProjectRepository;
     classroomRepo: ClassroomRepository;
+    personRepo: PersonRepository;
     eventStore: EventStore;
     idGenerator: IdGenerator;
   },
   input: {
-    classroomId: string;
+    schoolId: string;
     name: string;
     description?: string | null;
     visibility?: ProjectVisibility;
@@ -37,14 +38,9 @@ export async function createProject(
   }
 ): Promise<Result<CreateProjectResult, CreateProjectError>> {
   try {
-    const classroom = await deps.classroomRepo.getById(input.classroomId);
-    if (!classroom) {
-      return err({ type: 'CLASSROOM_NOT_FOUND' });
-    }
-
-    const membership = await deps.classroomRepo.getMembership(input.createdById, input.classroomId);
-    if (!membership) {
-      return err({ type: 'NOT_CLASSROOM_MEMBER' });
+    const person = await deps.personRepo.getById(input.createdById);
+    if (!person || person.schoolId !== input.schoolId) {
+      return err({ type: 'NOT_SCHOOL_MEMBER' });
     }
 
     try {
@@ -59,25 +55,24 @@ export async function createProject(
       throw e;
     }
 
-    const existing = await deps.projectRepo.findByName(input.classroomId, input.name.trim());
+    const existing = await deps.projectRepo.findByName(input.schoolId, input.name.trim());
     if (existing) {
       return err({ type: 'DUPLICATE_NAME' });
     }
 
-    const byTeacher = await checkIsTeacher(deps, input.createdById, input.classroomId);
+    const byTeacher = await checkIsSchoolTeacher(deps, input.createdById, input.schoolId);
     const projectId = deps.idGenerator.generate();
     const membershipId = deps.idGenerator.generate();
 
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom.schoolId,
-      classroomId: input.classroomId,
+      schoolId: input.schoolId,
       eventType: 'PROJECT_CREATED',
       entityType: 'Project',
       entityId: projectId,
       actorId: input.createdById,
       payload: {
         projectId,
-        classroomId: input.classroomId,
+        schoolId: input.schoolId,
         name: input.name.trim(),
         description: input.description?.trim() ?? null,
         visibility: input.visibility ?? 'browseable',
@@ -87,15 +82,14 @@ export async function createProject(
     });
 
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom.schoolId,
-      classroomId: input.classroomId,
+      schoolId: input.schoolId,
       eventType: 'PROJECT_MEMBER_ADDED',
       entityType: 'ProjectMembership',
       entityId: membershipId,
       actorId: input.createdById,
       payload: {
         projectId,
-        classroomId: input.classroomId,
+        schoolId: input.schoolId,
         personId: input.createdById,
         addedBy: input.createdById,
         byTeacher

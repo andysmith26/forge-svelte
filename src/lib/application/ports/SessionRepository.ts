@@ -55,4 +55,5 @@ export interface SessionRepository {
   create(input: CreateSessionInput): Promise<SessionRecord>;
   update(id: string, data: Partial<SessionRecord>): Promise<SessionRecord>;
   countSessionsSince(classroomId: string, since: Date): Promise<number>;
+  countSchoolSessionsSince(schoolId: string, since: Date): Promise<number>;
 }

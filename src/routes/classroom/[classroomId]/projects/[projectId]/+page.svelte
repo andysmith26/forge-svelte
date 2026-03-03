@@ -380,7 +380,7 @@
     </div>
 
     <!-- Add member (member or teacher, not archived) -->
-    {#if (isMember || isTeacher) && !data.project.isArchived && data.classroomStudents.length > 0}
+    {#if (isMember || isTeacher) && !data.project.isArchived && data.schoolStudents.length > 0}
       <div class="mt-4 rounded-lg border border-gray-200 bg-white p-4">
         <h3 class="mb-2 text-sm font-medium text-gray-700">Add a Member</h3>
         <form method="POST" action="?/addMember" class="flex items-end gap-2">
@@ -391,7 +391,7 @@
               class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
             >
               <option value="">Select a student...</option>
-              {#each data.classroomStudents as student (student.personId)}
+              {#each data.schoolStudents as student (student.personId)}
                 <option value={student.personId}>{student.displayName}</option>
               {/each}
             </select>

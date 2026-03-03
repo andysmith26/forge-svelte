@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
   const result = await listProjects(
     { projectRepo: env.projectRepo, classroomRepo: env.classroomRepo },
     {
-      classroomId: parentData.classroom.id,
+      schoolId: parentData.classroom.schoolId,
       actorId: actor.personId,
       includeArchived: isTeacher
     }
@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
   const [freshnessResult, unreadCounts] = await Promise.all([
     getProjectFreshness(
       { projectRepo: env.projectRepo, sessionRepo: env.sessionRepo },
-      { classroomId: parentData.classroom.id, projectIds: allProjectIds }
+      { schoolId: parentData.classroom.schoolId, projectIds: allProjectIds }
     ),
     env.projectRepo.countUnreadBatch(allProjectIds, actor.personId)
   ]);
@@ -93,7 +93,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
   if (isTeacher) {
     const recentResult = await listRecentHandoffs(
       { projectRepo: env.projectRepo },
-      { classroomId: parentData.classroom.id, limit: 10 }
+      { schoolId: parentData.classroom.schoolId, limit: 10 }
     );
     if (recentResult.status === 'ok') {
       recentHandoffs = recentResult.value.map((h) => ({
@@ -137,15 +137,19 @@ export const actions: Actions = {
 
     if (!name) return fail(400, { error: 'Project name is required' });
 
+    const classroom = await env.classroomRepo.getById(params.classroomId);
+    if (!classroom) return fail(404, { error: 'Classroom not found' });
+
     const result = await createProject(
       {
         projectRepo: env.projectRepo,
         classroomRepo: env.classroomRepo,
+        personRepo: env.personRepo,
         eventStore: env.eventStore,
         idGenerator: env.idGenerator
       },
       {
-        classroomId: params.classroomId,
+        schoolId: classroom.schoolId,
         name,
         description,
         visibility: visibility as ProjectVisibility,
@@ -157,7 +161,7 @@ export const actions: Actions = {
       const errorMessages: Record<string, string> = {
         DUPLICATE_NAME: 'A project with this name already exists',
         VALIDATION_ERROR: result.error.type === 'VALIDATION_ERROR' ? result.error.message : '',
-        NOT_CLASSROOM_MEMBER: 'You are not a member of this classroom'
+        NOT_SCHOOL_MEMBER: 'You are not a member of this school'
       };
       return fail(400, {
         error: errorMessages[result.error.type] || result.error.type
@@ -230,6 +234,7 @@ export const actions: Actions = {
       {
         projectRepo: env.projectRepo,
         classroomRepo: env.classroomRepo,
+        personRepo: env.personRepo,
         eventStore: env.eventStore,
         idGenerator: env.idGenerator
       },

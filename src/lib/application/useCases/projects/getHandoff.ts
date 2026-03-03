@@ -3,7 +3,7 @@ import type {
   HandoffWithRelations
 } from '$lib/application/ports/ProjectRepository';
 import type { ClassroomRepository } from '$lib/application/ports/ClassroomRepository';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -30,7 +30,7 @@ export async function getHandoff(
     const project = await deps.projectRepo.getById(handoff.projectId);
     if (!project) return err({ type: 'PROJECT_NOT_FOUND' });
 
-    const isTeacher = await checkIsTeacher(deps, input.actorId, project.classroomId);
+    const isTeacher = await checkIsSchoolTeacher(deps, input.actorId, project.schoolId);
     const isMember = !!(await deps.projectRepo.getActiveMembership(
       handoff.projectId,
       input.actorId

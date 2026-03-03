@@ -25,14 +25,14 @@ export async function getHandoffPromptStatus(
     sessionRepo: SessionRepository;
   },
   input: {
-    classroomId: string;
+    schoolId: string;
     personId: string;
     sessionId: string;
   }
 ): Promise<Result<HandoffPromptStatus, GetHandoffPromptStatusError>> {
   try {
     const activeProjects = await deps.projectRepo.getActiveProjectsForPerson(
-      input.classroomId,
+      input.schoolId,
       input.personId
     );
 

@@ -137,7 +137,7 @@ export type ProfileUpdatedEvent = DomainEvent<'PROFILE_UPDATED', ProfileUpdatedP
 
 export type ProjectCreatedPayload = {
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   name: string;
   description: string | null;
   visibility: string;
@@ -149,7 +149,7 @@ export type ProjectCreatedEvent = DomainEvent<'PROJECT_CREATED', ProjectCreatedP
 
 export type ProjectUpdatedPayload = {
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   changedFields: string[];
   updatedBy: string;
   byTeacher: boolean;
@@ -159,7 +159,7 @@ export type ProjectUpdatedEvent = DomainEvent<'PROJECT_UPDATED', ProjectUpdatedP
 
 export type ProjectArchivedPayload = {
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   archivedBy: string;
   byTeacher: boolean;
 };
@@ -168,7 +168,7 @@ export type ProjectArchivedEvent = DomainEvent<'PROJECT_ARCHIVED', ProjectArchiv
 
 export type ProjectUnarchivedPayload = {
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   unarchivedBy: string;
   byTeacher: boolean;
 };
@@ -177,7 +177,7 @@ export type ProjectUnarchivedEvent = DomainEvent<'PROJECT_UNARCHIVED', ProjectUn
 
 export type ProjectMemberAddedPayload = {
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   personId: string;
   addedBy: string;
   byTeacher: boolean;
@@ -190,7 +190,7 @@ export type ProjectMemberAddedEvent = DomainEvent<
 
 export type ProjectMemberRemovedPayload = {
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   personId: string;
   removedBy: string;
   byTeacher: boolean;
@@ -203,7 +203,7 @@ export type ProjectMemberRemovedEvent = DomainEvent<
 
 export type ProjectSubsystemAddedPayload = {
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   subsystemId: string;
   name: string;
   addedBy: string;
@@ -218,7 +218,7 @@ export type ProjectSubsystemAddedEvent = DomainEvent<
 export type HandoffSubmittedPayload = {
   handoffId: string;
   projectId: string;
-  classroomId: string;
+  schoolId: string;
   sessionId: string | null;
   authorId: string;
   whatIDid: string;

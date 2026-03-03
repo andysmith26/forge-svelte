@@ -4,7 +4,7 @@ import type { EventStore } from '$lib/application/ports/EventStore';
 import type { ProjectVisibility } from '$lib/domain/entities/project.entity';
 import { ProjectEntity } from '$lib/domain/entities/project.entity';
 import { ValidationError } from '$lib/domain/errors';
-import { checkIsTeacher } from '$lib/application/useCases/checkAuthorization';
+import { checkIsSchoolTeacher } from '$lib/application/useCases/checkAuthorization';
 import type { Result } from '$lib/types/result';
 import { ok, err } from '$lib/types/result';
 
@@ -35,7 +35,7 @@ export async function updateProject(
       return err({ type: 'PROJECT_NOT_FOUND' });
     }
 
-    const byTeacher = await checkIsTeacher(deps, input.actorId, project.classroomId);
+    const byTeacher = await checkIsSchoolTeacher(deps, input.actorId, project.schoolId);
     const isMember = await deps.projectRepo.getActiveMembership(input.projectId, input.actorId);
 
     if (!byTeacher && !isMember) {
@@ -57,7 +57,7 @@ export async function updateProject(
     }
 
     if (input.name && input.name.trim() !== project.name) {
-      const existing = await deps.projectRepo.findByName(project.classroomId, input.name.trim());
+      const existing = await deps.projectRepo.findByName(project.schoolId, input.name.trim());
       if (existing && existing.id !== project.id) {
         return err({ type: 'DUPLICATE_NAME' });
       }
@@ -68,18 +68,15 @@ export async function updateProject(
     if (input.description !== undefined) changedFields.push('description');
     if (input.visibility !== undefined) changedFields.push('visibility');
 
-    const classroom = await deps.classroomRepo.getById(project.classroomId);
-
     await deps.eventStore.appendAndEmit({
-      schoolId: classroom!.schoolId,
-      classroomId: project.classroomId,
+      schoolId: project.schoolId,
       eventType: 'PROJECT_UPDATED',
       entityType: 'Project',
       entityId: project.id,
       actorId: input.actorId,
       payload: {
         projectId: project.id,
-        classroomId: project.classroomId,
+        schoolId: project.schoolId,
         changedFields,
         updatedBy: input.actorId,
         byTeacher,
