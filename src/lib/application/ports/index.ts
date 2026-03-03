@@ -83,6 +83,19 @@ export type {
   CreateNotificationInput
 } from './RealtimeNotificationRepository';
 
+export type {
+  ProjectRepository,
+  ProjectRecord,
+  ProjectMembershipRecord,
+  SubsystemRecord,
+  HandoffRecord,
+  HandoffWithRelations,
+  HandoffReadStatusRecord,
+  ProjectMemberSummary,
+  ProjectListItem,
+  ProjectWithMembers
+} from './ProjectRepository';
+
 export type { EventStore, AppendEventInput, StoredEvent, EventFilters } from './EventStore';
 export type { IdGenerator } from './IdGenerator';
 export type { HashService } from './HashService';

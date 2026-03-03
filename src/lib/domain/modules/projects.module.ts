@@ -5,6 +5,6 @@ export const projectsModule: ModuleDefinition = {
   name: 'Projects',
   description: 'Multi-session project tracking and handoffs',
   navItem: { label: 'Projects', hrefSuffix: '/projects' },
-  status: 'coming_soon',
+  status: 'available',
   defaultEnabled: false
 };

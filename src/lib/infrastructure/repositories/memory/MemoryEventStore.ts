@@ -14,8 +14,17 @@ import type {
   HelpClaimedPayload,
   HelpUnclaimedPayload,
   HelpResolvedPayload,
-  HelpCancelledPayload
+  HelpCancelledPayload,
+  ProjectCreatedPayload,
+  ProjectUpdatedPayload,
+  ProjectArchivedPayload,
+  ProjectUnarchivedPayload,
+  ProjectMemberAddedPayload,
+  ProjectMemberRemovedPayload,
+  ProjectSubsystemAddedPayload,
+  HandoffSubmittedPayload
 } from '$lib/domain/events';
+import type { ProjectVisibility } from '$lib/domain/entities/project.entity';
 import type { HelpUrgency } from '$lib/domain/types/help-urgency';
 import type { MemoryStore } from './MemoryStore';
 
@@ -99,6 +108,30 @@ export class MemoryEventStore implements EventStore {
         break;
       case 'HELP_CANCELLED':
         this.projectHelpCancelled(event);
+        break;
+      case 'PROJECT_CREATED':
+        this.projectProjectCreated(event);
+        break;
+      case 'PROJECT_UPDATED':
+        this.projectProjectUpdated(event);
+        break;
+      case 'PROJECT_ARCHIVED':
+        this.projectProjectArchived(event);
+        break;
+      case 'PROJECT_UNARCHIVED':
+        this.projectProjectUnarchived(event);
+        break;
+      case 'PROJECT_MEMBER_ADDED':
+        this.projectProjectMemberAdded(event);
+        break;
+      case 'PROJECT_MEMBER_REMOVED':
+        this.projectProjectMemberRemoved(event);
+        break;
+      case 'PROJECT_SUBSYSTEM_ADDED':
+        this.projectProjectSubsystemAdded(event);
+        break;
+      case 'HANDOFF_SUBMITTED':
+        this.projectHandoffSubmitted(event);
         break;
     }
   }
@@ -252,6 +285,121 @@ export class MemoryEventStore implements EventStore {
         cancelledAt: event.createdAt,
         cancellationReason: p.reason
       });
+    }
+  }
+
+  private projectProjectCreated(event: StoredEvent): void {
+    const p = event.payload as unknown as ProjectCreatedPayload;
+    this.store.projects.set(p.projectId, {
+      id: p.projectId,
+      classroomId: p.classroomId,
+      name: p.name,
+      description: p.description ?? null,
+      isArchived: false,
+      visibility: (p.visibility as ProjectVisibility) ?? 'browseable',
+      createdById: p.createdBy,
+      createdAt: event.createdAt
+    });
+  }
+
+  private projectProjectUpdated(event: StoredEvent): void {
+    const p = event.payload as unknown as ProjectUpdatedPayload & Record<string, unknown>;
+    const project = this.store.projects.get(p.projectId);
+    if (project) {
+      this.store.projects.set(p.projectId, {
+        ...project,
+        ...(p.changedFields.includes('name') && 'name' in p ? { name: p.name as string } : {}),
+        ...(p.changedFields.includes('description') && 'description' in p
+          ? { description: p.description as string | null }
+          : {}),
+        ...(p.changedFields.includes('visibility') && 'visibility' in p
+          ? { visibility: p.visibility as ProjectVisibility }
+          : {})
+      });
+    }
+  }
+
+  private projectProjectArchived(event: StoredEvent): void {
+    const p = event.payload as unknown as ProjectArchivedPayload;
+    const project = this.store.projects.get(p.projectId);
+    if (project) {
+      this.store.projects.set(p.projectId, { ...project, isArchived: true });
+    }
+  }
+
+  private projectProjectUnarchived(event: StoredEvent): void {
+    const p = event.payload as unknown as ProjectUnarchivedPayload;
+    const project = this.store.projects.get(p.projectId);
+    if (project) {
+      this.store.projects.set(p.projectId, { ...project, isArchived: false });
+    }
+  }
+
+  private projectProjectMemberAdded(event: StoredEvent): void {
+    const p = event.payload as unknown as ProjectMemberAddedPayload;
+    const key = `${p.projectId}:${p.personId}`;
+    const existing = this.store.projectMemberships.get(key);
+    if (existing) {
+      this.store.projectMemberships.set(key, {
+        ...existing,
+        isActive: true,
+        leftAt: null,
+        joinedAt: event.createdAt
+      });
+    } else {
+      this.store.projectMemberships.set(key, {
+        id: event.entityId,
+        projectId: p.projectId,
+        personId: p.personId,
+        isActive: true,
+        joinedAt: event.createdAt,
+        leftAt: null
+      });
+    }
+  }
+
+  private projectProjectMemberRemoved(event: StoredEvent): void {
+    const p = event.payload as unknown as ProjectMemberRemovedPayload;
+    const key = `${p.projectId}:${p.personId}`;
+    const existing = this.store.projectMemberships.get(key);
+    if (existing) {
+      this.store.projectMemberships.set(key, {
+        ...existing,
+        isActive: false,
+        leftAt: event.createdAt
+      });
+    }
+  }
+
+  private projectProjectSubsystemAdded(event: StoredEvent): void {
+    const p = event.payload as unknown as ProjectSubsystemAddedPayload;
+    const order = [...this.store.subsystems.values()].filter(
+      (s) => s.projectId === p.projectId
+    ).length;
+    this.store.subsystems.set(p.subsystemId, {
+      id: p.subsystemId,
+      projectId: p.projectId,
+      name: p.name,
+      displayOrder: order,
+      isActive: true
+    });
+  }
+
+  private projectHandoffSubmitted(event: StoredEvent): void {
+    const p = event.payload as unknown as HandoffSubmittedPayload;
+    this.store.handoffs.set(p.handoffId, {
+      id: p.handoffId,
+      projectId: p.projectId,
+      authorId: p.authorId,
+      sessionId: p.sessionId ?? null,
+      whatIDid: p.whatIDid,
+      whatsNext: p.whatsNext ?? null,
+      blockers: p.blockers ?? null,
+      questions: p.questions ?? null,
+      createdAt: event.createdAt
+    });
+    for (const subsystemId of p.subsystemIds) {
+      this.store.handoffSubsystems.push({ handoffId: p.handoffId, subsystemId });
     }
   }
 }

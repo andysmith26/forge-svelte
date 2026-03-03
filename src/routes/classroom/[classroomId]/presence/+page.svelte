@@ -15,6 +15,25 @@
     <PresenceStatus isSignedIn={data.signInStatus?.isSignedIn ?? false} {hasSession} />
   </div>
 
+  {#if data.handoffPrompt?.shouldPrompt && data.handoffPrompt.projects.length > 0}
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <p class="text-sm font-medium text-amber-800">Want to leave a note for your teammates?</p>
+      <p class="mt-1 text-sm text-amber-600">You haven't written a handoff this session for:</p>
+      <ul class="mt-2 space-y-1">
+        {#each data.handoffPrompt.projects as project (project.id)}
+          <li>
+            <a
+              href="/classroom/{data.classroom.id}/projects/{project.id}"
+              class="text-sm font-medium text-amber-700 underline hover:text-amber-900"
+            >
+              {project.name}
+            </a>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
+
   {#if hasSession}
     <div>
       <h2 class="mb-4 text-lg font-semibold text-gray-900">

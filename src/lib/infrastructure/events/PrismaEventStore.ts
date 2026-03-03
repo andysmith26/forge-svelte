@@ -58,6 +58,23 @@ function getNotificationTargets(event: StoredEvent): NotificationTarget[] {
         });
       }
       break;
+
+    case 'PROJECT_CREATED':
+    case 'PROJECT_UPDATED':
+    case 'PROJECT_ARCHIVED':
+    case 'PROJECT_UNARCHIVED':
+    case 'PROJECT_MEMBER_ADDED':
+    case 'PROJECT_MEMBER_REMOVED':
+    case 'PROJECT_SUBSYSTEM_ADDED':
+    case 'HANDOFF_SUBMITTED':
+      if (classroomId) {
+        targets.push({
+          channel: `projects:classroom:${classroomId}`,
+          entityType: 'project',
+          scopeId: classroomId
+        });
+      }
+      break;
   }
 
   return targets;

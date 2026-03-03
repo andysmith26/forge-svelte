@@ -8,6 +8,7 @@ import { listPresent } from '$lib/application/useCases/presence/listPresent';
 import { listSignInsForSession } from '$lib/application/useCases/presence/listSignInsForSession';
 import { getCurrentSession } from '$lib/application/useCases/session/getCurrentSession';
 import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
+import { getHandoffPromptStatus } from '$lib/application/useCases/projects/getHandoffPromptStatus';
 import { ok } from '$lib/types/result';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
@@ -35,6 +36,32 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
       ? listSignInsForSession({ presenceRepo: env.presenceRepo }, { sessionId: session.id })
       : Promise.resolve(ok([]))
   ]);
+
+  // Check for handoff prompt if student is signed in and projects module is enabled
+  const isSignedIn =
+    statusResult.status === 'ok' && statusResult.value && !statusResult.value.signedOutAt;
+  const projectsEnabled = parentData.settings?.modules.projects?.enabled;
+  let handoffPrompt: { shouldPrompt: boolean; projects: { id: string; name: string }[] } = {
+    shouldPrompt: false,
+    projects: []
+  };
+
+  if (isSignedIn && projectsEnabled && parentData.membership.role !== 'teacher') {
+    const promptResult = await getHandoffPromptStatus(
+      { projectRepo: env.projectRepo, sessionRepo: env.sessionRepo },
+      {
+        classroomId: parentData.classroom.id,
+        personId: actor.personId,
+        sessionId: session.id
+      }
+    );
+    if (promptResult.status === 'ok' && promptResult.value.shouldPrompt) {
+      handoffPrompt = {
+        shouldPrompt: true,
+        projects: promptResult.value.projectsMissingHandoff
+      };
+    }
+  }
 
   return {
     present:
@@ -64,7 +91,8 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
             signedInAt: s.signedInAt.toISOString(),
             signedOutAt: s.signedOutAt?.toISOString() ?? null
           }))
-        : []
+        : [],
+    handoffPrompt
   };
 };
 

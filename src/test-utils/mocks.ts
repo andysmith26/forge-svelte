@@ -40,6 +40,7 @@ export function createMockSessionRepo(
     listByClassroom: vi.fn().mockResolvedValue([]),
     create: vi.fn().mockResolvedValue(null),
     update: vi.fn().mockResolvedValue(null),
+    countSessionsSince: vi.fn().mockResolvedValue(0),
     ...overrides
   };
 }

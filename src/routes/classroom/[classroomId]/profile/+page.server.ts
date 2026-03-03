@@ -20,6 +20,16 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     { personId: actor.personId }
   );
 
+  // Load active project names as "currently working on" suggestions
+  let projectSuggestions: string[] = [];
+  if (parentData.settings?.modules.projects?.enabled) {
+    const activeProjects = await env.projectRepo.getActiveProjectsForPerson(
+      parentData.classroom.id,
+      actor.personId
+    );
+    projectSuggestions = activeProjects.map((p) => p.name);
+  }
+
   return {
     profile:
       profileResult.status === 'ok'
@@ -35,7 +45,8 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
             helpQueueVisible: true,
             smartboardVisible: true,
             email: null
-          }
+          },
+    projectSuggestions
   };
 };
 

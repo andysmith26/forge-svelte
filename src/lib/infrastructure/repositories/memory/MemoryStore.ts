@@ -11,6 +11,18 @@ import type {
   PinSessionRecord,
   StoredEvent
 } from '$lib/application/ports';
+import type {
+  ProjectRecord,
+  ProjectMembershipRecord,
+  SubsystemRecord,
+  HandoffRecord,
+  HandoffReadStatusRecord
+} from '$lib/application/ports/ProjectRepository';
+
+export type HandoffSubsystemLink = {
+  handoffId: string;
+  subsystemId: string;
+};
 
 export class MemoryStore {
   classrooms = new Map<string, ClassroomRecord>();
@@ -24,6 +36,14 @@ export class MemoryStore {
   ninjaAssignments = new Map<string, NinjaAssignmentRecord>();
   pinSessions = new Map<string, PinSessionRecord>();
   domainEvents: StoredEvent[] = [];
+
+  // Projects
+  projects = new Map<string, ProjectRecord>();
+  projectMemberships = new Map<string, ProjectMembershipRecord>();
+  subsystems = new Map<string, SubsystemRecord>();
+  handoffs = new Map<string, HandoffRecord>();
+  handoffSubsystems: HandoffSubsystemLink[] = [];
+  handoffReadStatuses = new Map<string, HandoffReadStatusRecord>();
 
   /** Plaintext PINs for demo display (personId -> pin) */
   plaintextPins = new Map<string, string>();
@@ -43,6 +63,12 @@ export class MemoryStore {
     this.ninjaAssignments.clear();
     this.pinSessions.clear();
     this.domainEvents = [];
+    this.projects.clear();
+    this.projectMemberships.clear();
+    this.subsystems.clear();
+    this.handoffs.clear();
+    this.handoffSubsystems = [];
+    this.handoffReadStatuses.clear();
     this.plaintextPins.clear();
     this.personCreatedAt.clear();
   }

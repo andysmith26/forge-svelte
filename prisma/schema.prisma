@@ -50,6 +50,11 @@ enum HelpStatus {
   cancelled
 }
 
+enum ProjectVisibility {
+  browseable
+  members_only
+}
+
 // ============================================================================
 // CORE ENTITIES
 // ============================================================================
@@ -90,6 +95,7 @@ model Classroom {
   ninjaDomains   NinjaDomain[]
   helpCategories HelpCategory[]
   helpRequests   HelpRequest[]
+  projects       Project[]
   domainEvents   DomainEvent[]
 
   @@unique([schoolId, slug])
@@ -128,6 +134,10 @@ model Person {
   assignedNinjaStatus NinjaAssignment[]     @relation("AssignedByNinja")
   helpRequests        HelpRequest[]         @relation("HelpRequester")
   claimedHelpRequests HelpRequest[]         @relation("HelpClaimer")
+  projectsCreated     Project[]             @relation("ProjectCreator")
+  projectMemberships  ProjectMembership[]
+  handoffs            Handoff[]
+  handoffReadStatuses HandoffReadStatus[]
   domainEvents        DomainEvent[]
 
   @@map("people")
@@ -173,6 +183,7 @@ model ClassSession {
   classroom    Classroom     @relation(fields: [classroomId], references: [id])
   signIns      SignIn[]
   helpRequests HelpRequest[]
+  handoffs     Handoff[]
   domainEvents DomainEvent[]
 
   @@index([classroomId, status])
@@ -369,6 +380,110 @@ model HelpRequest {
 
   @@index([classroomId, status, createdAt])
   @@map("help_requests")
+}
+
+// ============================================================================
+// PROJECTS
+// ============================================================================
+
+model Project {
+  id          String            @id @default(cuid())
+  classroomId String            @map("classroom_id")
+  name        String            @db.VarChar(100)
+  description String?           @db.VarChar(500)
+  isArchived  Boolean           @default(false) @map("is_archived")
+  visibility  ProjectVisibility @default(browseable)
+  createdById String            @map("created_by_id")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  classroom    Classroom           @relation(fields: [classroomId], references: [id])
+  createdBy    Person              @relation("ProjectCreator", fields: [createdById], references: [id])
+  memberships  ProjectMembership[]
+  subsystems   Subsystem[]
+  handoffs     Handoff[]
+  readStatuses HandoffReadStatus[]
+
+  @@index([classroomId, isArchived])
+  @@map("projects")
+}
+
+model ProjectMembership {
+  id        String    @id @default(cuid())
+  projectId String    @map("project_id")
+  personId  String    @map("person_id")
+  isActive  Boolean   @default(true) @map("is_active")
+  joinedAt  DateTime  @default(now()) @map("joined_at")
+  leftAt    DateTime? @map("left_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id])
+  person  Person  @relation(fields: [personId], references: [id])
+
+  @@unique([projectId, personId])
+  @@index([personId, isActive])
+  @@map("project_memberships")
+}
+
+model Subsystem {
+  id           String   @id @default(cuid())
+  projectId    String   @map("project_id")
+  name         String   @db.VarChar(60)
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  project           Project            @relation(fields: [projectId], references: [id])
+  handoffSubsystems HandoffSubsystem[]
+
+  @@unique([projectId, name])
+  @@map("subsystems")
+}
+
+model Handoff {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  authorId  String   @map("author_id")
+  sessionId String?  @map("session_id")
+  whatIDid  String   @map("what_i_did")
+  whatsNext String?  @map("whats_next")
+  blockers  String?
+  questions String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project           Project            @relation(fields: [projectId], references: [id])
+  author            Person             @relation(fields: [authorId], references: [id])
+  session           ClassSession?      @relation(fields: [sessionId], references: [id])
+  handoffSubsystems HandoffSubsystem[]
+
+  @@index([projectId, createdAt(sort: Desc)])
+  @@map("handoffs")
+}
+
+model HandoffSubsystem {
+  handoffId   String @map("handoff_id")
+  subsystemId String @map("subsystem_id")
+
+  handoff   Handoff   @relation(fields: [handoffId], references: [id])
+  subsystem Subsystem @relation(fields: [subsystemId], references: [id])
+
+  @@id([handoffId, subsystemId])
+  @@map("handoff_subsystems")
+}
+
+model HandoffReadStatus {
+  id         String   @id @default(cuid())
+  projectId  String   @map("project_id")
+  personId   String   @map("person_id")
+  lastReadAt DateTime @map("last_read_at")
+
+  project Project @relation(fields: [projectId], references: [id])
+  person  Person  @relation(fields: [personId], references: [id])
+
+  @@unique([projectId, personId])
+  @@map("handoff_read_statuses")
 }
 
 // ============================================================================

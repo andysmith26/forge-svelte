@@ -94,4 +94,14 @@ export class PrismaSessionRepository implements SessionRepository {
       }
     });
   }
+
+  async countSessionsSince(classroomId: string, since: Date): Promise<number> {
+    return this.db.classSession.count({
+      where: {
+        classroomId,
+        actualStartAt: { gt: since },
+        status: { in: ['active', 'ended'] }
+      }
+    });
+  }
 }

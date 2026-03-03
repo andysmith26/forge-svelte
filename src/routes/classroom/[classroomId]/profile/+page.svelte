@@ -150,6 +150,19 @@
             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
           />
           <p class="mt-1 text-xs text-gray-500">Visible on the smartboard</p>
+          {#if data.projectSuggestions && data.projectSuggestions.length > 0}
+            <div class="mt-2 flex flex-wrap gap-1">
+              {#each data.projectSuggestions as suggestion (suggestion)}
+                <button
+                  type="button"
+                  class="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-0.5 text-xs text-gray-600 hover:bg-gray-100"
+                  onclick={() => (currentlyWorkingOn = suggestion)}
+                >
+                  {suggestion}
+                </button>
+              {/each}
+            </div>
+          {/if}
         </div>
 
         <div class="flex items-center gap-2">

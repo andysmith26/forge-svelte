@@ -133,6 +133,104 @@ export type ProfileUpdatedPayload = {
 
 export type ProfileUpdatedEvent = DomainEvent<'PROFILE_UPDATED', ProfileUpdatedPayload>;
 
+// Project Events
+
+export type ProjectCreatedPayload = {
+  projectId: string;
+  classroomId: string;
+  name: string;
+  description: string | null;
+  visibility: string;
+  createdBy: string;
+  byTeacher: boolean;
+};
+
+export type ProjectCreatedEvent = DomainEvent<'PROJECT_CREATED', ProjectCreatedPayload>;
+
+export type ProjectUpdatedPayload = {
+  projectId: string;
+  classroomId: string;
+  changedFields: string[];
+  updatedBy: string;
+  byTeacher: boolean;
+};
+
+export type ProjectUpdatedEvent = DomainEvent<'PROJECT_UPDATED', ProjectUpdatedPayload>;
+
+export type ProjectArchivedPayload = {
+  projectId: string;
+  classroomId: string;
+  archivedBy: string;
+  byTeacher: boolean;
+};
+
+export type ProjectArchivedEvent = DomainEvent<'PROJECT_ARCHIVED', ProjectArchivedPayload>;
+
+export type ProjectUnarchivedPayload = {
+  projectId: string;
+  classroomId: string;
+  unarchivedBy: string;
+  byTeacher: boolean;
+};
+
+export type ProjectUnarchivedEvent = DomainEvent<'PROJECT_UNARCHIVED', ProjectUnarchivedPayload>;
+
+export type ProjectMemberAddedPayload = {
+  projectId: string;
+  classroomId: string;
+  personId: string;
+  addedBy: string;
+  byTeacher: boolean;
+};
+
+export type ProjectMemberAddedEvent = DomainEvent<
+  'PROJECT_MEMBER_ADDED',
+  ProjectMemberAddedPayload
+>;
+
+export type ProjectMemberRemovedPayload = {
+  projectId: string;
+  classroomId: string;
+  personId: string;
+  removedBy: string;
+  byTeacher: boolean;
+};
+
+export type ProjectMemberRemovedEvent = DomainEvent<
+  'PROJECT_MEMBER_REMOVED',
+  ProjectMemberRemovedPayload
+>;
+
+export type ProjectSubsystemAddedPayload = {
+  projectId: string;
+  classroomId: string;
+  subsystemId: string;
+  name: string;
+  addedBy: string;
+  byTeacher: boolean;
+};
+
+export type ProjectSubsystemAddedEvent = DomainEvent<
+  'PROJECT_SUBSYSTEM_ADDED',
+  ProjectSubsystemAddedPayload
+>;
+
+export type HandoffSubmittedPayload = {
+  handoffId: string;
+  projectId: string;
+  classroomId: string;
+  sessionId: string | null;
+  authorId: string;
+  whatIDid: string;
+  whatsNext: string | null;
+  blockers: string | null;
+  questions: string | null;
+  subsystemIds: string[];
+  byTeacher: boolean;
+};
+
+export type HandoffSubmittedEvent = DomainEvent<'HANDOFF_SUBMITTED', HandoffSubmittedPayload>;
+
 // Union type of all events
 
 export type ForgeEvent =
@@ -145,7 +243,15 @@ export type ForgeEvent =
   | HelpUnclaimedEvent
   | HelpResolvedEvent
   | HelpCancelledEvent
-  | ProfileUpdatedEvent;
+  | ProfileUpdatedEvent
+  | ProjectCreatedEvent
+  | ProjectUpdatedEvent
+  | ProjectArchivedEvent
+  | ProjectUnarchivedEvent
+  | ProjectMemberAddedEvent
+  | ProjectMemberRemovedEvent
+  | ProjectSubsystemAddedEvent
+  | HandoffSubmittedEvent;
 
 export type EventType = ForgeEvent['type'];
 

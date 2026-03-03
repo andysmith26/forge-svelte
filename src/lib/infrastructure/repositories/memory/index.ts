@@ -7,4 +7,5 @@ export { MemoryPresenceRepository } from './MemoryPresenceRepository';
 export { MemoryHelpRepository } from './MemoryHelpRepository';
 export { MemoryNinjaRepository } from './MemoryNinjaRepository';
 export { MemoryRealtimeNotificationRepository } from './MemoryRealtimeNotificationRepository';
+export { MemoryProjectRepository } from './MemoryProjectRepository';
 export { MemoryEventStore } from './MemoryEventStore';

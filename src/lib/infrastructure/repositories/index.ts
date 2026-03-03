@@ -6,3 +6,4 @@ export { PrismaNinjaRepository } from './PrismaNinjaRepository';
 export { PrismaPersonRepository } from './PrismaPersonRepository';
 export { PrismaPinRepository } from './PrismaPinRepository';
 export { PrismaRealtimeNotificationRepository } from './PrismaRealtimeNotificationRepository';
+export { PrismaProjectRepository } from './PrismaProjectRepository';

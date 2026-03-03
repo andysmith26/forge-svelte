@@ -23,5 +23,21 @@ export type {
   HelpCancelledEvent,
   HelpCancelledPayload,
   ProfileUpdatedEvent,
-  ProfileUpdatedPayload
+  ProfileUpdatedPayload,
+  ProjectCreatedEvent,
+  ProjectCreatedPayload,
+  ProjectUpdatedEvent,
+  ProjectUpdatedPayload,
+  ProjectArchivedEvent,
+  ProjectArchivedPayload,
+  ProjectUnarchivedEvent,
+  ProjectUnarchivedPayload,
+  ProjectMemberAddedEvent,
+  ProjectMemberAddedPayload,
+  ProjectMemberRemovedEvent,
+  ProjectMemberRemovedPayload,
+  ProjectSubsystemAddedEvent,
+  ProjectSubsystemAddedPayload,
+  HandoffSubmittedEvent,
+  HandoffSubmittedPayload
 } from './events';
