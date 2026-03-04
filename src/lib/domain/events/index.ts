@@ -39,5 +39,9 @@ export type {
   ProjectSubsystemAddedEvent,
   ProjectSubsystemAddedPayload,
   HandoffSubmittedEvent,
-  HandoffSubmittedPayload
+  HandoffSubmittedPayload,
+  HandoffResponseAddedEvent,
+  HandoffResponseAddedPayload,
+  HandoffItemResolvedEvent,
+  HandoffItemResolvedPayload
 } from './events';

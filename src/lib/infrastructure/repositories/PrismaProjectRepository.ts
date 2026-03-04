@@ -8,7 +8,10 @@ import type {
   HandoffWithRelations,
   HandoffReadStatusRecord,
   ProjectListItem,
-  ProjectWithMembers
+  ProjectWithMembers,
+  HandoffResponseWithAuthor,
+  HandoffItemResolutionWithResolver,
+  UnresolvedItem
 } from '$lib/application/ports/ProjectRepository';
 
 export class PrismaProjectRepository implements ProjectRepository {
@@ -330,5 +333,172 @@ export class PrismaProjectRepository implements ProjectRepository {
     }
 
     return map;
+  }
+
+  // -- Responses --
+
+  async listResponsesForHandoff(
+    handoffId: string,
+    itemType: 'blocker' | 'question'
+  ): Promise<HandoffResponseWithAuthor[]> {
+    const responses = await this.db.handoffResponse.findMany({
+      where: { handoffId, itemType },
+      include: { author: { select: { id: true, displayName: true } } },
+      orderBy: { createdAt: 'asc' }
+    });
+    return responses.map((r) => ({
+      id: r.id,
+      handoffId: r.handoffId,
+      itemType: r.itemType as 'blocker' | 'question',
+      authorId: r.authorId,
+      content: r.content,
+      createdAt: r.createdAt,
+      author: r.author
+    }));
+  }
+
+  // -- Resolutions --
+
+  async getResolution(
+    handoffId: string,
+    itemType: 'blocker' | 'question'
+  ): Promise<HandoffItemResolutionWithResolver | null> {
+    const resolution = await this.db.handoffItemResolution.findUnique({
+      where: { handoffId_itemType: { handoffId, itemType } },
+      include: { resolvedBy: { select: { id: true, displayName: true } } }
+    });
+    if (!resolution) return null;
+    return {
+      id: resolution.id,
+      handoffId: resolution.handoffId,
+      itemType: resolution.itemType as 'blocker' | 'question',
+      resolvedById: resolution.resolvedById,
+      note: resolution.note,
+      createdAt: resolution.createdAt,
+      resolvedBy: resolution.resolvedBy
+    };
+  }
+
+  async getResolutionsForHandoffs(
+    handoffIds: string[]
+  ): Promise<Map<string, HandoffItemResolutionWithResolver[]>> {
+    if (handoffIds.length === 0) return new Map();
+    const resolutions = await this.db.handoffItemResolution.findMany({
+      where: { handoffId: { in: handoffIds } },
+      include: { resolvedBy: { select: { id: true, displayName: true } } }
+    });
+    const map = new Map<string, HandoffItemResolutionWithResolver[]>();
+    for (const r of resolutions) {
+      const key = r.handoffId;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push({
+        id: r.id,
+        handoffId: r.handoffId,
+        itemType: r.itemType as 'blocker' | 'question',
+        resolvedById: r.resolvedById,
+        note: r.note,
+        createdAt: r.createdAt,
+        resolvedBy: r.resolvedBy
+      });
+    }
+    return map;
+  }
+
+  // -- Unresolved Items --
+
+  async listUnresolvedItems(projectId: string): Promise<UnresolvedItem[]> {
+    const handoffs = await this.db.handoff.findMany({
+      where: {
+        projectId,
+        OR: [{ blockers: { not: null } }, { questions: { not: null } }]
+      },
+      include: {
+        author: { select: { id: true, displayName: true } },
+        resolutions: true,
+        responses: { select: { id: true, itemType: true } },
+        project: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const items: UnresolvedItem[] = [];
+    for (const h of handoffs) {
+      const resolvedTypes = new Set(h.resolutions.map((r) => r.itemType));
+      if (h.blockers && !resolvedTypes.has('blocker')) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: h.project.name,
+          itemType: 'blocker',
+          content: h.blockers,
+          authorId: h.authorId,
+          authorName: h.author.displayName,
+          createdAt: h.createdAt,
+          responseCount: h.responses.filter((r) => r.itemType === 'blocker').length
+        });
+      }
+      if (h.questions && !resolvedTypes.has('question')) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: h.project.name,
+          itemType: 'question',
+          content: h.questions,
+          authorId: h.authorId,
+          authorName: h.author.displayName,
+          createdAt: h.createdAt,
+          responseCount: h.responses.filter((r) => r.itemType === 'question').length
+        });
+      }
+    }
+    return items;
+  }
+
+  async listUnresolvedItemsBySchool(schoolId: string): Promise<UnresolvedItem[]> {
+    const handoffs = await this.db.handoff.findMany({
+      where: {
+        project: { schoolId, isArchived: false },
+        OR: [{ blockers: { not: null } }, { questions: { not: null } }]
+      },
+      include: {
+        author: { select: { id: true, displayName: true } },
+        resolutions: true,
+        responses: { select: { id: true, itemType: true } },
+        project: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const items: UnresolvedItem[] = [];
+    for (const h of handoffs) {
+      const resolvedTypes = new Set(h.resolutions.map((r) => r.itemType));
+      if (h.blockers && !resolvedTypes.has('blocker')) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: h.project.name,
+          itemType: 'blocker',
+          content: h.blockers,
+          authorId: h.authorId,
+          authorName: h.author.displayName,
+          createdAt: h.createdAt,
+          responseCount: h.responses.filter((r) => r.itemType === 'blocker').length
+        });
+      }
+      if (h.questions && !resolvedTypes.has('question')) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: h.project.name,
+          itemType: 'question',
+          content: h.questions,
+          authorId: h.authorId,
+          authorName: h.author.displayName,
+          createdAt: h.createdAt,
+          responseCount: h.responses.filter((r) => r.itemType === 'question').length
+        });
+      }
+    }
+    return items;
   }
 }

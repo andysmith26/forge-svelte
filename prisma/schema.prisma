@@ -55,6 +55,11 @@ enum ProjectVisibility {
   members_only
 }
 
+enum HandoffItemType {
+  blocker
+  question
+}
+
 // ============================================================================
 // CORE ENTITIES
 // ============================================================================
@@ -136,9 +141,11 @@ model Person {
   claimedHelpRequests HelpRequest[]         @relation("HelpClaimer")
   projectsCreated     Project[]             @relation("ProjectCreator")
   projectMemberships  ProjectMembership[]
-  handoffs            Handoff[]
-  handoffReadStatuses HandoffReadStatus[]
-  domainEvents        DomainEvent[]
+  handoffs               Handoff[]
+  handoffReadStatuses    HandoffReadStatus[]
+  handoffResponses       HandoffResponse[]
+  handoffItemResolutions HandoffItemResolution[] @relation("handoffItemResolutions")
+  domainEvents           DomainEvent[]
 
   @@map("people")
 }
@@ -453,10 +460,12 @@ model Handoff {
   questions String?
   createdAt DateTime @default(now()) @map("created_at")
 
-  project           Project            @relation(fields: [projectId], references: [id])
-  author            Person             @relation(fields: [authorId], references: [id])
-  session           ClassSession?      @relation(fields: [sessionId], references: [id])
+  project           Project                @relation(fields: [projectId], references: [id])
+  author            Person                 @relation(fields: [authorId], references: [id])
+  session           ClassSession?          @relation(fields: [sessionId], references: [id])
   handoffSubsystems HandoffSubsystem[]
+  responses         HandoffResponse[]
+  resolutions       HandoffItemResolution[]
 
   @@index([projectId, createdAt(sort: Desc)])
   @@map("handoffs")
@@ -484,6 +493,36 @@ model HandoffReadStatus {
 
   @@unique([projectId, personId])
   @@map("handoff_read_statuses")
+}
+
+model HandoffResponse {
+  id        String          @id @default(cuid())
+  handoffId String          @map("handoff_id")
+  itemType  HandoffItemType @map("item_type")
+  authorId  String          @map("author_id")
+  content   String
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  handoff Handoff @relation(fields: [handoffId], references: [id])
+  author  Person  @relation(fields: [authorId], references: [id])
+
+  @@index([handoffId, itemType, createdAt])
+  @@map("handoff_responses")
+}
+
+model HandoffItemResolution {
+  id           String          @id @default(cuid())
+  handoffId    String          @map("handoff_id")
+  itemType     HandoffItemType @map("item_type")
+  resolvedById String          @map("resolved_by_id")
+  note         String?
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  handoff    Handoff @relation(fields: [handoffId], references: [id])
+  resolvedBy Person  @relation("handoffItemResolutions", fields: [resolvedById], references: [id])
+
+  @@unique([handoffId, itemType])
+  @@map("handoff_item_resolutions")
 }
 
 // ============================================================================

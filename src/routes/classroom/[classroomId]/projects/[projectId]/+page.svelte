@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { PageData } from './$types';
+  import { SvelteSet } from 'svelte/reactivity';
   import Button from '$lib/components/ui/Button.svelte';
 
   const { data }: { data: PageData } = $props();
 
   const isTeacher = $derived(data.membership.role === 'teacher');
   const isMember = $derived(data.isMember);
+  const canInteract = $derived((isMember || isTeacher) && !data.project.isArchived);
   const activeMembers = $derived(data.project.members.filter((m) => m.isActive));
 
   let showEditForm = $state(false);
@@ -21,6 +23,18 @@
   let handoffWhatsNext = $state('');
   let handoffBlockers = $state('');
   let handoffQuestions = $state('');
+
+  // Track which response forms are open: `${handoffId}-${itemType}`
+  let openResponseForms = new SvelteSet<string>();
+
+  function toggleResponseForm(handoffId: string, itemType: string) {
+    const key = `${handoffId}-${itemType}`;
+    if (openResponseForms.has(key)) {
+      openResponseForms.delete(key);
+    } else {
+      openResponseForms.add(key);
+    }
+  }
 </script>
 
 <div class="space-y-6">
@@ -52,8 +66,45 @@
     <p class="text-sm text-gray-600">{data.project.description}</p>
   {/if}
 
+  <!-- Unresolved Items Summary -->
+  {#if canInteract && data.unresolvedItems.length > 0}
+    <section class="rounded-lg border border-orange-200 bg-orange-50 p-4">
+      <h2 class="mb-2 text-sm font-semibold text-orange-800">
+        Unresolved ({data.unresolvedItems.length})
+      </h2>
+      <div class="space-y-2">
+        {#each data.unresolvedItems as item (item.handoffId + item.itemType)}
+          <a
+            href="#{item.handoffId}"
+            class="hover:bg-orange-25 block rounded-md bg-white p-2 text-sm shadow-sm transition-colors"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="rounded-full px-1.5 py-0.5 text-xs font-medium {item.itemType === 'blocker'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-amber-100 text-amber-700'}"
+              >
+                {item.itemType === 'blocker' ? 'Blocker' : 'Question'}
+              </span>
+              <span class="truncate text-gray-700">{item.content}</span>
+            </div>
+            <div class="mt-1 flex items-center gap-2 text-xs text-gray-400">
+              <span>{item.authorName}</span>
+              <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+              {#if item.responseCount > 0}
+                <span>
+                  {item.responseCount} response{item.responseCount !== 1 ? 's' : ''}
+                </span>
+              {/if}
+            </div>
+          </a>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
   <!-- Edit project (member or teacher) -->
-  {#if (isMember || isTeacher) && !data.project.isArchived}
+  {#if canInteract}
     <div>
       <Button size="sm" variant="secondary" onclick={() => (showEditForm = !showEditForm)}>
         {showEditForm ? 'Cancel Edit' : 'Edit Project'}
@@ -125,7 +176,7 @@
   {/if}
 
   <!-- Handoff Form (member or teacher, not archived) -->
-  {#if (isMember || isTeacher) && !data.project.isArchived}
+  {#if canInteract}
     <section>
       <Button onclick={() => (showHandoffForm = !showHandoffForm)}>
         {showHandoffForm ? 'Cancel' : 'Write Handoff'}
@@ -254,7 +305,7 @@
     {:else}
       <div class="space-y-4">
         {#each data.handoffs as handoff (handoff.id)}
-          <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div id={handoff.id} class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-2">
                 <span class="font-medium text-gray-900">{handoff.author.displayName}</span>
@@ -288,21 +339,187 @@
                 </div>
               {/if}
 
+              <!-- Blocker with responses and resolution -->
               {#if handoff.blockers}
-                <div class="rounded-md border border-red-100 bg-red-50 p-2">
-                  <p class="text-xs font-medium text-red-600 uppercase">Blockers</p>
-                  <p class="mt-0.5 text-sm whitespace-pre-wrap text-red-700">
+                <div
+                  class="rounded-md border p-2 {handoff.blockerResolution
+                    ? 'border-green-100 bg-green-50'
+                    : 'border-red-100 bg-red-50'}"
+                >
+                  <div class="flex items-center justify-between">
+                    <p
+                      class="text-xs font-medium uppercase {handoff.blockerResolution
+                        ? 'text-green-600'
+                        : 'text-red-600'}"
+                    >
+                      {handoff.blockerResolution ? 'Blocker (resolved)' : 'Blocker'}
+                    </p>
+                    {#if handoff.blockerResolution}
+                      <span class="text-xs text-green-600">
+                        Resolved by {handoff.blockerResolution.resolvedBy.displayName}
+                      </span>
+                    {/if}
+                  </div>
+                  <p
+                    class="mt-0.5 text-sm whitespace-pre-wrap {handoff.blockerResolution
+                      ? 'text-green-700'
+                      : 'text-red-700'}"
+                  >
                     {handoff.blockers}
                   </p>
+                  {#if handoff.blockerResolution?.note}
+                    <p class="mt-1 text-xs text-green-600 italic">
+                      {handoff.blockerResolution.note}
+                    </p>
+                  {/if}
+
+                  <!-- Blocker responses -->
+                  {#if handoff.blockerResponses.length > 0}
+                    <div class="mt-2 space-y-1 border-t border-red-100 pt-2">
+                      {#each handoff.blockerResponses as response (response.id)}
+                        <div class="text-xs">
+                          <span class="font-medium text-gray-700">
+                            {response.author.displayName}
+                          </span>
+                          <span class="text-gray-400">
+                            {new Date(response.createdAt).toLocaleString()}
+                          </span>
+                          <p class="mt-0.5 whitespace-pre-wrap text-gray-600">
+                            {response.content}
+                          </p>
+                        </div>
+                      {/each}
+                    </div>
+                  {/if}
+
+                  <!-- Add response / Resolve (only if not resolved and can interact) -->
+                  {#if canInteract && !handoff.blockerResolution}
+                    <div class="mt-2 flex gap-2 border-t border-red-100 pt-2">
+                      <button
+                        type="button"
+                        class="text-xs text-gray-500 hover:text-gray-700"
+                        onclick={() => toggleResponseForm(handoff.id, 'blocker')}
+                      >
+                        Respond
+                      </button>
+                      <form method="POST" action="?/resolveItem" class="inline">
+                        <input type="hidden" name="handoffId" value={handoff.id} />
+                        <input type="hidden" name="itemType" value="blocker" />
+                        <button type="submit" class="text-xs text-green-600 hover:text-green-800">
+                          Resolve
+                        </button>
+                      </form>
+                    </div>
+                    {#if openResponseForms.has(`${handoff.id}-blocker`)}
+                      <form method="POST" action="?/addResponse" class="mt-2">
+                        <input type="hidden" name="handoffId" value={handoff.id} />
+                        <input type="hidden" name="itemType" value="blocker" />
+                        <textarea
+                          name="content"
+                          rows={2}
+                          maxlength={500}
+                          required
+                          class="block w-full rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
+                          placeholder="Write a response..."
+                        ></textarea>
+                        <div class="mt-1 flex justify-end">
+                          <Button type="submit" size="sm">Send</Button>
+                        </div>
+                      </form>
+                    {/if}
+                  {/if}
                 </div>
               {/if}
 
+              <!-- Question with responses and resolution -->
               {#if handoff.questions}
-                <div class="rounded-md border border-amber-100 bg-amber-50 p-2">
-                  <p class="text-xs font-medium text-amber-600 uppercase">Questions</p>
-                  <p class="mt-0.5 text-sm whitespace-pre-wrap text-amber-700">
+                <div
+                  class="rounded-md border p-2 {handoff.questionResolution
+                    ? 'border-green-100 bg-green-50'
+                    : 'border-amber-100 bg-amber-50'}"
+                >
+                  <div class="flex items-center justify-between">
+                    <p
+                      class="text-xs font-medium uppercase {handoff.questionResolution
+                        ? 'text-green-600'
+                        : 'text-amber-600'}"
+                    >
+                      {handoff.questionResolution ? 'Question (answered)' : 'Question'}
+                    </p>
+                    {#if handoff.questionResolution}
+                      <span class="text-xs text-green-600">
+                        Resolved by {handoff.questionResolution.resolvedBy.displayName}
+                      </span>
+                    {/if}
+                  </div>
+                  <p
+                    class="mt-0.5 text-sm whitespace-pre-wrap {handoff.questionResolution
+                      ? 'text-green-700'
+                      : 'text-amber-700'}"
+                  >
                     {handoff.questions}
                   </p>
+                  {#if handoff.questionResolution?.note}
+                    <p class="mt-1 text-xs text-green-600 italic">
+                      {handoff.questionResolution.note}
+                    </p>
+                  {/if}
+
+                  <!-- Question responses -->
+                  {#if handoff.questionResponses.length > 0}
+                    <div class="mt-2 space-y-1 border-t border-amber-100 pt-2">
+                      {#each handoff.questionResponses as response (response.id)}
+                        <div class="text-xs">
+                          <span class="font-medium text-gray-700">
+                            {response.author.displayName}
+                          </span>
+                          <span class="text-gray-400">
+                            {new Date(response.createdAt).toLocaleString()}
+                          </span>
+                          <p class="mt-0.5 whitespace-pre-wrap text-gray-600">
+                            {response.content}
+                          </p>
+                        </div>
+                      {/each}
+                    </div>
+                  {/if}
+
+                  <!-- Add response / Resolve (only if not resolved and can interact) -->
+                  {#if canInteract && !handoff.questionResolution}
+                    <div class="mt-2 flex gap-2 border-t border-amber-100 pt-2">
+                      <button
+                        type="button"
+                        class="text-xs text-gray-500 hover:text-gray-700"
+                        onclick={() => toggleResponseForm(handoff.id, 'question')}
+                      >
+                        Respond
+                      </button>
+                      <form method="POST" action="?/resolveItem" class="inline">
+                        <input type="hidden" name="handoffId" value={handoff.id} />
+                        <input type="hidden" name="itemType" value="question" />
+                        <button type="submit" class="text-xs text-green-600 hover:text-green-800">
+                          Resolve
+                        </button>
+                      </form>
+                    </div>
+                    {#if openResponseForms.has(`${handoff.id}-question`)}
+                      <form method="POST" action="?/addResponse" class="mt-2">
+                        <input type="hidden" name="handoffId" value={handoff.id} />
+                        <input type="hidden" name="itemType" value="question" />
+                        <textarea
+                          name="content"
+                          rows={2}
+                          maxlength={500}
+                          required
+                          class="block w-full rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:border-forge-blue focus:ring-1 focus:ring-forge-blue focus:outline-none"
+                          placeholder="Write a response..."
+                        ></textarea>
+                        <div class="mt-1 flex justify-end">
+                          <Button type="submit" size="sm">Send</Button>
+                        </div>
+                      </form>
+                    {/if}
+                  {/if}
                 </div>
               {/if}
             </div>
@@ -313,7 +530,7 @@
   </section>
 
   <!-- Subsystems -->
-  {#if (isMember || isTeacher) && !data.project.isArchived}
+  {#if canInteract}
     <section>
       <h2 class="mb-3 text-lg font-semibold text-gray-900">
         Subsystems ({data.subsystems.length})
@@ -380,7 +597,7 @@
     </div>
 
     <!-- Add member (member or teacher, not archived) -->
-    {#if (isMember || isTeacher) && !data.project.isArchived && data.schoolStudents.length > 0}
+    {#if canInteract && data.schoolStudents.length > 0}
       <div class="mt-4 rounded-lg border border-gray-200 bg-white p-4">
         <h3 class="mb-2 text-sm font-medium text-gray-700">Add a Member</h3>
         <form method="POST" action="?/addMember" class="flex items-end gap-2">

@@ -182,6 +182,43 @@
   {/if}
 
   {#if isTeacher}
+    {#if data.unresolvedItems && data.unresolvedItems.length > 0}
+      <section class="rounded-lg border border-orange-200 bg-orange-50 p-4">
+        <h2 class="mb-3 text-lg font-semibold text-orange-800">
+          Unresolved Blockers & Questions ({data.unresolvedItems.length})
+        </h2>
+        <div class="space-y-2">
+          {#each data.unresolvedItems as item (item.handoffId + item.itemType)}
+            <a
+              href="/classroom/{data.classroom.id}/projects/{item.projectId}#{item.handoffId}"
+              class="hover:bg-orange-25 block rounded-md bg-white p-3 shadow-sm transition-colors"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="rounded-full px-1.5 py-0.5 text-xs font-medium {item.itemType === 'blocker'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-amber-100 text-amber-700'}"
+                >
+                  {item.itemType === 'blocker' ? 'Blocker' : 'Question'}
+                </span>
+                <span class="text-sm font-medium text-gray-700">{item.projectName}</span>
+              </div>
+              <p class="mt-1 line-clamp-2 text-sm text-gray-600">{item.content}</p>
+              <div class="mt-1 flex items-center gap-2 text-xs text-gray-400">
+                <span>{item.authorName}</span>
+                <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                {#if item.responseCount > 0}
+                  <span>
+                    {item.responseCount} response{item.responseCount !== 1 ? 's' : ''}
+                  </span>
+                {/if}
+              </div>
+            </a>
+          {/each}
+        </div>
+      </section>
+    {/if}
+
     <section>
       <h2 class="mb-3 text-lg font-semibold text-gray-900">Teacher Actions</h2>
       <p class="text-sm text-gray-500">

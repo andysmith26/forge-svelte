@@ -7,7 +7,10 @@ import type {
   HandoffWithRelations,
   HandoffReadStatusRecord,
   ProjectListItem,
-  ProjectWithMembers
+  ProjectWithMembers,
+  HandoffResponseWithAuthor,
+  HandoffItemResolutionWithResolver,
+  UnresolvedItem
 } from '$lib/application/ports/ProjectRepository';
 import type { IdGenerator } from '$lib/application/ports';
 import type { MemoryStore } from './MemoryStore';
@@ -259,6 +262,115 @@ export class MemoryProjectRepository implements ProjectRepository {
       map.set(id, await this.countUnread(id, personId));
     }
     return map;
+  }
+
+  // -- Responses --
+
+  async listResponsesForHandoff(
+    handoffId: string,
+    itemType: 'blocker' | 'question'
+  ): Promise<HandoffResponseWithAuthor[]> {
+    return [...this.store.handoffResponses.values()]
+      .filter((r) => r.handoffId === handoffId && r.itemType === itemType)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .map((r) => {
+        const person = this.store.persons.get(r.authorId);
+        return {
+          ...r,
+          author: { id: r.authorId, displayName: person?.displayName ?? 'Unknown' }
+        };
+      });
+  }
+
+  // -- Resolutions --
+
+  async getResolution(
+    handoffId: string,
+    itemType: 'blocker' | 'question'
+  ): Promise<HandoffItemResolutionWithResolver | null> {
+    const key = `${handoffId}:${itemType}`;
+    const resolution = this.store.handoffItemResolutions.get(key);
+    if (!resolution) return null;
+    const person = this.store.persons.get(resolution.resolvedById);
+    return {
+      ...resolution,
+      resolvedBy: { id: resolution.resolvedById, displayName: person?.displayName ?? 'Unknown' }
+    };
+  }
+
+  async getResolutionsForHandoffs(
+    handoffIds: string[]
+  ): Promise<Map<string, HandoffItemResolutionWithResolver[]>> {
+    const map = new Map<string, HandoffItemResolutionWithResolver[]>();
+    for (const r of this.store.handoffItemResolutions.values()) {
+      if (handoffIds.includes(r.handoffId)) {
+        if (!map.has(r.handoffId)) map.set(r.handoffId, []);
+        const person = this.store.persons.get(r.resolvedById);
+        map.get(r.handoffId)!.push({
+          ...r,
+          resolvedBy: { id: r.resolvedById, displayName: person?.displayName ?? 'Unknown' }
+        });
+      }
+    }
+    return map;
+  }
+
+  // -- Unresolved Items --
+
+  async listUnresolvedItems(projectId: string): Promise<UnresolvedItem[]> {
+    const handoffs = [...this.store.handoffs.values()]
+      .filter((h) => h.projectId === projectId && (h.blockers !== null || h.questions !== null))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const items: UnresolvedItem[] = [];
+    for (const h of handoffs) {
+      const project = this.store.projects.get(h.projectId);
+      const author = this.store.persons.get(h.authorId);
+      if (h.blockers && !this.store.handoffItemResolutions.has(`${h.id}:blocker`)) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: project?.name ?? 'Unknown',
+          itemType: 'blocker',
+          content: h.blockers,
+          authorId: h.authorId,
+          authorName: author?.displayName ?? 'Unknown',
+          createdAt: h.createdAt,
+          responseCount: [...this.store.handoffResponses.values()].filter(
+            (r) => r.handoffId === h.id && r.itemType === 'blocker'
+          ).length
+        });
+      }
+      if (h.questions && !this.store.handoffItemResolutions.has(`${h.id}:question`)) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: project?.name ?? 'Unknown',
+          itemType: 'question',
+          content: h.questions,
+          authorId: h.authorId,
+          authorName: author?.displayName ?? 'Unknown',
+          createdAt: h.createdAt,
+          responseCount: [...this.store.handoffResponses.values()].filter(
+            (r) => r.handoffId === h.id && r.itemType === 'question'
+          ).length
+        });
+      }
+    }
+    return items;
+  }
+
+  async listUnresolvedItemsBySchool(schoolId: string): Promise<UnresolvedItem[]> {
+    const projectIds = [...this.store.projects.values()]
+      .filter((p) => p.schoolId === schoolId && !p.isArchived)
+      .map((p) => p.id);
+
+    const allItems: UnresolvedItem[] = [];
+    for (const pid of projectIds) {
+      const items = await this.listUnresolvedItems(pid);
+      allItems.push(...items);
+    }
+    return allItems.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   // -- Helpers --

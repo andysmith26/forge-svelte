@@ -11,14 +11,21 @@ export const DEMO_CLASSROOM_CODE_2 = 'DEMO02';
 
 // ---------------------------------------------------------------------------
 // Scenario: "Falcon Forge" school, 8 weeks into the semester.
-// Two classrooms:
-//   Period 3 (morning, 9:00–10:30, code DEMO01) — 10 students
-//   Period 5 (afternoon, 1:00–2:30, code DEMO02) — 10 students
+// Two classrooms, same school:
+//   Period 3 (morning, 9:00–10:30, code DEMO01) — 16 students
+//   Period 5 (afternoon, 1:00–2:30, code DEMO02) — 16 students
 //   2 students attend both (flexible helpers)
 //
 // Ms. Ramirez teaches both classes.
 // Projects are school-scoped — the same physical build gets worked on by
 // morning and afternoon students. Handoffs flow across class periods.
+//
+// Project variety:
+//   - Stable group projects (consistent team, long-running)
+//   - Solo projects (one kid working independently)
+//   - Loose/fluid groups (people float in and out)
+//   - One completed/archived project
+//   - One stale project (no recent handoffs)
 // ---------------------------------------------------------------------------
 
 // --- Helpers ---------------------------------------------------------------
@@ -46,7 +53,7 @@ const TEACHER = {
   themeColor: '#6366f1'
 };
 
-// Period 3 only (morning)
+// Period 3 only (morning) — 14 students + 2 BOTH = 16
 const P3_STUDENTS = [
   {
     id: 'demo-student-001',
@@ -135,10 +142,76 @@ const P3_STUDENTS = [
     theme: '#f97316',
     askMe: ['Arduino', 'sensors'],
     workingOn: 'Weather station sensors'
+  },
+  {
+    id: 'demo-student-019',
+    name: 'Haruto Tanaka',
+    display: 'Haruto',
+    grade: '4',
+    pin: '5050',
+    pronouns: 'he/him',
+    theme: '#0369a1',
+    askMe: ['Lego', 'building'],
+    workingOn: 'Marble run chain lift'
+  },
+  {
+    id: 'demo-student-020',
+    name: 'Fatima Al-Rashid',
+    display: 'Fatima',
+    grade: '5',
+    pin: '6060',
+    pronouns: 'she/her',
+    theme: '#be185d',
+    askMe: ['micro:bit', 'coding'],
+    workingOn: 'Sound-reactive LED panel'
+  },
+  {
+    id: 'demo-student-021',
+    name: 'Diego Morales',
+    display: 'Diego',
+    grade: '4',
+    pin: '7070',
+    pronouns: 'he/him',
+    theme: '#059669',
+    askMe: [],
+    workingOn: null
+  },
+  {
+    id: 'demo-student-022',
+    name: 'Anya Petrov',
+    display: 'Anya',
+    grade: '5',
+    pin: '8080',
+    pronouns: 'she/her',
+    theme: '#7c3aed',
+    askMe: ['drawing', 'painting'],
+    workingOn: 'Mini greenhouse sensor box'
+  },
+  {
+    id: 'demo-student-023',
+    name: 'Jayden Brooks',
+    display: 'Jayden',
+    grade: '5',
+    pin: '9090',
+    pronouns: 'he/him',
+    theme: '#dc2626',
+    askMe: ['woodworking', 'tools'],
+    workingOn: 'Pinball machine'
+  },
+  {
+    id: 'demo-student-024',
+    name: 'Mila Kowalczyk',
+    display: 'Mila',
+    grade: '4',
+    pin: '1122',
+    pronouns: 'she/her',
+    theme: '#0891b2',
+    askMe: [],
+    workingOn: null
   }
 ];
 
-// Period 5 only (afternoon)
+// Period 5 only (afternoon) — 14 students + 2 BOTH = 16
 const P5_STUDENTS = [
   {
     id: 'demo-student-009',
@@ -227,6 +300,72 @@ const P5_STUDENTS = [
     theme: '#f43f5e',
     askMe: ['drawing'],
     workingOn: null
+  },
+  {
+    id: 'demo-student-025',
+    name: 'Obi Adeyemi',
+    display: 'Obi',
+    grade: '5',
+    pin: '3344',
+    pronouns: 'he/him',
+    theme: '#b45309',
+    askMe: ['electronics', 'Arduino'],
+    workingOn: 'Automatic plant waterer'
+  },
+  {
+    id: 'demo-student-026',
+    name: 'Sofia Reyes',
+    display: 'Sofia',
+    grade: '4',
+    pin: '4455',
+    pronouns: 'she/her',
+    theme: '#9333ea',
+    askMe: [],
+    workingOn: 'Cardboard pinball bumpers'
+  },
+  {
+    id: 'demo-student-027',
+    name: 'Amir Johal',
+    display: 'Amir',
+    grade: '5',
+    pin: '5566',
+    pronouns: 'he/him',
+    theme: '#16a34a',
+    askMe: ['3D printing'],
+    workingOn: 'Custom phone stand'
+  },
+  {
+    id: 'demo-student-028',
+    name: 'Iris Chang',
+    display: 'Iris',
+    grade: '5',
+    pin: '6677',
+    pronouns: 'she/her',
+    theme: '#ea580c',
+    askMe: ['sewing', 'circuits'],
+    workingOn: null
+  },
+  {
+    id: 'demo-student-029',
+    name: 'Theo Larsson',
+    display: 'Theo',
+    grade: '4',
+    pin: '7788',
+    pronouns: 'he/him',
+    theme: '#0284c7',
+    askMe: [],
+    workingOn: 'Marble run testing'
+  },
+  {
+    id: 'demo-student-030',
+    name: 'Wren Nakamura',
+    display: 'Wren',
+    grade: '5',
+    pin: '8899',
+    pronouns: 'they/them',
+    theme: '#c026d3',
+    askMe: ['design', 'laser cutter'],
+    workingOn: 'Wooden puzzle box'
   }
 ];
 
@@ -259,8 +398,8 @@ const BOTH_STUDENTS = [
 const ALL_STUDENTS = [...P3_STUDENTS, ...P5_STUDENTS, ...BOTH_STUDENTS];
 
 // Students in each classroom
-const P3_ALL = [...P3_STUDENTS, ...BOTH_STUDENTS]; // 10 students in Period 3
-const P5_ALL = [...P5_STUDENTS, ...BOTH_STUDENTS]; // 10 students in Period 5
+const P3_ALL = [...P3_STUDENTS, ...BOTH_STUDENTS]; // 16 students in Period 3
+const P5_ALL = [...P5_STUDENTS, ...BOTH_STUDENTS]; // 16 students in Period 5
 
 // ---------------------------------------------------------------------------
 // seedData
@@ -450,7 +589,10 @@ export async function seedDemoData(
     { studentId: 'demo-student-008', ninjaDomainId: 'ninja-005' },
     { studentId: 'demo-student-007', ninjaDomainId: 'ninja-004' },
     { studentId: 'demo-student-017', ninjaDomainId: 'ninja-001' },
-    { studentId: 'demo-student-017', ninjaDomainId: 'ninja-006' }
+    { studentId: 'demo-student-017', ninjaDomainId: 'ninja-006' },
+    { studentId: 'demo-student-020', ninjaDomainId: 'ninja-003' },
+    { studentId: 'demo-student-023', ninjaDomainId: 'ninja-004' },
+    { studentId: 'demo-student-022', ninjaDomainId: 'ninja-006' }
   ];
   for (const a of p3NinjaAssignments) {
     const id = uid('na');
@@ -472,7 +614,10 @@ export async function seedDemoData(
     { studentId: 'demo-student-013', ninjaDomainId: 'ninja-004-p5' },
     { studentId: 'demo-student-015', ninjaDomainId: 'ninja-005-p5' },
     { studentId: 'demo-student-015', ninjaDomainId: 'ninja-002-p5' },
-    { studentId: 'demo-student-018', ninjaDomainId: 'ninja-003-p5' }
+    { studentId: 'demo-student-018', ninjaDomainId: 'ninja-003-p5' },
+    { studentId: 'demo-student-025', ninjaDomainId: 'ninja-005-p5' },
+    { studentId: 'demo-student-027', ninjaDomainId: 'ninja-001-p5' },
+    { studentId: 'demo-student-030', ninjaDomainId: 'ninja-006-p5' }
   ];
   for (const a of p5NinjaAssignments) {
     const id = uid('na');
@@ -534,20 +679,15 @@ export async function seedDemoData(
   }
 
   // =========================================================================
-  // SESSIONS — 12 per classroom (24 total), on matching MWF schedule
+  // SESSIONS — 21 per classroom, on matching MWF schedule
   // =========================================================================
-  // Period 3 sessions: demo-session-p3-001 ... demo-session-p3-012 + active
-  // Period 5 sessions: demo-session-p5-001 ... demo-session-p5-012 + active
 
   type SessionInfo = { id: string; daysAgo: number; num: number; classroomId: string };
   const sessions: SessionInfo[] = [];
 
-  // Schedule: MWF over ~8 weeks = ~24 sessions per classroom
-  // We pick 12 historical + 1 active = 13 each
   const sessionDays = [
     51, 49, 46, 44, 42, 39, 37, 35, 32, 28, 23, 21, 18, 16, 14, 11, 9, 7, 4, 2, 0
   ];
-  // Use first 12 as historical, last one (0) as active for each classroom
 
   // P3 sessions (morning: 9:00–10:30)
   for (let i = 0; i < sessionDays.length; i++) {
@@ -639,9 +779,9 @@ export async function seedDemoData(
     }
   }
 
-  // Today's P3 session: 8 of 10 signed in
+  // Today's P3 session: 13 of 16 signed in
   const todayP3 = p3Sessions.find((s) => s.daysAgo === 0)!;
-  for (const studentId of p3StudentIds.slice(0, 8)) {
+  for (const studentId of p3StudentIds.slice(0, 13)) {
     const signInId = uid('signin');
     const minute = 1 + (simpleHash(studentId) % 7);
     store.signIns.set(signInId, {
@@ -656,9 +796,9 @@ export async function seedDemoData(
     });
   }
 
-  // Today's P5 session: 8 of 10 signed in
+  // Today's P5 session: 14 of 16 signed in
   const todayP5 = p5Sessions.find((s) => s.daysAgo === 0)!;
-  for (const studentId of p5StudentIds.slice(0, 8)) {
+  for (const studentId of p5StudentIds.slice(0, 14)) {
     const signInId = uid('signin');
     const minute = 1 + (simpleHash(studentId) % 7);
     store.signIns.set(signInId, {
@@ -674,12 +814,34 @@ export async function seedDemoData(
   }
 
   // =========================================================================
-  // PROJECTS — 6 school-scoped projects
+  // PROJECTS — 11 school-scoped projects with varied structures
   // =========================================================================
+  //
+  // STABLE GROUPS (consistent teams):
+  //   1. Robo-Falcon — 6 members, cross-classroom flagship (Alex, Maya, Ava, Marcus, Tariq, Nadia)
+  //   2. Weather Station — 3 members, P3+P5 (Zoe, Bella, Ryan)
+  //   3. Pinball Machine — 3 members, P3+P5 (Jayden, Sofia, Liam)
+  //
+  // SOLO PROJECTS:
+  //   4. Wearable LED Vest — Priya solo, stale (no handoffs for 11 days)
+  //   5. Custom Phone Stand — Amir solo P5, active and progressing
+  //   6. Wooden Puzzle Box — Wren solo P5, members_only
+  //
+  // FLUID/FLOATING groups (people drift in and out):
+  //   7. Mega Marble Run — started as Kai+Ethan, Haruto joined, Theo drifts in/out
+  //   8. LED Matrix Art — Jordan started solo, Chloe joined, Fatima helped for a while then left
+  //   9. Mini Greenhouse — Anya started, Diego helped briefly, now Anya+Iris
+  //
+  // COMPLETED:
+  //  10. Desktop Catapult — archived, was Liam+Sam+Noah
+  //
+  // NO PROJECT YET:
+  //  Mila (P3), Luna (P5), Obi (P5 — just started his own thing not formalized),
+  //  Diego (P3 — floated through greenhouse, currently unattached)
 
-  // Project 1: "Robo-Falcon" — the flagship cross-classroom project
-  // Worked on by morning students (Alex, Maya) and afternoon students (Ava, Tariq, Marcus)
-  // Plus Nadia who attends both periods
+  // -----------------------------------------------------------------------
+  // Project 1: "Robo-Falcon" — STABLE GROUP, cross-classroom flagship
+  // -----------------------------------------------------------------------
   const proj1 = 'demo-proj-001';
   store.projects.set(proj1, {
     id: proj1,
@@ -740,9 +902,6 @@ export async function seedDemoData(
   });
 
   // Robo-Falcon handoffs — CROSS-CLASSROOM timeline
-  // Morning (P3) and afternoon (P5) students interleave handoffs
-
-  // Week 2: Alex (P3 morning) starts
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-001',
@@ -755,7 +914,6 @@ export async function seedDemoData(
     subsystems: [sub1a]
   });
 
-  // Same day afternoon: Ava (P5) reads Alex's handoff, picks up
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-010',
@@ -768,7 +926,6 @@ export async function seedDemoData(
     subsystems: [sub1a]
   });
 
-  // Week 3: Maya (P3) works on code
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-004',
@@ -781,7 +938,6 @@ export async function seedDemoData(
     subsystems: [sub1c]
   });
 
-  // Week 3: Marcus (P5) builds chassis
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-013',
@@ -795,7 +951,6 @@ export async function seedDemoData(
     subsystems: [sub1a]
   });
 
-  // Week 4: Alex (P3) assembles
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-001',
@@ -809,7 +964,6 @@ export async function seedDemoData(
     subsystems: [sub1a, sub1b]
   });
 
-  // Week 5: Tariq (P5) wires it up
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-015',
@@ -823,7 +977,6 @@ export async function seedDemoData(
     subsystems: [sub1b, sub1c]
   });
 
-  // Week 5: Maya (P3) gets mirrored movement working
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-004',
@@ -837,7 +990,6 @@ export async function seedDemoData(
     subsystems: [sub1c]
   });
 
-  // Week 6: Nadia (both) joins and works in P5
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-017',
@@ -850,7 +1002,6 @@ export async function seedDemoData(
     subsystems: [sub1b]
   });
 
-  // Week 6: Ava (P5) redesigns chassis
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-010',
@@ -863,7 +1014,6 @@ export async function seedDemoData(
     subsystems: [sub1a]
   });
 
-  // Week 7: Marcus (P5) assembles wings on new chassis
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-013',
@@ -879,7 +1029,6 @@ export async function seedDemoData(
     subsystems: [sub1b]
   });
 
-  // Week 7: Nadia (both) works in P3 morning
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-017',
@@ -893,7 +1042,6 @@ export async function seedDemoData(
     subsystems: [sub1b]
   });
 
-  // Week 8: Maya (P3) adds LED eyes and fixes right wing in code
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-004',
@@ -907,7 +1055,6 @@ export async function seedDemoData(
     subsystems: [sub1b, sub1c]
   });
 
-  // Week 8: Alex (P3) paints
   seedHandoff(store, {
     projectId: proj1,
     authorId: 'demo-student-001',
@@ -921,7 +1068,9 @@ export async function seedDemoData(
     subsystems: [sub1a]
   });
 
-  // Project 2: "Weather Station" — mix of P3 and P5 students
+  // -----------------------------------------------------------------------
+  // Project 2: "Weather Station" — STABLE GROUP, P3+P5 mix
+  // -----------------------------------------------------------------------
   const proj2 = 'demo-proj-002';
   store.projects.set(proj2, {
     id: proj2,
@@ -964,7 +1113,6 @@ export async function seedDemoData(
     isActive: true
   });
 
-  // Weather Station handoffs — Zoe (P3), Bella (P5), Ryan (both)
   seedHandoff(store, {
     projectId: proj2,
     authorId: 'demo-student-008',
@@ -1023,153 +1171,145 @@ export async function seedDemoData(
     subsystems: [sub2a]
   });
 
-  // Project 3: "Mega Marble Run" — mostly P5 students
+  // -----------------------------------------------------------------------
+  // Project 3: "Pinball Machine" — STABLE GROUP, P3+P5
+  // -----------------------------------------------------------------------
   const proj3 = 'demo-proj-003';
   store.projects.set(proj3, {
     id: proj3,
     schoolId: DEMO_SCHOOL_ID,
-    name: 'Mega Marble Run',
+    name: 'Pinball Machine',
     description:
-      'Giant marble run that spans two tables, with jumps, spirals, and a chain lift to bring marbles back to the top.',
+      'A tabletop pinball machine made from wood and cardboard with rubber band flippers, LED scoring, and handmade bumpers.',
     isArchived: false,
     visibility: 'browseable',
-    createdById: 'demo-student-005',
-    createdAt: day(28)
+    createdById: 'demo-student-023',
+    createdAt: day(35)
   });
 
-  for (const pid of ['demo-student-005', 'demo-student-009', 'demo-student-016']) {
+  const sub3a = 'demo-sub-006';
+  const sub3b = 'demo-sub-007';
+  const sub3c = 'demo-sub-008';
+  store.subsystems.set(sub3a, {
+    id: sub3a,
+    projectId: proj3,
+    name: 'Frame & playfield',
+    displayOrder: 1,
+    isActive: true
+  });
+  store.subsystems.set(sub3b, {
+    id: sub3b,
+    projectId: proj3,
+    name: 'Flippers & launcher',
+    displayOrder: 2,
+    isActive: true
+  });
+  store.subsystems.set(sub3c, {
+    id: sub3c,
+    projectId: proj3,
+    name: 'Bumpers & scoring',
+    displayOrder: 3,
+    isActive: true
+  });
+
+  for (const pid of ['demo-student-023', 'demo-student-026', 'demo-student-007']) {
     const pmId = uid('pm');
     store.projectMemberships.set(pmId, {
       id: pmId,
       projectId: proj3,
       personId: pid,
       isActive: true,
-      joinedAt: day(28),
+      joinedAt: pid === 'demo-student-007' ? day(28) : day(35),
       leftAt: null
     });
   }
 
   seedHandoff(store, {
     projectId: proj3,
-    authorId: 'demo-student-005',
+    authorId: 'demo-student-023',
+    sessionId: 'demo-session-p3-008',
+    daysAgo: 35,
+    hour: 10,
+    whatIDid:
+      'Built the frame from scrap plywood — about 60cm x 30cm. Cut side rails and a back wall. Tilted the board with a wooden wedge so the ball rolls down.',
+    whatsNext: 'Need to add the playfield surface. Thinking smooth cardboard or poster board.',
+    subsystems: [sub3a]
+  });
+  seedHandoff(store, {
+    projectId: proj3,
+    authorId: 'demo-student-026',
+    sessionId: 'demo-session-p5-008',
+    daysAgo: 35,
+    hour: 14,
+    whatIDid:
+      'Made bumper prototypes from bottle caps and foam. They bounce the marble okay but not great. Need something springier.',
+    whatsNext: 'Try rubber bands wrapped around dowel pegs for bouncier bumpers.',
+    subsystems: [sub3c]
+  });
+  seedHandoff(store, {
+    projectId: proj3,
+    authorId: 'demo-student-007',
     sessionId: 'demo-session-p3-010',
     daysAgo: 28,
     hour: 10,
     whatIDid:
-      'Built the main support structure out of cardboard tubes and hot glue. It is about 1 meter tall. Started the first ramp from the top.',
-    whatsNext:
-      'Build more ramps to connect the top to the bottom. We need smooth cardboard for the track.'
+      'Joined the project! Built the flipper mechanism — two popsicle sticks on pivots with rubber bands to snap them back. They flip when you press the side levers.',
+    whatsNext: 'The flippers need stronger rubber bands. Also need to add a ball launcher.',
+    subsystems: [sub3b]
   });
   seedHandoff(store, {
     projectId: proj3,
-    authorId: 'demo-student-009',
-    sessionId: 'demo-session-p5-012',
-    daysAgo: 21,
-    hour: 14,
-    whatIDid:
-      'Added three ramp sections and a funnel at the top. The marble makes it about halfway down before falling off the track at the curve.',
-    whatsNext:
-      'Fix the curve — needs side walls so the marble does not fly off. Try bending cardstock.',
-    questions: 'Should we add a loop-de-loop section? Worried the marble wont have enough speed.'
-  });
-  seedHandoff(store, {
-    projectId: proj3,
-    authorId: 'demo-student-016',
-    sessionId: 'demo-session-p5-014',
-    daysAgo: 16,
-    hour: 14,
-    whatIDid:
-      'Made side walls for all the curves using cardstock. No more fly-offs! Also drew a diagram of the full planned marble run path and taped it to the wall next to the build.',
-    whatsNext:
-      'Build the spiral section in the middle. Kai has an idea for using a paper towel tube.'
-  });
-  seedHandoff(store, {
-    projectId: proj3,
-    authorId: 'demo-student-005',
-    sessionId: 'demo-session-p3-017',
-    daysAgo: 9,
+    authorId: 'demo-student-023',
+    sessionId: 'demo-session-p3-013',
+    daysAgo: 18,
     hour: 10,
     whatIDid:
-      'Built the spiral section from a cut paper towel tube — marble goes around 3 times! But the exit angle is wrong and the marble stalls.',
-    whatsNext:
-      'Tilt the spiral more so gravity keeps the marble moving. Might need to rebuild it steeper.',
-    blockers: 'Running low on hot glue sticks.'
+      'Glued poster board to the playfield for a smooth surface. Drew lane guides with markers. Added three bumper pegs with rubber bands — the marble really bounces off them now!',
+    whatsNext: 'Build the ball launcher chute on the right side.',
+    subsystems: [sub3a, sub3c]
   });
   seedHandoff(store, {
     projectId: proj3,
-    authorId: 'demo-student-009',
-    sessionId: 'demo-session-p5-019',
-    daysAgo: 4,
-    hour: 14,
-    whatIDid:
-      'Rebuilt the spiral at a steeper angle — marble flows through smoothly now. Added the jump section after the spiral. The marble clears the gap about 70% of the time.',
-    whatsNext:
-      'Fine-tune the jump landing ramp angle. Start thinking about the chain lift mechanism.'
-  });
-
-  // Project 4: "LED Matrix Art" — P3 + P5 members
-  const proj4 = 'demo-proj-004';
-  store.projects.set(proj4, {
-    id: proj4,
-    schoolId: DEMO_SCHOOL_ID,
-    name: 'LED Matrix Art',
-    description:
-      'An 8x8 LED matrix that displays animated pixel art patterns, controlled by a micro:bit.',
-    isArchived: false,
-    visibility: 'browseable',
-    createdById: 'demo-student-002',
-    createdAt: day(14)
-  });
-
-  for (const pid of ['demo-student-002', 'demo-student-014']) {
-    const pmId = uid('pm');
-    store.projectMemberships.set(pmId, {
-      id: pmId,
-      projectId: proj4,
-      personId: pid,
-      isActive: true,
-      joinedAt: day(14),
-      leftAt: null
-    });
-  }
-
-  seedHandoff(store, {
-    projectId: proj4,
-    authorId: 'demo-student-002',
-    sessionId: 'demo-session-p3-015',
-    daysAgo: 14,
+    authorId: 'demo-student-007',
+    sessionId: 'demo-session-p3-016',
+    daysAgo: 11,
     hour: 10,
     whatIDid:
-      'Soldered the 8x8 LED matrix to the breakout board. Tested all 64 LEDs — 2 in the corner were dim, resoldered them and now they work.',
-    whatsNext: 'Connect to the micro:bit and write code to light individual pixels.'
+      'Built the ball launcher from a spring and a dowel inside a cardboard tube. Pull back and release — launches the marble up the chute nicely.',
+    whatsNext:
+      'Add a ball return channel along the bottom so the marble comes back to the launcher.',
+    subsystems: [sub3b]
   });
   seedHandoff(store, {
-    projectId: proj4,
-    authorId: 'demo-student-014',
+    projectId: proj3,
+    authorId: 'demo-student-026',
     sessionId: 'demo-session-p5-017',
     daysAgo: 9,
     hour: 14,
     whatIDid:
-      'Drew pixel art patterns on graph paper — a heart, a star, a smiley face, and a simple animation of a bouncing ball (4 frames).',
-    whatsNext: 'Convert the graph paper patterns to arrays in the code.',
-    questions: 'Can we make the colors change? Or is this a single-color matrix?'
+      'Made the ball return channel from folded cardboard. Works great — marble rolls all the way back to the launcher. Also added 2 more bumpers and a slingshot near the flippers.',
+    whatsNext:
+      'Jayden wants to add LED scoring. We need to figure out how to detect when the ball hits a bumper.',
+    subsystems: [sub3a, sub3c]
   });
   seedHandoff(store, {
-    projectId: proj4,
-    authorId: 'demo-student-002',
+    projectId: proj3,
+    authorId: 'demo-student-023',
     sessionId: 'demo-session-p3-019',
     daysAgo: 4,
     hour: 10,
     whatIDid:
-      'Wrote micro:bit code to display static patterns. The heart and star look great! The matrix is single color (red) but we can control brightness per pixel.',
-    whatsNext:
-      'Code the animation — cycle through the bouncing ball frames with a delay. Chloe has the frame designs.'
+      'Wired up a micro:bit with 3 aluminum foil contact pads behind the bumpers. When the marble hits, it completes the circuit and the micro:bit counts the score. Display on the micro:bit LED grid.',
+    whatsNext: 'Decorate the playfield with paint and maybe add a ramp or loop.',
+    subsystems: [sub3c]
   });
 
-  // Project 5: "Wearable LED Vest" — solo P3 project, stale
-  const proj5 = 'demo-proj-005';
-  store.projects.set(proj5, {
-    id: proj5,
+  // -----------------------------------------------------------------------
+  // Project 4: "Wearable LED Vest" — SOLO, stale (Priya)
+  // -----------------------------------------------------------------------
+  const proj4 = 'demo-proj-004';
+  store.projects.set(proj4, {
+    id: proj4,
     schoolId: DEMO_SCHOOL_ID,
     name: 'Wearable LED Vest',
     description: 'A safety vest with sewable LEDs that light up in patterns.',
@@ -1179,10 +1319,10 @@ export async function seedDemoData(
     createdAt: day(21)
   });
 
-  const pmId5 = uid('pm');
-  store.projectMemberships.set(pmId5, {
-    id: pmId5,
-    projectId: proj5,
+  const pmId4 = uid('pm');
+  store.projectMemberships.set(pmId4, {
+    id: pmId4,
+    projectId: proj4,
     personId: 'demo-student-006',
     isActive: true,
     joinedAt: day(21),
@@ -1190,7 +1330,7 @@ export async function seedDemoData(
   });
 
   seedHandoff(store, {
-    projectId: proj5,
+    projectId: proj4,
     authorId: 'demo-student-006',
     sessionId: 'demo-session-p3-012',
     daysAgo: 21,
@@ -1200,7 +1340,7 @@ export async function seedDemoData(
     whatsNext: 'Start sewing the first row of LEDs onto the actual vest.'
   });
   seedHandoff(store, {
-    projectId: proj5,
+    projectId: proj4,
     authorId: 'demo-student-006',
     sessionId: 'demo-session-p3-016',
     daysAgo: 11,
@@ -1213,10 +1353,548 @@ export async function seedDemoData(
   });
   // No handoffs for 11 days — stale
 
-  // Project 6: "Desktop Catapult" — completed and archived
+  // -----------------------------------------------------------------------
+  // Project 5: "Custom Phone Stand" — SOLO, active (Amir, P5)
+  // -----------------------------------------------------------------------
+  const proj5 = 'demo-proj-005';
+  store.projects.set(proj5, {
+    id: proj5,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Custom Phone Stand',
+    description:
+      'A 3D-printed adjustable phone stand with cable management groove. Designed in Tinkercad.',
+    isArchived: false,
+    visibility: 'browseable',
+    createdById: 'demo-student-027',
+    createdAt: day(18)
+  });
+
+  const pmId5 = uid('pm');
+  store.projectMemberships.set(pmId5, {
+    id: pmId5,
+    projectId: proj5,
+    personId: 'demo-student-027',
+    isActive: true,
+    joinedAt: day(18),
+    leftAt: null
+  });
+
+  seedHandoff(store, {
+    projectId: proj5,
+    authorId: 'demo-student-027',
+    sessionId: 'demo-session-p5-013',
+    daysAgo: 18,
+    hour: 14,
+    whatIDid:
+      'Designed the first version in Tinkercad. Simple angled stand that holds a phone upright. Printed a small test piece to check the angle — 65 degrees feels right.',
+    whatsNext:
+      'Print the full-size version. Takes about 2 hours so I will start it at the beginning of next class.'
+  });
+  seedHandoff(store, {
+    projectId: proj5,
+    authorId: 'demo-student-027',
+    sessionId: 'demo-session-p5-015',
+    daysAgo: 14,
+    hour: 14,
+    whatIDid:
+      'Full print finished! But the phone slides off — the lip at the bottom is too short. Also the stand wobbles because the base is too narrow.',
+    whatsNext:
+      'Redesign with a deeper lip (8mm instead of 3mm) and a wider base. Maybe add a groove for the charging cable.',
+    questions: 'Should I try PETG instead of PLA? Tariq says it is stronger.'
+  });
+  seedHandoff(store, {
+    projectId: proj5,
+    authorId: 'demo-student-027',
+    sessionId: 'demo-session-p5-017',
+    daysAgo: 9,
+    hour: 14,
+    whatIDid:
+      'Redesigned with wider base, deeper lip, and a channel for the cable. Printed v2 in PLA. It holds the phone perfectly and the cable fits through the back!',
+    whatsNext:
+      'Want to add a hinge so the angle is adjustable. Need to figure out how to print a snap-fit hinge.'
+  });
+  seedHandoff(store, {
+    projectId: proj5,
+    authorId: 'demo-student-027',
+    sessionId: 'demo-session-p5-019',
+    daysAgo: 4,
+    hour: 14,
+    whatIDid:
+      'Printed a test hinge piece — a pin-and-socket joint. It clicks into 3 positions (45, 65, 80 degrees). Pretty stiff but it holds. Printing the final version now.',
+    whatsNext: 'Assemble the final version and maybe print one for Ms. Ramirez as a thank-you gift.'
+  });
+
+  // -----------------------------------------------------------------------
+  // Project 6: "Wooden Puzzle Box" — SOLO, members_only (Wren, P5)
+  // -----------------------------------------------------------------------
   const proj6 = 'demo-proj-006';
   store.projects.set(proj6, {
     id: proj6,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Wooden Puzzle Box',
+    description:
+      'A small wooden box with hidden sliding panels that must be opened in the right sequence. Inspired by Japanese puzzle boxes.',
+    isArchived: false,
+    visibility: 'members_only',
+    createdById: 'demo-student-030',
+    createdAt: day(28)
+  });
+
+  const pmId6 = uid('pm');
+  store.projectMemberships.set(pmId6, {
+    id: pmId6,
+    projectId: proj6,
+    personId: 'demo-student-030',
+    isActive: true,
+    joinedAt: day(28),
+    leftAt: null
+  });
+
+  seedHandoff(store, {
+    projectId: proj6,
+    authorId: 'demo-student-030',
+    sessionId: 'demo-session-p5-010',
+    daysAgo: 28,
+    hour: 14,
+    whatIDid:
+      'Sketched the design — a cube with 3 sliding panels. You have to slide panel A before panel B will move, and panel B before C. Measured and cut the first set of pieces from basswood.',
+    whatsNext: 'Cut the grooves for the sliding panels using the scroll saw.'
+  });
+  seedHandoff(store, {
+    projectId: proj6,
+    authorId: 'demo-student-030',
+    sessionId: 'demo-session-p5-013',
+    daysAgo: 18,
+    hour: 14,
+    whatIDid:
+      'Cut grooves in the side panels. Panel A slides smoothly but panel B is too tight. Sanded the groove wider. Glued the bottom and two sides together.',
+    whatsNext:
+      'Attach the top and remaining side. Need to leave the right side open until the internal blocking piece is positioned.',
+    blockers: 'Wood glue needs 24 hours to cure so I cant finish assembly until next session.'
+  });
+  seedHandoff(store, {
+    projectId: proj6,
+    authorId: 'demo-student-030',
+    sessionId: 'demo-session-p5-015',
+    daysAgo: 14,
+    hour: 14,
+    whatIDid:
+      'Glued the blocking mechanism inside — a small wooden peg that stops panel B until panel A moves out of the way. All three panels slide in sequence now! Glued the last side on.',
+    whatsNext:
+      'Sand the outside smooth and apply wood finish. Maybe add a design on top with the laser cutter.'
+  });
+  seedHandoff(store, {
+    projectId: proj6,
+    authorId: 'demo-student-030',
+    sessionId: 'demo-session-p5-018',
+    daysAgo: 7,
+    hour: 14,
+    whatIDid:
+      'Sanded all surfaces to 220 grit. Applied first coat of tung oil finish. The wood grain looks beautiful! Let it dry.',
+    whatsNext:
+      'Apply second coat of finish. Design an engraving pattern for the lid on the computer.'
+  });
+  seedHandoff(store, {
+    projectId: proj6,
+    authorId: 'demo-student-030',
+    sessionId: 'demo-session-p5-020',
+    daysAgo: 2,
+    hour: 14,
+    whatIDid:
+      'Second coat of oil done. Designed a geometric pattern in Inkscape and laser-engraved it on the lid. It looks incredible — the burnt lines contrast with the oiled wood.',
+    whatsNext:
+      'Done! Going to challenge classmates to open it. Nobody has solved it yet in under 2 minutes.',
+    questions: 'Could I make a version with 4 panels? Would need to rethink the blocking mechanism.'
+  });
+
+  // -----------------------------------------------------------------------
+  // Project 7: "Mega Marble Run" — FLUID GROUP (Kai, Ethan, Haruto joins, Theo floats)
+  // -----------------------------------------------------------------------
+  const proj7 = 'demo-proj-007';
+  store.projects.set(proj7, {
+    id: proj7,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Mega Marble Run',
+    description:
+      'Giant marble run that spans two tables, with jumps, spirals, and a chain lift to bring marbles back to the top.',
+    isArchived: false,
+    visibility: 'browseable',
+    createdById: 'demo-student-005',
+    createdAt: day(28)
+  });
+
+  // Kai — original member, active
+  const pmMR1 = uid('pm');
+  store.projectMemberships.set(pmMR1, {
+    id: pmMR1,
+    projectId: proj7,
+    personId: 'demo-student-005',
+    isActive: true,
+    joinedAt: day(28),
+    leftAt: null
+  });
+  // Ethan — original member, active
+  const pmMR2 = uid('pm');
+  store.projectMemberships.set(pmMR2, {
+    id: pmMR2,
+    projectId: proj7,
+    personId: 'demo-student-009',
+    isActive: true,
+    joinedAt: day(28),
+    leftAt: null
+  });
+  // Haruto — joined week 5, active
+  const pmMR3 = uid('pm');
+  store.projectMemberships.set(pmMR3, {
+    id: pmMR3,
+    projectId: proj7,
+    personId: 'demo-student-019',
+    isActive: true,
+    joinedAt: day(16),
+    leftAt: null
+  });
+  // Theo — drifted in week 5 to help, drifted out, came back recently
+  const pmMR4a = uid('pm');
+  store.projectMemberships.set(pmMR4a, {
+    id: pmMR4a,
+    projectId: proj7,
+    personId: 'demo-student-029',
+    isActive: false,
+    joinedAt: day(16),
+    leftAt: day(9)
+  });
+  const pmMR4b = uid('pm');
+  store.projectMemberships.set(pmMR4b, {
+    id: pmMR4b,
+    projectId: proj7,
+    personId: 'demo-student-029',
+    isActive: true,
+    joinedAt: day(4),
+    leftAt: null
+  });
+
+  seedHandoff(store, {
+    projectId: proj7,
+    authorId: 'demo-student-005',
+    sessionId: 'demo-session-p3-010',
+    daysAgo: 28,
+    hour: 10,
+    whatIDid:
+      'Built the main support structure out of cardboard tubes and hot glue. It is about 1 meter tall. Started the first ramp from the top.',
+    whatsNext:
+      'Build more ramps to connect the top to the bottom. We need smooth cardboard for the track.'
+  });
+  seedHandoff(store, {
+    projectId: proj7,
+    authorId: 'demo-student-009',
+    sessionId: 'demo-session-p5-012',
+    daysAgo: 21,
+    hour: 14,
+    whatIDid:
+      'Added three ramp sections and a funnel at the top. The marble makes it about halfway down before falling off the track at the curve.',
+    whatsNext:
+      'Fix the curve — needs side walls so the marble does not fly off. Try bending cardstock.',
+    questions: 'Should we add a loop-de-loop section? Worried the marble wont have enough speed.'
+  });
+  seedHandoff(store, {
+    projectId: proj7,
+    authorId: 'demo-student-019',
+    sessionId: 'demo-session-p3-014',
+    daysAgo: 16,
+    hour: 10,
+    whatIDid:
+      'Just joined the project! Made side walls for all the curves using cardstock. No more fly-offs! Also drew a diagram of the full planned marble run path and taped it to the wall.',
+    whatsNext:
+      'Build the spiral section in the middle. Kai has an idea for using a paper towel tube.'
+  });
+  seedHandoff(store, {
+    projectId: proj7,
+    authorId: 'demo-student-029',
+    sessionId: 'demo-session-p5-014',
+    daysAgo: 16,
+    hour: 14,
+    whatIDid:
+      'Helped Ethan extend the run onto the second table. Built a bridge section between the two tables using a long cardboard tube reinforced with popsicle sticks.',
+    whatsNext: 'The bridge sags a little in the middle. Need to add a support underneath.'
+  });
+  seedHandoff(store, {
+    projectId: proj7,
+    authorId: 'demo-student-005',
+    sessionId: 'demo-session-p3-017',
+    daysAgo: 9,
+    hour: 10,
+    whatIDid:
+      'Built the spiral section from a cut paper towel tube — marble goes around 3 times! But the exit angle is wrong and the marble stalls.',
+    whatsNext:
+      'Tilt the spiral more so gravity keeps the marble moving. Might need to rebuild it steeper.',
+    blockers: 'Running low on hot glue sticks.'
+  });
+  seedHandoff(store, {
+    projectId: proj7,
+    authorId: 'demo-student-009',
+    sessionId: 'demo-session-p5-019',
+    daysAgo: 4,
+    hour: 14,
+    whatIDid:
+      'Rebuilt the spiral at a steeper angle — marble flows through smoothly now. Added the jump section after the spiral. The marble clears the gap about 70% of the time.',
+    whatsNext:
+      'Fine-tune the jump landing ramp angle. Start thinking about the chain lift mechanism.'
+  });
+  seedHandoff(store, {
+    projectId: proj7,
+    authorId: 'demo-student-029',
+    sessionId: 'demo-session-p5-020',
+    daysAgo: 2,
+    hour: 14,
+    whatIDid:
+      'Came back to the project! Reinforced the bridge support and added a new section with two parallel tracks that merge into one. Marble picks a random path each time.',
+    whatsNext:
+      'Haruto is working on the chain lift idea — I will help him with the crank mechanism.'
+  });
+
+  // -----------------------------------------------------------------------
+  // Project 8: "LED Matrix Art" — FLUID GROUP
+  //   Jordan started solo, Chloe joined permanently, Fatima helped then left
+  // -----------------------------------------------------------------------
+  const proj8 = 'demo-proj-008';
+  store.projects.set(proj8, {
+    id: proj8,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'LED Matrix Art',
+    description:
+      'An 8x8 LED matrix that displays animated pixel art patterns, controlled by a micro:bit.',
+    isArchived: false,
+    visibility: 'browseable',
+    createdById: 'demo-student-002',
+    createdAt: day(21)
+  });
+
+  // Jordan — creator, active
+  const pmLM1 = uid('pm');
+  store.projectMemberships.set(pmLM1, {
+    id: pmLM1,
+    projectId: proj8,
+    personId: 'demo-student-002',
+    isActive: true,
+    joinedAt: day(21),
+    leftAt: null
+  });
+  // Chloe — joined week 5, active
+  const pmLM2 = uid('pm');
+  store.projectMemberships.set(pmLM2, {
+    id: pmLM2,
+    projectId: proj8,
+    personId: 'demo-student-014',
+    isActive: true,
+    joinedAt: day(14),
+    leftAt: null
+  });
+  // Fatima — helped for 2 sessions, then went back to her own thing
+  const pmLM3 = uid('pm');
+  store.projectMemberships.set(pmLM3, {
+    id: pmLM3,
+    projectId: proj8,
+    personId: 'demo-student-020',
+    isActive: false,
+    joinedAt: day(14),
+    leftAt: day(7)
+  });
+
+  seedHandoff(store, {
+    projectId: proj8,
+    authorId: 'demo-student-002',
+    sessionId: 'demo-session-p3-012',
+    daysAgo: 21,
+    hour: 10,
+    whatIDid:
+      'Soldered the 8x8 LED matrix to the breakout board. Tested all 64 LEDs — 2 in the corner were dim, resoldered them and now they work.',
+    whatsNext: 'Connect to the micro:bit and write code to light individual pixels.'
+  });
+  seedHandoff(store, {
+    projectId: proj8,
+    authorId: 'demo-student-014',
+    sessionId: 'demo-session-p5-015',
+    daysAgo: 14,
+    hour: 14,
+    whatIDid:
+      'Joined the project! Drew pixel art patterns on graph paper — a heart, a star, a smiley face, and a simple animation of a bouncing ball (4 frames).',
+    whatsNext: 'Convert the graph paper patterns to arrays in the code.',
+    questions: 'Can we make the colors change? Or is this a single-color matrix?'
+  });
+  seedHandoff(store, {
+    projectId: proj8,
+    authorId: 'demo-student-020',
+    sessionId: 'demo-session-p3-015',
+    daysAgo: 14,
+    hour: 10,
+    whatIDid:
+      'Helped Jordan write the micro:bit code to address individual pixels. Got the heart pattern displaying! The matrix uses I2C so we had to figure out the address.',
+    whatsNext: 'Add the other patterns and a button to cycle through them.'
+  });
+  seedHandoff(store, {
+    projectId: proj8,
+    authorId: 'demo-student-020',
+    sessionId: 'demo-session-p3-017',
+    daysAgo: 9,
+    hour: 10,
+    whatIDid:
+      'Added button A to cycle through patterns and button B to toggle animation mode. The bouncing ball animation works but is a bit fast — need to add a delay.',
+    whatsNext:
+      'Jordan can tweak the animation speed. I am going to focus on my sound-reactive panel project now.'
+  });
+  seedHandoff(store, {
+    projectId: proj8,
+    authorId: 'demo-student-002',
+    sessionId: 'demo-session-p3-019',
+    daysAgo: 4,
+    hour: 10,
+    whatIDid:
+      'Slowed down the animation to 200ms per frame — looks much better. Added brightness control with the A+B buttons together. The matrix is single color (red) but brightness variation makes it look cool.',
+    whatsNext:
+      'Chloe has new pattern designs. Code the animation — cycle through the bouncing ball frames with a delay.'
+  });
+
+  // -----------------------------------------------------------------------
+  // Project 9: "Mini Greenhouse" — FLUID GROUP
+  //   Anya started solo, Diego helped briefly, now Anya+Iris
+  // -----------------------------------------------------------------------
+  const proj9 = 'demo-proj-009';
+  store.projects.set(proj9, {
+    id: proj9,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Mini Greenhouse',
+    description:
+      'A small greenhouse with an Arduino soil moisture sensor that sends alerts when plants need water. Made from a plastic container and balsa wood frame.',
+    isArchived: false,
+    visibility: 'browseable',
+    createdById: 'demo-student-022',
+    createdAt: day(21)
+  });
+
+  const sub9a = 'demo-sub-009';
+  const sub9b = 'demo-sub-010';
+  store.subsystems.set(sub9a, {
+    id: sub9a,
+    projectId: proj9,
+    name: 'Structure',
+    displayOrder: 1,
+    isActive: true
+  });
+  store.subsystems.set(sub9b, {
+    id: sub9b,
+    projectId: proj9,
+    name: 'Sensor & code',
+    displayOrder: 2,
+    isActive: true
+  });
+
+  // Anya — creator, active
+  const pmGH1 = uid('pm');
+  store.projectMemberships.set(pmGH1, {
+    id: pmGH1,
+    projectId: proj9,
+    personId: 'demo-student-022',
+    isActive: true,
+    joinedAt: day(21),
+    leftAt: null
+  });
+  // Diego — helped for a couple sessions, then left
+  const pmGH2 = uid('pm');
+  store.projectMemberships.set(pmGH2, {
+    id: pmGH2,
+    projectId: proj9,
+    personId: 'demo-student-021',
+    isActive: false,
+    joinedAt: day(16),
+    leftAt: day(11)
+  });
+  // Iris — joined recently, active
+  const pmGH3 = uid('pm');
+  store.projectMemberships.set(pmGH3, {
+    id: pmGH3,
+    projectId: proj9,
+    personId: 'demo-student-028',
+    isActive: true,
+    joinedAt: day(9),
+    leftAt: null
+  });
+
+  seedHandoff(store, {
+    projectId: proj9,
+    authorId: 'demo-student-022',
+    sessionId: 'demo-session-p3-012',
+    daysAgo: 21,
+    hour: 10,
+    whatIDid:
+      'Built the greenhouse frame from balsa wood sticks and hot glue. Used a clear plastic container as the base. Cut ventilation holes in the top.',
+    whatsNext: 'Cover the frame with plastic wrap to trap humidity. Plant some seeds!',
+    subsystems: [sub9a]
+  });
+  seedHandoff(store, {
+    projectId: proj9,
+    authorId: 'demo-student-021',
+    sessionId: 'demo-session-p3-014',
+    daysAgo: 16,
+    hour: 10,
+    whatIDid:
+      'Helped Anya add the plastic wrap walls. We planted bean seeds in small pots inside. Also poked drainage holes in the bottom of the pots.',
+    whatsNext: 'Need to figure out the soil moisture sensor wiring.',
+    subsystems: [sub9a]
+  });
+  seedHandoff(store, {
+    projectId: proj9,
+    authorId: 'demo-student-022',
+    sessionId: 'demo-session-p3-016',
+    daysAgo: 11,
+    hour: 10,
+    whatIDid:
+      'Wired the soil moisture sensor to an Arduino Nano. It reads values from 0 (dry) to 1023 (wet). The serial monitor shows about 650 when the soil is moist. Bean sprouts are coming up!',
+    whatsNext: 'Add a buzzer or LED that goes off when the soil gets too dry (below 400).',
+    subsystems: [sub9b]
+  });
+  seedHandoff(store, {
+    projectId: proj9,
+    authorId: 'demo-student-028',
+    sessionId: 'demo-session-p5-017',
+    daysAgo: 9,
+    hour: 14,
+    whatIDid:
+      'Joined the project! Added an LED that turns red when soil is dry and green when moist. Also sewed a small fabric cover for the sensor wires so they look nicer.',
+    whatsNext:
+      'Want to add a small water reservoir with a tube so it can self-water. Need to figure out a valve.',
+    subsystems: [sub9b]
+  });
+  seedHandoff(store, {
+    projectId: proj9,
+    authorId: 'demo-student-022',
+    sessionId: 'demo-session-p3-019',
+    daysAgo: 4,
+    hour: 10,
+    whatIDid:
+      'Bean plants are 10cm tall! Added a second sensor for a different pot. The code now tracks both pots independently. Painted the frame green and added a sign that says "Anya & Iris Garden."',
+    whatsNext:
+      'Iris is working on the auto-watering system. I want to add a temperature sensor too.',
+    subsystems: [sub9a, sub9b]
+  });
+  seedHandoff(store, {
+    projectId: proj9,
+    authorId: 'demo-student-028',
+    sessionId: 'demo-session-p5-020',
+    daysAgo: 2,
+    hour: 14,
+    whatIDid:
+      'Built a gravity-fed water reservoir from a water bottle mounted upside down. Used a small aquarium valve to control flow. When I open the valve, water drips slowly into the pot. Not automated yet but way easier than hand-watering.',
+    whatsNext:
+      'Want to connect the valve to a servo so the Arduino can open it automatically when soil is dry.',
+    subsystems: [sub9a, sub9b]
+  });
+
+  // -----------------------------------------------------------------------
+  // Project 10: "Desktop Catapult" — COMPLETED + ARCHIVED
+  // -----------------------------------------------------------------------
+  const proj10 = 'demo-proj-010';
+  store.projects.set(proj10, {
+    id: proj10,
     schoolId: DEMO_SCHOOL_ID,
     name: 'Desktop Catapult',
     description:
@@ -1231,7 +1909,7 @@ export async function seedDemoData(
     const pmId = uid('pm');
     store.projectMemberships.set(pmId, {
       id: pmId,
-      projectId: proj6,
+      projectId: proj10,
       personId: pid,
       isActive: true,
       joinedAt: day(51),
@@ -1240,7 +1918,7 @@ export async function seedDemoData(
   }
 
   seedHandoff(store, {
-    projectId: proj6,
+    projectId: proj10,
     authorId: 'demo-student-007',
     sessionId: 'demo-session-p3-001',
     daysAgo: 51,
@@ -1250,7 +1928,7 @@ export async function seedDemoData(
     whatsNext: 'Need a hinge for the arm pivot. Also need to figure out the cup to hold the ball.'
   });
   seedHandoff(store, {
-    projectId: proj6,
+    projectId: proj10,
     authorId: 'demo-student-003',
     sessionId: 'demo-session-p3-003',
     daysAgo: 46,
@@ -1260,7 +1938,7 @@ export async function seedDemoData(
     whatsNext: 'Test launch and adjust the rubber band tension.'
   });
   seedHandoff(store, {
-    projectId: proj6,
+    projectId: proj10,
     authorId: 'demo-student-011',
     sessionId: 'demo-session-p5-003',
     daysAgo: 46,
@@ -1270,7 +1948,7 @@ export async function seedDemoData(
     whatsNext: 'Decorate it and do a final demo. Maybe add a target to aim at.'
   });
   seedHandoff(store, {
-    projectId: proj6,
+    projectId: proj10,
     authorId: 'demo-student-007',
     sessionId: 'demo-session-p3-005',
     daysAgo: 42,
@@ -1278,6 +1956,58 @@ export async function seedDemoData(
     whatIDid:
       'Painted the catapult and made a target out of stacked cups. Demo went great — hit the target from 1.5m! We are calling this project done.',
     whatsNext: null
+  });
+
+  // -----------------------------------------------------------------------
+  // Project 11: "Sound-Reactive LED Panel" — Fatima SOLO (P3)
+  //   She helped on LED Matrix Art then started her own spin-off
+  // -----------------------------------------------------------------------
+  const proj11 = 'demo-proj-011';
+  store.projects.set(proj11, {
+    id: proj11,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Sound-Reactive LED Panel',
+    description:
+      'An LED strip that reacts to music and sounds using a microphone module. The lights pulse and change pattern with the beat.',
+    isArchived: false,
+    visibility: 'browseable',
+    createdById: 'demo-student-020',
+    createdAt: day(7)
+  });
+
+  const pmSR1 = uid('pm');
+  store.projectMemberships.set(pmSR1, {
+    id: pmSR1,
+    projectId: proj11,
+    personId: 'demo-student-020',
+    isActive: true,
+    joinedAt: day(7),
+    leftAt: null
+  });
+
+  seedHandoff(store, {
+    projectId: proj11,
+    authorId: 'demo-student-020',
+    sessionId: 'demo-session-p3-018',
+    daysAgo: 7,
+    hour: 10,
+    whatIDid:
+      'Got the sound sensor module working with the micro:bit. It outputs an analog value that goes up when there is loud noise. Tested by clapping — the reading jumps from ~100 to ~800.',
+    whatsNext:
+      'Connect the NeoPixel LED strip and write code to map sound level to number of lit LEDs.'
+  });
+  seedHandoff(store, {
+    projectId: proj11,
+    authorId: 'demo-student-020',
+    sessionId: 'demo-session-p3-020',
+    daysAgo: 2,
+    hour: 10,
+    whatIDid:
+      'Wired up 30 NeoPixels. Wrote code that lights LEDs from bottom to top based on sound level — like a VU meter! Green at bottom, yellow in middle, red at top. Tested with music from my phone — it looks really cool.',
+    whatsNext:
+      'Mount everything on a board and add a mode button to switch between VU meter and color-pulse patterns.',
+    questions:
+      'Jordan said I could borrow ideas from the LED Matrix code for the patterns. Should I join that project or keep this separate?'
   });
 
   // =========================================================================
@@ -1301,9 +2031,23 @@ export async function seedDemoData(
   // Chloe read LED Matrix 5 days ago (has unread from day 4)
   store.handoffReadStatuses.set(uid('hrs'), {
     id: uid('hrs'),
-    projectId: proj4,
+    projectId: proj8,
     personId: 'demo-student-014',
     lastReadAt: day(5)
+  });
+  // Ethan read Marble Run 3 days ago (has unread from day 2)
+  store.handoffReadStatuses.set(uid('hrs'), {
+    id: uid('hrs'),
+    projectId: proj7,
+    personId: 'demo-student-009',
+    lastReadAt: day(3)
+  });
+  // Iris read Greenhouse 3 days ago (up to date)
+  store.handoffReadStatuses.set(uid('hrs'), {
+    id: uid('hrs'),
+    projectId: proj9,
+    personId: 'demo-student-028',
+    lastReadAt: day(1)
   });
 
   // =========================================================================
@@ -1543,6 +2287,29 @@ export async function seedDemoData(
     createdAt: day(0, 9, 30)
   });
 
+  store.helpRequests.set('demo-help-012', {
+    id: 'demo-help-012',
+    classroomId: DEMO_CLASSROOM_ID,
+    sessionId: todayP3.id,
+    requesterId: 'demo-student-022',
+    categoryId: helpCats[1],
+    description:
+      'My soil moisture sensor stopped reading — just shows 0 all the time even when I stick it in water.',
+    whatITried:
+      'Checked the wiring. Swapped to a different analog pin. The Arduino LED still blinks so it has power.',
+    hypothesis: 'Maybe the sensor corroded? It has been sitting in wet soil for two weeks.',
+    topic: 'Mini Greenhouse',
+    urgency: 'blocked',
+    status: 'pending',
+    claimedById: null,
+    claimedAt: null,
+    resolvedAt: null,
+    cancelledAt: null,
+    resolutionNotes: null,
+    cancellationReason: null,
+    createdAt: day(0, 9, 40)
+  });
+
   // --- Today's active P5 requests ---
   store.helpRequests.set('demo-help-011', {
     id: 'demo-help-011',
@@ -1629,20 +2396,40 @@ export async function seedDemoData(
     {
       type: 'PROJECT_CREATED',
       entity: 'Project',
-      entityId: proj4,
+      entityId: proj8,
       classroomId: null,
-      sessionId: 'demo-session-p3-015',
+      sessionId: 'demo-session-p3-012',
       actorId: 'demo-student-002',
-      daysAgo: 14,
+      daysAgo: 21,
       hour: 9,
       min: 20,
       payload: {
-        projectId: proj4,
+        projectId: proj8,
         schoolId: DEMO_SCHOOL_ID,
         name: 'LED Matrix Art',
         description: 'An 8x8 LED matrix that displays animated pixel art patterns.',
         visibility: 'browseable',
         createdBy: 'demo-student-002',
+        byTeacher: false
+      }
+    },
+    {
+      type: 'PROJECT_CREATED',
+      entity: 'Project',
+      entityId: proj11,
+      classroomId: null,
+      sessionId: 'demo-session-p3-018',
+      actorId: 'demo-student-020',
+      daysAgo: 7,
+      hour: 9,
+      min: 15,
+      payload: {
+        projectId: proj11,
+        schoolId: DEMO_SCHOOL_ID,
+        name: 'Sound-Reactive LED Panel',
+        description: 'An LED strip that reacts to music and sounds.',
+        visibility: 'browseable',
+        createdBy: 'demo-student-020',
         byTeacher: false
       }
     },
@@ -1744,9 +2531,45 @@ export async function seedDemoData(
       }
     },
     {
+      type: 'PROJECT_MEMBER_ADDED',
+      entity: 'ProjectMembership',
+      entityId: 'event-pm-ref-2',
+      classroomId: null,
+      sessionId: 'demo-session-p5-017',
+      actorId: 'demo-student-028',
+      daysAgo: 9,
+      hour: 14,
+      min: 5,
+      payload: {
+        projectId: proj9,
+        schoolId: DEMO_SCHOOL_ID,
+        personId: 'demo-student-028',
+        addedBy: 'demo-student-028',
+        byTeacher: false
+      }
+    },
+    {
+      type: 'PROJECT_MEMBER_REMOVED',
+      entity: 'ProjectMembership',
+      entityId: 'event-pm-ref-3',
+      classroomId: null,
+      sessionId: 'demo-session-p3-017',
+      actorId: 'demo-student-020',
+      daysAgo: 9,
+      hour: 10,
+      min: 25,
+      payload: {
+        projectId: proj8,
+        schoolId: DEMO_SCHOOL_ID,
+        personId: 'demo-student-020',
+        removedBy: 'demo-student-020',
+        byTeacher: false
+      }
+    },
+    {
       type: 'PROJECT_ARCHIVED',
       entity: 'Project',
-      entityId: proj6,
+      entityId: proj10,
       classroomId: null,
       sessionId: 'demo-session-p3-005',
       actorId: TEACHER.id,
@@ -1754,7 +2577,7 @@ export async function seedDemoData(
       hour: 10,
       min: 20,
       payload: {
-        projectId: proj6,
+        projectId: proj10,
         schoolId: DEMO_SCHOOL_ID,
         archivedBy: TEACHER.id,
         byTeacher: true

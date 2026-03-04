@@ -16,7 +16,9 @@ import type {
   ProjectMembershipRecord,
   SubsystemRecord,
   HandoffRecord,
-  HandoffReadStatusRecord
+  HandoffReadStatusRecord,
+  HandoffResponseRecord,
+  HandoffItemResolutionRecord
 } from '$lib/application/ports/ProjectRepository';
 
 export type HandoffSubsystemLink = {
@@ -44,6 +46,8 @@ export class MemoryStore {
   handoffs = new Map<string, HandoffRecord>();
   handoffSubsystems: HandoffSubsystemLink[] = [];
   handoffReadStatuses = new Map<string, HandoffReadStatusRecord>();
+  handoffResponses = new Map<string, HandoffResponseRecord>();
+  handoffItemResolutions = new Map<string, HandoffItemResolutionRecord>();
 
   /** Plaintext PINs for demo display (personId -> pin) */
   plaintextPins = new Map<string, string>();
@@ -69,6 +73,8 @@ export class MemoryStore {
     this.handoffs.clear();
     this.handoffSubsystems = [];
     this.handoffReadStatuses.clear();
+    this.handoffResponses.clear();
+    this.handoffItemResolutions.clear();
     this.plaintextPins.clear();
     this.personCreatedAt.clear();
   }

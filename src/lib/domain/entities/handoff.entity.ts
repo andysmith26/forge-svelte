@@ -85,6 +85,21 @@ export class HandoffEntity {
     }
   }
 
+  static validateResponseContent(text: string): void {
+    if (!text || text.trim().length === 0) {
+      throw new ValidationError('Response content is required');
+    }
+    if (text.length > 500) {
+      throw new ValidationError('Response must be 500 characters or less');
+    }
+  }
+
+  static validateResolutionNote(text: string): void {
+    if (text.length > 500) {
+      throw new ValidationError('Resolution note must be 500 characters or less');
+    }
+  }
+
   toObject(): HandoffProps {
     return { ...this.props };
   }

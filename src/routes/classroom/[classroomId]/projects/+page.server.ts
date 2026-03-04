@@ -8,6 +8,7 @@ import { unarchiveProject } from '$lib/application/useCases/projects/unarchivePr
 import { joinProject } from '$lib/application/useCases/projects/joinProject';
 import { getProjectFreshness } from '$lib/application/useCases/projects/getProjectFreshness';
 import { listRecentHandoffs } from '$lib/application/useCases/projects/listRecentHandoffs';
+import { listUnresolvedItems } from '$lib/application/useCases/projects/listUnresolvedItems';
 import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
 import type { ProjectVisibility } from '$lib/domain/entities/project.entity';
 import type { FreshnessLevel } from '$lib/application/useCases/projects/getProjectFreshness';
@@ -90,11 +91,28 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     createdAt: string;
   }[] = [];
 
+  let unresolvedItemsList: {
+    handoffId: string;
+    projectId: string;
+    projectName: string;
+    itemType: 'blocker' | 'question';
+    content: string;
+    authorName: string;
+    createdAt: string;
+    responseCount: number;
+  }[] = [];
+
   if (isTeacher) {
-    const recentResult = await listRecentHandoffs(
-      { projectRepo: env.projectRepo },
-      { schoolId: parentData.classroom.schoolId, limit: 10 }
-    );
+    const [recentResult, unresolvedResult] = await Promise.all([
+      listRecentHandoffs(
+        { projectRepo: env.projectRepo },
+        { schoolId: parentData.classroom.schoolId, limit: 10 }
+      ),
+      listUnresolvedItems(
+        { projectRepo: env.projectRepo, classroomRepo: env.classroomRepo },
+        { scope: 'school', schoolId: parentData.classroom.schoolId, actorId: actor.personId }
+      )
+    ]);
     if (recentResult.status === 'ok') {
       recentHandoffs = recentResult.value.map((h) => ({
         id: h.id,
@@ -107,12 +125,25 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
         createdAt: h.createdAt.toISOString()
       }));
     }
+    if (unresolvedResult.status === 'ok') {
+      unresolvedItemsList = unresolvedResult.value.map((item) => ({
+        handoffId: item.handoffId,
+        projectId: item.projectId,
+        projectName: item.projectName,
+        itemType: item.itemType,
+        content: item.content,
+        authorName: item.authorName,
+        createdAt: item.createdAt.toISOString(),
+        responseCount: item.responseCount
+      }));
+    }
   }
 
   return {
     myProjects: result.value.myProjects.map(toSerializable),
     browseableProjects: result.value.browseableProjects.map(toSerializable),
-    recentHandoffs
+    recentHandoffs,
+    unresolvedItems: unresolvedItemsList
   };
 };
 

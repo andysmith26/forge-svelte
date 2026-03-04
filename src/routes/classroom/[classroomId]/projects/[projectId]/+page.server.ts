@@ -10,6 +10,9 @@ import { addSubsystem } from '$lib/application/useCases/projects/addSubsystem';
 import { submitHandoff } from '$lib/application/useCases/projects/submitHandoff';
 import { listHandoffs } from '$lib/application/useCases/projects/listHandoffs';
 import { markAsRead } from '$lib/application/useCases/projects/markAsRead';
+import { addHandoffResponse } from '$lib/application/useCases/projects/addHandoffResponse';
+import { resolveHandoffItem } from '$lib/application/useCases/projects/resolveHandoffItem';
+import { listUnresolvedItems } from '$lib/application/useCases/projects/listUnresolvedItems';
 import { getCurrentSession } from '$lib/application/useCases/session/getCurrentSession';
 import type { ProjectVisibility } from '$lib/domain/entities/project.entity';
 
@@ -49,24 +52,111 @@ export const load: PageServerLoad = async ({ locals, params, parent }) => {
     { projectRepo: env.projectRepo, classroomRepo: env.classroomRepo },
     { projectId: params.projectId, actorId: actor.personId }
   );
-  const handoffs =
-    handoffsResult.status === 'ok'
-      ? handoffsResult.value.map((h) => ({
-          id: h.id,
-          authorId: h.authorId,
-          author: h.author,
-          sessionId: h.sessionId,
-          whatIDid: h.whatIDid,
-          whatsNext: h.whatsNext,
-          blockers: h.blockers,
-          questions: h.questions,
-          subsystems: h.subsystems,
-          createdAt: h.createdAt.toISOString()
-        }))
+  const rawHandoffs = handoffsResult.status === 'ok' ? handoffsResult.value : [];
+
+  // Load resolutions for all handoffs that have blockers/questions
+  const handoffIdsWithItems = rawHandoffs.filter((h) => h.blockers || h.questions).map((h) => h.id);
+  const resolutionsMap = await env.projectRepo.getResolutionsForHandoffs(handoffIdsWithItems);
+
+  // Load responses for handoffs with blockers/questions
+  const responsesMap = new Map<
+    string,
+    {
+      blocker: {
+        id: string;
+        author: { id: string; displayName: string };
+        content: string;
+        createdAt: string;
+      }[];
+      question: {
+        id: string;
+        author: { id: string; displayName: string };
+        content: string;
+        createdAt: string;
+      }[];
+    }
+  >();
+  for (const hId of handoffIdsWithItems) {
+    const h = rawHandoffs.find((x) => x.id === hId)!;
+    const blockerResponses = h.blockers
+      ? await env.projectRepo.listResponsesForHandoff(hId, 'blocker')
       : [];
+    const questionResponses = h.questions
+      ? await env.projectRepo.listResponsesForHandoff(hId, 'question')
+      : [];
+    responsesMap.set(hId, {
+      blocker: blockerResponses.map((r) => ({
+        id: r.id,
+        author: r.author,
+        content: r.content,
+        createdAt: r.createdAt.toISOString()
+      })),
+      question: questionResponses.map((r) => ({
+        id: r.id,
+        author: r.author,
+        content: r.content,
+        createdAt: r.createdAt.toISOString()
+      }))
+    });
+  }
+
+  const handoffs = rawHandoffs.map((h) => {
+    const resolutions = resolutionsMap.get(h.id) ?? [];
+    const responses = responsesMap.get(h.id);
+    const blockerResolution = resolutions.find((r) => r.itemType === 'blocker');
+    const questionResolution = resolutions.find((r) => r.itemType === 'question');
+    return {
+      id: h.id,
+      authorId: h.authorId,
+      author: h.author,
+      sessionId: h.sessionId,
+      whatIDid: h.whatIDid,
+      whatsNext: h.whatsNext,
+      blockers: h.blockers,
+      questions: h.questions,
+      subsystems: h.subsystems,
+      createdAt: h.createdAt.toISOString(),
+      blockerResolution: blockerResolution
+        ? {
+            resolvedBy: blockerResolution.resolvedBy,
+            note: blockerResolution.note,
+            createdAt: blockerResolution.createdAt.toISOString()
+          }
+        : null,
+      questionResolution: questionResolution
+        ? {
+            resolvedBy: questionResolution.resolvedBy,
+            note: questionResolution.note,
+            createdAt: questionResolution.createdAt.toISOString()
+          }
+        : null,
+      blockerResponses: responses?.blocker ?? [],
+      questionResponses: responses?.question ?? []
+    };
+  });
 
   // Unread count
   const unreadCount = await env.projectRepo.countUnread(params.projectId, actor.personId);
+
+  // Unresolved items for this project
+  const unresolvedResult =
+    isMember || parentData.membership.role === 'teacher'
+      ? await listUnresolvedItems(
+          { projectRepo: env.projectRepo, classroomRepo: env.classroomRepo },
+          { scope: 'project', projectId: params.projectId, actorId: actor.personId }
+        )
+      : null;
+  const unresolvedItems =
+    unresolvedResult?.status === 'ok'
+      ? unresolvedResult.value.map((item) => ({
+          handoffId: item.handoffId,
+          itemType: item.itemType,
+          content: item.content,
+          authorName: item.authorName,
+          createdAt: item.createdAt.toISOString(),
+          responseCount: item.responseCount
+        }))
+      : [];
 
   // Get school students for the "add member" dropdown (teacher or member)
   let schoolStudents: { personId: string; displayName: string }[] = [];
@@ -104,7 +194,8 @@ export const load: PageServerLoad = async ({ locals, params, parent }) => {
       name: s.name,
       displayOrder: s.displayOrder
     })),
-    handoffs
+    handoffs,
+    unresolvedItems
   };
 };
 
@@ -330,6 +421,84 @@ export const actions: Actions = {
     }
 
     return { success: true, handoffId: result.value.handoffId };
+  },
+
+  addResponse: async ({ locals, request }) => {
+    const actor = locals.actor;
+    if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const formData = await request.formData();
+    const handoffId = formData.get('handoffId') as string;
+    const itemType = formData.get('itemType') as 'blocker' | 'question';
+    const content = (formData.get('content') as string)?.trim();
+
+    if (!handoffId || !itemType || !content) {
+      return fail(400, { error: 'Missing required fields' });
+    }
+
+    const result = await addHandoffResponse(
+      {
+        projectRepo: env.projectRepo,
+        classroomRepo: env.classroomRepo,
+        eventStore: env.eventStore,
+        idGenerator: env.idGenerator
+      },
+      { handoffId, itemType, authorId: actor.personId, content }
+    );
+
+    if (result.status === 'err') {
+      const errorMessages: Record<string, string> = {
+        HANDOFF_NOT_FOUND: 'Handoff not found',
+        NOT_AUTHORIZED: 'You are not authorized to respond',
+        ITEM_NOT_FOUND: 'This item does not exist',
+        ITEM_ALREADY_RESOLVED: 'This item has already been resolved',
+        VALIDATION_ERROR:
+          result.error.type === 'VALIDATION_ERROR' ? result.error.message : 'Validation error'
+      };
+      return fail(400, { error: errorMessages[result.error.type] || result.error.type });
+    }
+
+    return { success: true };
+  },
+
+  resolveItem: async ({ locals, request }) => {
+    const actor = locals.actor;
+    if (!actor) return fail(401, { error: 'Not authenticated' });
+
+    const env = getEnvironment();
+    const formData = await request.formData();
+    const handoffId = formData.get('handoffId') as string;
+    const itemType = formData.get('itemType') as 'blocker' | 'question';
+    const note = (formData.get('note') as string)?.trim() || null;
+
+    if (!handoffId || !itemType) {
+      return fail(400, { error: 'Missing required fields' });
+    }
+
+    const result = await resolveHandoffItem(
+      {
+        projectRepo: env.projectRepo,
+        classroomRepo: env.classroomRepo,
+        eventStore: env.eventStore,
+        idGenerator: env.idGenerator
+      },
+      { handoffId, itemType, resolvedById: actor.personId, note }
+    );
+
+    if (result.status === 'err') {
+      const errorMessages: Record<string, string> = {
+        HANDOFF_NOT_FOUND: 'Handoff not found',
+        NOT_AUTHORIZED: 'You are not authorized to resolve this',
+        ITEM_NOT_FOUND: 'This item does not exist',
+        ALREADY_RESOLVED: 'This item has already been resolved',
+        VALIDATION_ERROR:
+          result.error.type === 'VALIDATION_ERROR' ? result.error.message : 'Validation error'
+      };
+      return fail(400, { error: errorMessages[result.error.type] || result.error.type });
+    }
+
+    return { success: true };
   },
 
   markAsRead: async ({ locals, params }) => {

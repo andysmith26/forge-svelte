@@ -1,6 +1,7 @@
 export { Role } from './roles';
 export { SessionStatus } from './session-status';
 export { HelpUrgency } from './help-urgency';
+export { HandoffItemType } from './handoff-item';
 export {
   CLASSROOM_MODULES,
   DEFAULT_CLASSROOM_SETTINGS,

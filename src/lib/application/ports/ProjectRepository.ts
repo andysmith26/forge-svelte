@@ -45,6 +45,44 @@ export type HandoffWithRelations = HandoffRecord & {
   subsystems: { id: string; name: string }[];
 };
 
+export type HandoffResponseRecord = {
+  id: string;
+  handoffId: string;
+  itemType: 'blocker' | 'question';
+  authorId: string;
+  content: string;
+  createdAt: Date;
+};
+
+export type HandoffResponseWithAuthor = HandoffResponseRecord & {
+  author: { id: string; displayName: string };
+};
+
+export type HandoffItemResolutionRecord = {
+  id: string;
+  handoffId: string;
+  itemType: 'blocker' | 'question';
+  resolvedById: string;
+  note: string | null;
+  createdAt: Date;
+};
+
+export type HandoffItemResolutionWithResolver = HandoffItemResolutionRecord & {
+  resolvedBy: { id: string; displayName: string };
+};
+
+export type UnresolvedItem = {
+  handoffId: string;
+  projectId: string;
+  projectName: string;
+  itemType: 'blocker' | 'question';
+  content: string;
+  authorId: string;
+  authorName: string;
+  createdAt: Date;
+  responseCount: number;
+};
+
 export type HandoffReadStatusRecord = {
   id: string;
   projectId: string;
@@ -111,4 +149,23 @@ export interface ProjectRepository {
   getLastHandoffDate(projectId: string): Promise<Date | null>;
   getLastHandoffDates(projectIds: string[]): Promise<Map<string, Date | null>>;
   countUnreadBatch(projectIds: string[], personId: string): Promise<Map<string, number>>;
+
+  // Responses
+  listResponsesForHandoff(
+    handoffId: string,
+    itemType: 'blocker' | 'question'
+  ): Promise<HandoffResponseWithAuthor[]>;
+
+  // Resolutions
+  getResolution(
+    handoffId: string,
+    itemType: 'blocker' | 'question'
+  ): Promise<HandoffItemResolutionWithResolver | null>;
+  getResolutionsForHandoffs(
+    handoffIds: string[]
+  ): Promise<Map<string, HandoffItemResolutionWithResolver[]>>;
+
+  // Unresolved items
+  listUnresolvedItems(projectId: string): Promise<UnresolvedItem[]>;
+  listUnresolvedItemsBySchool(schoolId: string): Promise<UnresolvedItem[]>;
 }

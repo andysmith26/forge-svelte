@@ -10,7 +10,9 @@ import type {
   ProjectMemberAddedPayload,
   ProjectMemberRemovedPayload,
   ProjectSubsystemAddedPayload,
-  HandoffSubmittedPayload
+  HandoffSubmittedPayload,
+  HandoffResponseAddedPayload,
+  HandoffItemResolvedPayload
 } from '$lib/domain/events';
 
 export class ProjectProjector implements Projector {
@@ -23,7 +25,9 @@ export class ProjectProjector implements Projector {
     'PROJECT_MEMBER_ADDED',
     'PROJECT_MEMBER_REMOVED',
     'PROJECT_SUBSYSTEM_ADDED',
-    'HANDOFF_SUBMITTED'
+    'HANDOFF_SUBMITTED',
+    'HANDOFF_RESPONSE_ADDED',
+    'HANDOFF_ITEM_RESOLVED'
   ];
 
   async apply(event: StoredEvent, tx: PrismaClient): Promise<void> {
@@ -167,10 +171,40 @@ export class ProjectProjector implements Projector {
         }
         break;
       }
+      case 'HANDOFF_RESPONSE_ADDED': {
+        const payload = event.payload as HandoffResponseAddedPayload;
+        await tx.handoffResponse.create({
+          data: {
+            id: payload.responseId,
+            handoffId: payload.handoffId,
+            itemType: payload.itemType,
+            authorId: payload.authorId,
+            content: payload.content,
+            createdAt: event.createdAt
+          }
+        });
+        break;
+      }
+      case 'HANDOFF_ITEM_RESOLVED': {
+        const payload = event.payload as HandoffItemResolvedPayload;
+        await tx.handoffItemResolution.create({
+          data: {
+            id: payload.resolutionId,
+            handoffId: payload.handoffId,
+            itemType: payload.itemType,
+            resolvedById: payload.resolvedById,
+            note: payload.note ?? null,
+            createdAt: event.createdAt
+          }
+        });
+        break;
+      }
     }
   }
 
   async clear(tx: PrismaClient): Promise<void> {
+    await tx.handoffResponse.deleteMany({});
+    await tx.handoffItemResolution.deleteMany({});
     await tx.handoffSubsystem.deleteMany({});
     await tx.handoff.deleteMany({});
     await tx.handoffReadStatus.deleteMany({});

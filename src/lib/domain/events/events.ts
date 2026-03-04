@@ -231,6 +231,38 @@ export type HandoffSubmittedPayload = {
 
 export type HandoffSubmittedEvent = DomainEvent<'HANDOFF_SUBMITTED', HandoffSubmittedPayload>;
 
+export type HandoffResponseAddedPayload = {
+  responseId: string;
+  handoffId: string;
+  projectId: string;
+  schoolId: string;
+  itemType: 'blocker' | 'question';
+  authorId: string;
+  content: string;
+  byTeacher: boolean;
+};
+
+export type HandoffResponseAddedEvent = DomainEvent<
+  'HANDOFF_RESPONSE_ADDED',
+  HandoffResponseAddedPayload
+>;
+
+export type HandoffItemResolvedPayload = {
+  resolutionId: string;
+  handoffId: string;
+  projectId: string;
+  schoolId: string;
+  itemType: 'blocker' | 'question';
+  resolvedById: string;
+  note: string | null;
+  byTeacher: boolean;
+};
+
+export type HandoffItemResolvedEvent = DomainEvent<
+  'HANDOFF_ITEM_RESOLVED',
+  HandoffItemResolvedPayload
+>;
+
 // Union type of all events
 
 export type ForgeEvent =
@@ -251,7 +283,9 @@ export type ForgeEvent =
   | ProjectMemberAddedEvent
   | ProjectMemberRemovedEvent
   | ProjectSubsystemAddedEvent
-  | HandoffSubmittedEvent;
+  | HandoffSubmittedEvent
+  | HandoffResponseAddedEvent
+  | HandoffItemResolvedEvent;
 
 export type EventType = ForgeEvent['type'];
 
