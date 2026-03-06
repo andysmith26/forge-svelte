@@ -263,6 +263,86 @@ export type HandoffItemResolvedEvent = DomainEvent<
   HandoffItemResolvedPayload
 >;
 
+// Chore Events
+
+export type ChoreDefinedPayload = {
+  choreId: string;
+  schoolId: string;
+  name: string;
+  description: string;
+  size: string;
+  recurrence: string;
+  verificationType: string;
+  location: string | null;
+  createdBy: string;
+  byTeacher: boolean;
+};
+
+export type ChoreDefinedEvent = DomainEvent<'CHORE_DEFINED', ChoreDefinedPayload>;
+
+export type ChoreUpdatedPayload = {
+  choreId: string;
+  schoolId: string;
+  changedFields: string[];
+  updatedBy: string;
+  byTeacher: boolean;
+};
+
+export type ChoreUpdatedEvent = DomainEvent<'CHORE_UPDATED', ChoreUpdatedPayload>;
+
+export type ChoreArchivedPayload = {
+  choreId: string;
+  schoolId: string;
+  archivedBy: string;
+  byTeacher: boolean;
+};
+
+export type ChoreArchivedEvent = DomainEvent<'CHORE_ARCHIVED', ChoreArchivedPayload>;
+
+export type ChoreInstanceCreatedPayload = {
+  instanceId: string;
+  choreId: string;
+  schoolId: string;
+  dueDate: string | null;
+};
+
+export type ChoreInstanceCreatedEvent = DomainEvent<
+  'CHORE_INSTANCE_CREATED',
+  ChoreInstanceCreatedPayload
+>;
+
+export type ChoreClaimedPayload = {
+  instanceId: string;
+  choreId: string;
+  schoolId: string;
+  claimedBy: string;
+};
+
+export type ChoreClaimedEvent = DomainEvent<'CHORE_CLAIMED', ChoreClaimedPayload>;
+
+export type ChoreCompletedPayload = {
+  instanceId: string;
+  choreId: string;
+  schoolId: string;
+  completedBy: string;
+  completionNotes: string | null;
+};
+
+export type ChoreCompletedEvent = DomainEvent<'CHORE_COMPLETED', ChoreCompletedPayload>;
+
+export type ChoreVerifiedPayload = {
+  verificationId: string;
+  instanceId: string;
+  choreId: string;
+  schoolId: string;
+  verifierId: string;
+  decision: string;
+  feedback: string | null;
+  byTeacher: boolean;
+};
+
+export type ChoreVerifiedEvent = DomainEvent<'CHORE_VERIFIED', ChoreVerifiedPayload>;
+
 // Union type of all events
 
 export type ForgeEvent =
@@ -285,7 +365,14 @@ export type ForgeEvent =
   | ProjectSubsystemAddedEvent
   | HandoffSubmittedEvent
   | HandoffResponseAddedEvent
-  | HandoffItemResolvedEvent;
+  | HandoffItemResolvedEvent
+  | ChoreDefinedEvent
+  | ChoreUpdatedEvent
+  | ChoreArchivedEvent
+  | ChoreInstanceCreatedEvent
+  | ChoreClaimedEvent
+  | ChoreCompletedEvent
+  | ChoreVerifiedEvent;
 
 export type EventType = ForgeEvent['type'];
 

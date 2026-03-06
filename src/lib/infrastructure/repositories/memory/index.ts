@@ -8,4 +8,5 @@ export { MemoryHelpRepository } from './MemoryHelpRepository';
 export { MemoryNinjaRepository } from './MemoryNinjaRepository';
 export { MemoryRealtimeNotificationRepository } from './MemoryRealtimeNotificationRepository';
 export { MemoryProjectRepository } from './MemoryProjectRepository';
+export { MemoryChoreRepository } from './MemoryChoreRepository';
 export { MemoryEventStore } from './MemoryEventStore';

@@ -20,6 +20,11 @@ import type {
   HandoffResponseRecord,
   HandoffItemResolutionRecord
 } from '$lib/application/ports/ProjectRepository';
+import type {
+  ChoreRecord,
+  ChoreInstanceRecord,
+  ChoreVerificationRecord
+} from '$lib/application/ports/ChoreRepository';
 
 export type HandoffSubsystemLink = {
   handoffId: string;
@@ -49,6 +54,11 @@ export class MemoryStore {
   handoffResponses = new Map<string, HandoffResponseRecord>();
   handoffItemResolutions = new Map<string, HandoffItemResolutionRecord>();
 
+  // Chores
+  chores = new Map<string, ChoreRecord>();
+  choreInstances = new Map<string, ChoreInstanceRecord>();
+  choreVerifications = new Map<string, ChoreVerificationRecord>();
+
   /** Plaintext PINs for demo display (personId -> pin) */
   plaintextPins = new Map<string, string>();
 
@@ -75,6 +85,9 @@ export class MemoryStore {
     this.handoffReadStatuses.clear();
     this.handoffResponses.clear();
     this.handoffItemResolutions.clear();
+    this.chores.clear();
+    this.choreInstances.clear();
+    this.choreVerifications.clear();
     this.plaintextPins.clear();
     this.personCreatedAt.clear();
   }

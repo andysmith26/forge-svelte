@@ -60,6 +60,38 @@ enum HandoffItemType {
   question
 }
 
+enum ChoreSize {
+  small
+  medium
+  large
+}
+
+enum ChoreRecurrence {
+  one_time
+  daily
+  weekly
+}
+
+enum ChoreVerificationType {
+  self
+  peer
+  teacher
+}
+
+enum ChoreInstanceStatus {
+  available
+  claimed
+  completed
+  verified
+  redo_requested
+  archived
+}
+
+enum ChoreVerificationDecision {
+  approved
+  redo_requested
+}
+
 // ============================================================================
 // CORE ENTITIES
 // ============================================================================
@@ -77,6 +109,7 @@ model School {
   classrooms   Classroom[]
   people       Person[]
   projects     Project[]
+  chores       Chore[]
   domainEvents DomainEvent[]
 
   @@map("schools")
@@ -145,6 +178,9 @@ model Person {
   handoffReadStatuses    HandoffReadStatus[]
   handoffResponses       HandoffResponse[]
   handoffItemResolutions HandoffItemResolution[] @relation("handoffItemResolutions")
+  choresCreated          Chore[]                 @relation("ChoreCreator")
+  choreInstancesClaimed  ChoreInstance[]          @relation("ChoreClaimedBy")
+  choreVerifications     ChoreVerification[]     @relation("ChoreVerifier")
   domainEvents           DomainEvent[]
 
   @@map("people")
@@ -187,11 +223,12 @@ model ClassSession {
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
-  classroom    Classroom     @relation(fields: [classroomId], references: [id])
-  signIns      SignIn[]
-  helpRequests HelpRequest[]
-  handoffs     Handoff[]
-  domainEvents DomainEvent[]
+  classroom      Classroom       @relation(fields: [classroomId], references: [id])
+  signIns        SignIn[]
+  helpRequests   HelpRequest[]
+  handoffs       Handoff[]
+  choreInstances ChoreInstance[]
+  domainEvents   DomainEvent[]
 
   @@index([classroomId, status])
   @@map("sessions")
@@ -523,6 +560,72 @@ model HandoffItemResolution {
 
   @@unique([handoffId, itemType])
   @@map("handoff_item_resolutions")
+}
+
+// ============================================================================
+// CHORES
+// ============================================================================
+
+model Chore {
+  id               String                @id @default(cuid())
+  schoolId         String                @map("school_id")
+  name             String                @db.VarChar(100)
+  description      String                @db.VarChar(500)
+  size             ChoreSize             @default(medium)
+  estimatedMinutes Int?                  @map("estimated_minutes")
+  recurrence       ChoreRecurrence       @default(one_time)
+  verificationType ChoreVerificationType @default(self) @map("verification_type")
+  location         String?               @db.VarChar(100)
+  isActive         Boolean               @default(true) @map("is_active")
+  createdById      String                @map("created_by_id")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+
+  school    School          @relation(fields: [schoolId], references: [id])
+  createdBy Person          @relation("ChoreCreator", fields: [createdById], references: [id])
+  instances ChoreInstance[]
+
+  @@index([schoolId, isActive])
+  @@map("chores")
+}
+
+model ChoreInstance {
+  id              String              @id @default(cuid())
+  choreId         String              @map("chore_id")
+  sessionId       String?             @map("session_id")
+  status          ChoreInstanceStatus @default(available)
+  dueDate         DateTime?           @map("due_date") @db.Date
+  claimedById     String?             @map("claimed_by_id")
+  claimedAt       DateTime?           @map("claimed_at")
+  completedAt     DateTime?           @map("completed_at")
+  completionNotes String?             @map("completion_notes") @db.VarChar(500)
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  chore         Chore               @relation(fields: [choreId], references: [id])
+  session       ClassSession?       @relation(fields: [sessionId], references: [id])
+  claimedBy     Person?             @relation("ChoreClaimedBy", fields: [claimedById], references: [id])
+  verifications ChoreVerification[]
+
+  @@index([choreId, status])
+  @@index([claimedById, status])
+  @@map("chore_instances")
+}
+
+model ChoreVerification {
+  id              String                     @id @default(cuid())
+  choreInstanceId String                     @map("chore_instance_id")
+  verifierId      String                     @map("verifier_id")
+  decision        ChoreVerificationDecision
+  feedback        String?                    @db.VarChar(500)
+  verifiedAt      DateTime                   @default(now()) @map("verified_at")
+  createdAt       DateTime                   @default(now()) @map("created_at")
+
+  choreInstance ChoreInstance @relation(fields: [choreInstanceId], references: [id])
+  verifier      Person        @relation("ChoreVerifier", fields: [verifierId], references: [id])
+
+  @@index([choreInstanceId])
+  @@map("chore_verifications")
 }
 
 // ============================================================================

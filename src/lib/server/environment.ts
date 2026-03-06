@@ -7,6 +7,7 @@ import type {
   PersonRepository,
   PinRepository,
   ProjectRepository,
+  ChoreRepository,
   RealtimeNotificationRepository,
   EventStore,
   IdGenerator,
@@ -31,6 +32,7 @@ export interface AppEnvironment {
   personRepo: PersonRepository;
   pinRepo: PinRepository;
   projectRepo: ProjectRepository;
+  choreRepo: ChoreRepository;
   realtimeNotificationRepo: RealtimeNotificationRepository;
   eventStore: EventStore;
   idGenerator: IdGenerator;
@@ -94,6 +96,7 @@ async function createDemoEnvironment(): Promise<AppEnvironment> {
     personRepo: new mem.MemoryPersonRepository(store, idGenerator),
     pinRepo,
     projectRepo: new mem.MemoryProjectRepository(store, idGenerator),
+    choreRepo: new mem.MemoryChoreRepository(store, idGenerator),
     realtimeNotificationRepo: new mem.MemoryRealtimeNotificationRepository(),
     eventStore: new mem.MemoryEventStore(store, idGenerator),
     idGenerator,
@@ -118,6 +121,7 @@ async function createProductionEnvironment(): Promise<AppEnvironment> {
     personRepo: new repos.PrismaPersonRepository(prisma),
     pinRepo: new repos.PrismaPinRepository(prisma),
     projectRepo: new repos.PrismaProjectRepository(prisma),
+    choreRepo: new repos.PrismaChoreRepository(prisma),
     realtimeNotificationRepo: new repos.PrismaRealtimeNotificationRepository(prisma),
     eventStore: new events.PrismaEventStore(prisma, projectorRegistry),
     idGenerator: new UuidIdGenerator(),

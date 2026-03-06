@@ -5,6 +5,6 @@ export const choresModule: ModuleDefinition = {
   name: 'Chores',
   description: 'Classroom task management and verification',
   navItem: { label: 'Chores', hrefSuffix: '/chores' },
-  status: 'coming_soon',
+  status: 'available',
   defaultEnabled: false
 };

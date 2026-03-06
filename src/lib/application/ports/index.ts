@@ -96,6 +96,15 @@ export type {
   ProjectWithMembers
 } from './ProjectRepository';
 
+export type {
+  ChoreRepository,
+  ChoreRecord,
+  ChoreInstanceRecord,
+  ChoreVerificationRecord,
+  ChoreInstanceWithRelations,
+  ChoreListItem
+} from './ChoreRepository';
+
 export type { EventStore, AppendEventInput, StoredEvent, EventFilters } from './EventStore';
 export type { IdGenerator } from './IdGenerator';
 export type { HashService } from './HashService';

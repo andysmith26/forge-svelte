@@ -43,5 +43,19 @@ export type {
   HandoffResponseAddedEvent,
   HandoffResponseAddedPayload,
   HandoffItemResolvedEvent,
-  HandoffItemResolvedPayload
+  HandoffItemResolvedPayload,
+  ChoreDefinedEvent,
+  ChoreDefinedPayload,
+  ChoreUpdatedEvent,
+  ChoreUpdatedPayload,
+  ChoreArchivedEvent,
+  ChoreArchivedPayload,
+  ChoreInstanceCreatedEvent,
+  ChoreInstanceCreatedPayload,
+  ChoreClaimedEvent,
+  ChoreClaimedPayload,
+  ChoreCompletedEvent,
+  ChoreCompletedPayload,
+  ChoreVerifiedEvent,
+  ChoreVerifiedPayload
 } from './events';

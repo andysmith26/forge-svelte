@@ -430,7 +430,8 @@ export async function seedDemoData(
         help: { enabled: true },
         ninja: { enabled: true },
         projects: { enabled: true },
-        profile: { enabled: true }
+        profile: { enabled: true },
+        chores: { enabled: true }
       }
     }
   });
@@ -449,7 +450,8 @@ export async function seedDemoData(
         help: { enabled: true },
         ninja: { enabled: true },
         projects: { enabled: true },
-        profile: { enabled: true }
+        profile: { enabled: true },
+        chores: { enabled: true }
       }
     }
   });
@@ -2332,6 +2334,191 @@ export async function seedDemoData(
     resolutionNotes: null,
     cancellationReason: null,
     createdAt: day(0, 13, 45)
+  });
+
+  // =========================================================================
+  // CHORES — school-scoped shared responsibilities
+  // =========================================================================
+
+  const choreCleanBench = uid('chore');
+  store.chores.set(choreCleanBench, {
+    id: choreCleanBench,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Clean workbench',
+    description:
+      'Wipe down workbench surfaces, sweep underneath, and organize loose parts into bins.',
+    size: 'medium',
+    estimatedMinutes: 15,
+    recurrence: 'daily',
+    verificationType: 'peer',
+    location: 'Workshop area',
+    isActive: true,
+    createdById: TEACHER.id,
+    createdAt: day(30)
+  });
+
+  const choreOrganizeTools = uid('chore');
+  store.chores.set(choreOrganizeTools, {
+    id: choreOrganizeTools,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Organize tool wall',
+    description:
+      'Return all tools to their labeled spots on the pegboard. Report any missing tools.',
+    size: 'small',
+    estimatedMinutes: 5,
+    recurrence: 'daily',
+    verificationType: 'self',
+    location: 'Tool wall',
+    isActive: true,
+    createdById: TEACHER.id,
+    createdAt: day(30)
+  });
+
+  const choreWhiteboards = uid('chore');
+  store.chores.set(choreWhiteboards, {
+    id: choreWhiteboards,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Wipe whiteboards',
+    description:
+      'Erase all whiteboards and replace dried-out markers with fresh ones from the supply drawer.',
+    size: 'small',
+    estimatedMinutes: 5,
+    recurrence: 'weekly',
+    verificationType: 'teacher',
+    location: null,
+    isActive: true,
+    createdById: TEACHER.id,
+    createdAt: day(28)
+  });
+
+  const choreRecycling = uid('chore');
+  store.chores.set(choreRecycling, {
+    id: choreRecycling,
+    schoolId: DEMO_SCHOOL_ID,
+    name: 'Empty recycling bins',
+    description:
+      'Collect all recycling bins, take to the main recycling area, and return empty bins.',
+    size: 'medium',
+    estimatedMinutes: 10,
+    recurrence: 'weekly',
+    verificationType: 'peer',
+    location: null,
+    isActive: true,
+    createdById: TEACHER.id,
+    createdAt: day(28)
+  });
+
+  // Instances in various states
+  // Available instance
+  const inst1 = uid('chore-inst');
+  store.choreInstances.set(inst1, {
+    id: inst1,
+    choreId: choreCleanBench,
+    sessionId: null,
+    status: 'available',
+    dueDate: null,
+    claimedById: null,
+    claimedAt: null,
+    completedAt: null,
+    completionNotes: null,
+    createdAt: day(1)
+  });
+
+  // Claimed instance
+  const inst2 = uid('chore-inst');
+  store.choreInstances.set(inst2, {
+    id: inst2,
+    choreId: choreOrganizeTools,
+    sessionId: null,
+    status: 'claimed',
+    dueDate: null,
+    claimedById: 'demo-student-003',
+    claimedAt: day(0, 9, 30),
+    completedAt: null,
+    completionNotes: null,
+    createdAt: day(1)
+  });
+
+  // Completed (waiting for verification)
+  const inst3 = uid('chore-inst');
+  store.choreInstances.set(inst3, {
+    id: inst3,
+    choreId: choreWhiteboards,
+    sessionId: null,
+    status: 'completed',
+    dueDate: null,
+    claimedById: 'demo-student-005',
+    claimedAt: day(1, 9, 15),
+    completedAt: day(1, 9, 45),
+    completionNotes: 'All whiteboards wiped. Replaced 3 markers.',
+    createdAt: day(2)
+  });
+
+  // Verified instance
+  const inst4 = uid('chore-inst');
+  store.choreInstances.set(inst4, {
+    id: inst4,
+    choreId: choreRecycling,
+    sessionId: null,
+    status: 'verified',
+    dueDate: null,
+    claimedById: 'demo-student-001',
+    claimedAt: day(3, 9, 20),
+    completedAt: day(3, 10, 0),
+    completionNotes: null,
+    createdAt: day(4)
+  });
+
+  const verif1 = uid('chore-verif');
+  store.choreVerifications.set(verif1, {
+    id: verif1,
+    choreInstanceId: inst4,
+    verifierId: 'demo-student-002',
+    decision: 'approved',
+    feedback: 'Looks great!',
+    verifiedAt: day(3, 10, 5),
+    createdAt: day(3, 10, 5)
+  });
+
+  // Redo requested instance
+  const inst5 = uid('chore-inst');
+  store.choreInstances.set(inst5, {
+    id: inst5,
+    choreId: choreCleanBench,
+    sessionId: null,
+    status: 'redo_requested',
+    dueDate: null,
+    claimedById: 'demo-student-007',
+    claimedAt: day(2, 9, 10),
+    completedAt: day(2, 9, 40),
+    completionNotes: 'Wiped down surfaces.',
+    createdAt: day(3)
+  });
+
+  const verif2 = uid('chore-verif');
+  store.choreVerifications.set(verif2, {
+    id: verif2,
+    choreInstanceId: inst5,
+    verifierId: 'demo-student-004',
+    decision: 'redo_requested',
+    feedback: 'Still some sawdust under bench 3, and screws not sorted into bins.',
+    verifiedAt: day(2, 9, 50),
+    createdAt: day(2, 9, 50)
+  });
+
+  // Another available instance for recycling
+  const inst6 = uid('chore-inst');
+  store.choreInstances.set(inst6, {
+    id: inst6,
+    choreId: choreRecycling,
+    sessionId: null,
+    status: 'available',
+    dueDate: null,
+    claimedById: null,
+    claimedAt: null,
+    completedAt: null,
+    completionNotes: null,
+    createdAt: day(0)
   });
 
   // =========================================================================
