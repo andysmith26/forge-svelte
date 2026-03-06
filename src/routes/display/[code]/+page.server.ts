@@ -6,8 +6,10 @@ import { getClassroomSettings } from '$lib/application/useCases/classroom/getCla
 import {
   presenceSmartboardProvider,
   helpSmartboardProvider,
+  projectsSmartboardProvider,
   type PresencePanelData,
-  type HelpPanelData
+  type HelpPanelData,
+  type ProjectsPanelData
 } from '$lib/application/smartboard';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -41,10 +43,12 @@ export const load: PageServerLoad = async ({ params }) => {
   const settings = settingsResult.status === 'ok' ? settingsResult.value : null;
   const presenceEnabled = settings?.modules.presence?.enabled ?? false;
   const helpEnabled = settings?.modules.help?.enabled ?? false;
+  const projectsEnabled = settings?.modules.projects?.enabled ?? false;
 
   let present: PresencePanelData = [];
   let queue: HelpPanelData['queue'] = [];
   let ninjaAssignments: HelpPanelData['ninjaAssignments'] = [];
+  let projects: ProjectsPanelData = { projects: [], recentHandoffs: [] };
 
   if (session && session.status === 'active') {
     if (presenceEnabled) {
@@ -67,14 +71,26 @@ export const load: PageServerLoad = async ({ params }) => {
       queue = helpData.queue;
       ninjaAssignments = helpData.ninjaAssignments;
     }
+
+    if (projectsEnabled) {
+      projects = await projectsSmartboardProvider.fetchData(
+        {
+          projectRepo: env.projectRepo,
+          sessionRepo: env.sessionRepo,
+          schoolId: classroom.schoolId
+        },
+        session.id
+      );
+    }
   }
 
   return {
     classroom: { id: classroom.id, name: classroom.name, displayCode: classroom.displayCode },
     session,
-    settings: { presenceEnabled, helpEnabled },
+    settings: { presenceEnabled, helpEnabled, projectsEnabled },
     present,
     queue,
-    ninjaAssignments
+    ninjaAssignments,
+    projects
   };
 };

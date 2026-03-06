@@ -62,6 +62,31 @@
     if (minutes >= 5) return 'text-yellow-400';
     return 'text-gray-400';
   }
+
+  const freshnessColor: Record<string, string> = {
+    active: 'bg-green-500',
+    quiet: 'bg-yellow-500',
+    stale: 'bg-red-500',
+    no_handoffs: 'bg-gray-500'
+  };
+
+  const freshnessLabel: Record<string, string> = {
+    active: 'Active',
+    quiet: 'Quiet',
+    stale: 'Stale',
+    no_handoffs: 'No handoffs'
+  };
+
+  function timeAgo(isoString: string): string {
+    const diff = now.getTime() - new Date(isoString).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
 </script>
 
 <svelte:head>
@@ -98,7 +123,7 @@
       <div class="flex min-h-[60vh] items-center justify-center">
         <p class="text-2xl text-gray-500">No active session</p>
       </div>
-    {:else if !data.settings.presenceEnabled && !data.settings.helpEnabled}
+    {:else if !data.settings.presenceEnabled && !data.settings.helpEnabled && !data.settings.projectsEnabled}
       <div class="flex min-h-[60vh] items-center justify-center">
         <p class="text-2xl text-gray-500">Welcome to {data.classroom.name}</p>
       </div>
@@ -246,6 +271,78 @@
           </div>
         {/if}
       </div>
+
+      {#if data.settings.projectsEnabled}
+        <div class="mt-8">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-2xl font-bold">Projects</h2>
+            <span class="text-sm text-gray-400">
+              {data.projects.projects.length} active
+            </span>
+          </div>
+
+          {#if data.projects.projects.length === 0 && data.projects.recentHandoffs.length === 0}
+            <div class="flex flex-col items-center py-12 text-gray-500">
+              <p>No active projects</p>
+            </div>
+          {:else}
+            <div class="grid gap-8 lg:grid-cols-2">
+              <!-- Active Projects -->
+              <div>
+                <h3 class="mb-3 text-lg font-semibold text-gray-300">Active Projects</h3>
+                {#if data.projects.projects.length === 0}
+                  <p class="text-sm text-gray-500">No projects yet</p>
+                {:else}
+                  <div class="space-y-2">
+                    {#each data.projects.projects as project (project.id)}
+                      <div class="flex items-center gap-3 rounded-lg bg-gray-800 p-4">
+                        <div class="flex-1">
+                          <p class="font-semibold">{project.name}</p>
+                          <p class="text-xs text-gray-400">
+                            {project.memberCount} member{project.memberCount !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                        <span
+                          class="rounded-full px-2 py-0.5 text-xs font-medium {freshnessColor[
+                            project.freshness
+                          ] ?? 'bg-gray-500'}"
+                        >
+                          {freshnessLabel[project.freshness] ?? project.freshness}
+                        </span>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+
+              <!-- Recent Handoffs -->
+              <div>
+                <h3 class="mb-3 text-lg font-semibold text-gray-300">Recent Handoffs</h3>
+                {#if data.projects.recentHandoffs.length === 0}
+                  <p class="text-sm text-gray-500">No handoffs yet</p>
+                {:else}
+                  <div class="space-y-2">
+                    {#each data.projects.recentHandoffs as handoff (handoff.id)}
+                      <div class="rounded-lg bg-gray-800 p-4">
+                        <div class="flex items-center justify-between">
+                          <p class="text-sm font-semibold">{handoff.authorName}</p>
+                          <span class="font-mono text-xs text-gray-400">
+                            {timeAgo(handoff.createdAt)}
+                          </span>
+                        </div>
+                        <p class="text-xs text-gray-400">{handoff.projectName}</p>
+                        <p class="mt-1 line-clamp-2 text-sm text-gray-300">
+                          {handoff.whatIDid}
+                        </p>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            </div>
+          {/if}
+        </div>
+      {/if}
     {/if}
   </main>
 </div>
