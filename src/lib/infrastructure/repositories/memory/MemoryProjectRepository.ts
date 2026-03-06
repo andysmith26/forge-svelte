@@ -373,6 +373,16 @@ export class MemoryProjectRepository implements ProjectRepository {
     return allItems.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
+  async listUnresolvedItemsByPerson(schoolId: string, personId: string): Promise<UnresolvedItem[]> {
+    const projects = await this.getActiveProjectsForPerson(schoolId, personId);
+    const allItems: UnresolvedItem[] = [];
+    for (const project of projects) {
+      const items = await this.listUnresolvedItems(project.id);
+      allItems.push(...items);
+    }
+    return allItems.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
   // -- Helpers --
 
   private toListItem(p: ProjectRecord): ProjectListItem {

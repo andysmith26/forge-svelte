@@ -501,4 +501,56 @@ export class PrismaProjectRepository implements ProjectRepository {
     }
     return items;
   }
+
+  async listUnresolvedItemsByPerson(schoolId: string, personId: string): Promise<UnresolvedItem[]> {
+    const handoffs = await this.db.handoff.findMany({
+      where: {
+        project: {
+          schoolId,
+          isArchived: false,
+          memberships: { some: { personId, isActive: true } }
+        },
+        OR: [{ blockers: { not: null } }, { questions: { not: null } }]
+      },
+      include: {
+        author: { select: { id: true, displayName: true } },
+        resolutions: true,
+        responses: { select: { id: true, itemType: true } },
+        project: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const items: UnresolvedItem[] = [];
+    for (const h of handoffs) {
+      const resolvedTypes = new Set(h.resolutions.map((r) => r.itemType));
+      if (h.blockers && !resolvedTypes.has('blocker')) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: h.project.name,
+          itemType: 'blocker',
+          content: h.blockers,
+          authorId: h.authorId,
+          authorName: h.author.displayName,
+          createdAt: h.createdAt,
+          responseCount: h.responses.filter((r) => r.itemType === 'blocker').length
+        });
+      }
+      if (h.questions && !resolvedTypes.has('question')) {
+        items.push({
+          handoffId: h.id,
+          projectId: h.projectId,
+          projectName: h.project.name,
+          itemType: 'question',
+          content: h.questions,
+          authorId: h.authorId,
+          authorName: h.author.displayName,
+          createdAt: h.createdAt,
+          responseCount: h.responses.filter((r) => r.itemType === 'question').length
+        });
+      }
+    }
+    return items;
+  }
 }

@@ -168,4 +168,5 @@ export interface ProjectRepository {
   // Unresolved items
   listUnresolvedItems(projectId: string): Promise<UnresolvedItem[]>;
   listUnresolvedItemsBySchool(schoolId: string): Promise<UnresolvedItem[]>;
+  listUnresolvedItemsByPerson(schoolId: string, personId: string): Promise<UnresolvedItem[]>;
 }

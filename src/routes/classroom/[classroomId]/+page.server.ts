@@ -11,26 +11,97 @@ import { signOut } from '$lib/application/useCases/presence/signOut';
 import { getCurrentSession } from '$lib/application/useCases/session/getCurrentSession';
 import { getClassroomSettings } from '$lib/application/useCases/classroom/getClassroomSettings';
 import { requireTeacher } from '$lib/application/useCases/checkAuthorization';
+import { getHandoffPromptStatus } from '$lib/application/useCases/projects/getHandoffPromptStatus';
+import { listUnresolvedItemsForStudent } from '$lib/application/useCases/projects/listUnresolvedItemsForStudent';
+import { listAvailableChores } from '$lib/application/useCases/chores/listAvailableChores';
+import { getMyOpenRequests } from '$lib/application/useCases/help/getMyOpenRequests';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
   const parentData = await parent();
   const env = getEnvironment();
   const actor = locals.actor!;
+  const isTeacher = parentData.membership.role === 'teacher';
 
-  const profileResult = await getProfile(
-    { personRepo: env.personRepo },
-    { personId: actor.personId }
-  );
+  const presenceEnabled = parentData.settings?.modules.presence?.enabled ?? false;
+  const profileEnabled = parentData.settings?.modules.profile?.enabled ?? false;
+  const projectsEnabled = parentData.settings?.modules.projects?.enabled ?? false;
+  const choresEnabled = parentData.settings?.modules.chores?.enabled ?? false;
+  const helpEnabled = parentData.settings?.modules.help?.enabled ?? false;
 
-  let signInStatus: { isSignedIn: boolean } = { isSignedIn: false };
-  if (parentData.currentSession) {
-    const statusResult = await getSignInStatus(
-      { presenceRepo: env.presenceRepo },
-      { sessionId: parentData.currentSession.id, personId: actor.personId }
+  const currentSession = parentData.currentSession;
+  const schoolId = parentData.classroom.schoolId;
+
+  // Teacher: only needs profile (for display) — keep existing behavior
+  if (isTeacher) {
+    const profileResult = await getProfile(
+      { personRepo: env.personRepo },
+      { personId: actor.personId }
     );
-    if (statusResult.status === 'ok' && statusResult.value && !statusResult.value.signedOutAt) {
-      signInStatus = { isSignedIn: true };
-    }
+
+    return {
+      profile:
+        profileResult.status === 'ok'
+          ? {
+              displayName: profileResult.value.displayName,
+              pronouns: profileResult.value.pronouns,
+              askMeAbout: profileResult.value.askMeAbout,
+              themeColor: profileResult.value.themeColor,
+              currentlyWorkingOn: profileResult.value.currentlyWorkingOn,
+              helpQueueVisible: profileResult.value.helpQueueVisible
+            }
+          : null,
+      signInStatus: { isSignedIn: false },
+      projectsMissingHandoff: null,
+      unresolvedItems: null,
+      chores: null,
+      openHelpRequests: null
+    };
+  }
+
+  // Student: fetch all panel data in parallel
+  const [profileResult, signInResult, handoffResult, unresolvedResult, choresResult, helpResult] =
+    await Promise.all([
+      getProfile({ personRepo: env.personRepo }, { personId: actor.personId }),
+      presenceEnabled && currentSession
+        ? getSignInStatus(
+            { presenceRepo: env.presenceRepo },
+            { sessionId: currentSession.id, personId: actor.personId }
+          )
+        : Promise.resolve(null),
+      projectsEnabled && currentSession
+        ? getHandoffPromptStatus(
+            { projectRepo: env.projectRepo, sessionRepo: env.sessionRepo },
+            { schoolId, personId: actor.personId, sessionId: currentSession.id }
+          )
+        : Promise.resolve(null),
+      projectsEnabled
+        ? listUnresolvedItemsForStudent(
+            { projectRepo: env.projectRepo },
+            { schoolId, personId: actor.personId }
+          )
+        : Promise.resolve(null),
+      choresEnabled
+        ? listAvailableChores(
+            { choreRepo: env.choreRepo, personRepo: env.personRepo },
+            { schoolId, actorId: actor.personId }
+          )
+        : Promise.resolve(null),
+      helpEnabled && currentSession
+        ? getMyOpenRequests(
+            { helpRepo: env.helpRepo },
+            { sessionId: currentSession.id, personId: actor.personId }
+          )
+        : Promise.resolve(null)
+    ]);
+
+  const signInStatus = { isSignedIn: false };
+  if (
+    signInResult &&
+    signInResult.status === 'ok' &&
+    signInResult.value &&
+    !signInResult.value.signedOutAt
+  ) {
+    signInStatus.isSignedIn = true;
   }
 
   return {
@@ -45,7 +116,50 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
             helpQueueVisible: profileResult.value.helpQueueVisible
           }
         : null,
-    signInStatus
+    signInStatus,
+    projectsMissingHandoff:
+      handoffResult && handoffResult.status === 'ok'
+        ? handoffResult.value.projectsMissingHandoff
+        : null,
+    unresolvedItems:
+      unresolvedResult && unresolvedResult.status === 'ok'
+        ? unresolvedResult.value.map((item) => ({
+            handoffId: item.handoffId,
+            projectId: item.projectId,
+            projectName: item.projectName,
+            itemType: item.itemType,
+            content: item.content,
+            authorName: item.authorName,
+            responseCount: item.responseCount
+          }))
+        : null,
+    chores:
+      choresResult && choresResult.status === 'ok'
+        ? {
+            available: choresResult.value.available.map((c) => ({
+              id: c.id,
+              choreId: c.chore.id,
+              choreName: c.chore.name,
+              verificationType: c.chore.verificationType
+            })),
+            myChores: choresResult.value.myChores.map((c) => ({
+              id: c.id,
+              choreId: c.chore.id,
+              choreName: c.chore.name,
+              status: c.status
+            }))
+          }
+        : null,
+    openHelpRequests:
+      helpResult && helpResult.status === 'ok'
+        ? helpResult.value.map((r) => ({
+            id: r.id,
+            description: r.description,
+            status: r.status,
+            urgency: r.urgency,
+            categoryName: r.category?.name ?? null
+          }))
+        : null
   };
 };
 
